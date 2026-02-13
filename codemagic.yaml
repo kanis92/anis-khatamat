@@ -13,9 +13,9 @@ workflows:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
-      - name: CocoaPods repo update
+      - name: Clean iOS Pods (fresh install for gRPC fix)
         script: |
-          cd ios && pod repo update && cd ..
+          cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
       - name: Flutter build iOS
         script: flutter build ios --release --no-codesign
     artifacts:
