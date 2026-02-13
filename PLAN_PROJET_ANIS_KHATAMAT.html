@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANIS Khatamat - Plan de Projet Complet</title>
+    <style>
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page-break { page-break-before: always; }
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px; }
+        h1 { color: #2E7D32; font-size: 28px; border-bottom: 2px solid #2E7D32; padding-bottom: 10px; }
+        h2 { color: #0D47A1; font-size: 20px; margin-top: 30px; }
+        h3 { color: #2E7D32; font-size: 16px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2E7D32; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        ul { margin: 10px 0; }
+        li { margin: 5px 0; }
+        pre, code { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .meta { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .check { color: #2E7D32; }
+        .section { margin-bottom: 30px; }
+        hr { border: none; border-top: 1px solid #ddd; margin: 25px 0; }
+    </style>
+</head>
+<body>
+    <h1>ANIS Khatamat - Plan de Projet Complet</h1>
+    <p class="meta">Application Coran de Niveau Mondial | Version 1.0 | Février 2026 | Statut: En développement</p>
+
+    <div class="section">
+        <h2>Vision & Objectifs</h2>
+        <h3>Mission</h3>
+        <p>Créer la meilleure application mobile pour la lecture collective du Coran et la gestion des Khatmat, combinant technologie moderne et spiritualité.</p>
+        <h3>Objectifs Mesurables</h3>
+        <ul>
+            <li class="check">10,000 utilisateurs actifs mois 6</li>
+            <li class="check">4.5+ étoiles App Store & Google Play</li>
+            <li class="check">&lt; 2% taux de crash</li>
+            <li class="check">Support multilingue (FR, EN, AR)</li>
+            <li class="check">Disponible iOS & Android</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>État Actuel du Projet</h2>
+        <h3>Réalisé</h3>
+        <ul>
+            <li>Authentification Firebase (email/password)</li>
+            <li>Navigation avec go_router</li>
+            <li>Création de Khatma (individuelle/groupe)</li>
+            <li>Distribution des 60 Hizb</li>
+            <li>Interface multilingue (structure)</li>
+            <li>Mushaf Hafs et Warsh (intégration)</li>
+            <li>Paramètres utilisateur</li>
+            <li>Thème clair/sombre</li>
+        </ul>
+        <h3>En Cours</h3>
+        <ul>
+            <li>Persistence des données Firestore</li>
+            <li>Notifications push</li>
+            <li>Partage WhatsApp</li>
+            <li>Mode hors ligne</li>
+        </ul>
+        <h3>À Faire (Prioritaire)</h3>
+        <ul>
+            <li>Lecture audio Coran</li>
+            <li>Statistiques & rapports</li>
+            <li>Chat groupe</li>
+            <li>Authentification biométrique</li>
+            <li>Tests automatisés</li>
+        </ul>
+    </div>
+
+    <div class="section page-break">
+        <h2>Architecture Technique</h2>
+        <h3>Stack Technologique</h3>
+        <table>
+            <tr><th>Composant</th><th>Technologie</th><th>Version</th><th>Justification</th></tr>
+            <tr><td>Framework</td><td>Flutter</td><td>3.42+</td><td>Cross-platform, performance native</td></tr>
+            <tr><td>Langage</td><td>Dart</td><td>3.7+</td><td>Type-safe, moderne</td></tr>
+            <tr><td>State Management</td><td>Riverpod</td><td>2.5+</td><td>Reactive, testable</td></tr>
+            <tr><td>Navigation</td><td>go_router</td><td>14.6+</td><td>Deep linking, déclaratif</td></tr>
+            <tr><td>Backend</td><td>Firebase</td><td>Latest</td><td>Auth, Firestore, Analytics</td></tr>
+            <tr><td>Base de données</td><td>Firestore</td><td>-</td><td>NoSQL, temps réel</td></tr>
+            <tr><td>CI/CD</td><td>Codemagic</td><td>-</td><td>Spécialisé Flutter</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Roadmap Détaillée</h2>
+        <h3>Mois 1 : Fondations Solides</h3>
+        <p><strong>Semaine 1-2 :</strong> Infrastructure, CI/CD, Architecture Clean, Tests 30%, Firebase</p>
+        <p><strong>Semaine 3-4 :</strong> Mushaf Électronique, Navigation sourates/versets, Marquage 60 Hizb</p>
+        
+        <h3>Mois 2 : Features Core</h3>
+        <p><strong>Semaine 5-6 :</strong> Tracking & Persistance, Mode hors ligne</p>
+        <p><strong>Semaine 7-8 :</strong> Audio & Mémorisation, Lecture audio</p>
+        
+        <h3>Mois 3 : Intelligence & Social</h3>
+        <p><strong>Semaine 9-10 :</strong> Statistiques & Rapports</p>
+        <p><strong>Semaine 11-12 :</strong> Chat groupe, Gamification</p>
+        
+        <h3>Mois 4 : Polish & Publication</h3>
+        <p><strong>Semaine 13-14 :</strong> Features Avancées</p>
+        <p><strong>Semaine 15-16 :</strong> App Store + Google Play</p>
+    </div>
+
+    <div class="section page-break">
+        <h2>Budget Estimé</h2>
+        <h3>Option A : Développement Solo</h3>
+        <table>
+            <tr><th>Poste</th><th>Temps</th><th>Coût</th></tr>
+            <tr><td>Développement</td><td>4 mois</td><td>Votre temps</td></tr>
+            <tr><td>Firebase</td><td>25-50€/mois</td><td>100-200€</td></tr>
+            <tr><td>Apple Developer</td><td>99€/an</td><td>99€</td></tr>
+            <tr><td>Google Play</td><td>25€ une fois</td><td>25€</td></tr>
+            <tr><td><strong>TOTAL</strong></td><td></td><td><strong>~300-400€</strong></td></tr>
+        </table>
+        <h3>Option B : Équipe Freelance</h3>
+        <table>
+            <tr><th>Poste</th><th>Tarif/jour</th><th>Jours</th><th>Total</th></tr>
+            <tr><td>Dev Flutter Senior</td><td>600€</td><td>40</td><td>24,000€</td></tr>
+            <tr><td>Designer UI/UX</td><td>500€</td><td>10</td><td>5,000€</td></tr>
+            <tr><td>Backend/DevOps</td><td>600€</td><td>5</td><td>3,000€</td></tr>
+            <tr><td>QA/Tests</td><td>400€</td><td>5</td><td>2,000€</td></tr>
+            <tr><td><strong>TOTAL</strong></td><td></td><td></td><td><strong>34,000€</strong></td></tr>
+        </table>
+        <h3>Option C : Agence</h3>
+        <p>Basic MVP: 15-25k€ | App Complète: 40-60k€ | App Premium: 80-120k€</p>
+    </div>
+
+    <div class="section">
+        <h2>Top 10 Features par Impact</h2>
+        <table>
+            <tr><th>#</th><th>Feature</th><th>Impact</th><th>Effort</th><th>Priorité</th></tr>
+            <tr><td>1</td><td>Mushaf électronique</td><td>⭐⭐⭐⭐⭐</td><td>Élevé</td><td>🔴</td></tr>
+            <tr><td>2</td><td>Tracking lecture</td><td>⭐⭐⭐⭐⭐</td><td>Moyen</td><td>🔴</td></tr>
+            <tr><td>3</td><td>Mode hors ligne</td><td>⭐⭐⭐⭐⭐</td><td>Moyen</td><td>🔴</td></tr>
+            <tr><td>4</td><td>Audio + mémorisation</td><td>⭐⭐⭐⭐⭐</td><td>Élevé</td><td>🔴</td></tr>
+            <tr><td>5</td><td>Statistiques</td><td>⭐⭐⭐⭐</td><td>Moyen</td><td>🟡</td></tr>
+            <tr><td>6</td><td>Chat groupe</td><td>⭐⭐⭐</td><td>Moyen</td><td>🟡</td></tr>
+            <tr><td>7</td><td>Notifications smart</td><td>⭐⭐⭐</td><td>Moyen</td><td>🟡</td></tr>
+            <tr><td>8</td><td>Gamification</td><td>⭐⭐⭐</td><td>Moyen</td><td>🟡</td></tr>
+            <tr><td>9</td><td>Recherche Coran</td><td>⭐⭐⭐</td><td>Faible</td><td>🟢</td></tr>
+            <tr><td>10</td><td>Tafsir intégré</td><td>⭐⭐⭐</td><td>Élevé</td><td>🟢</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Conclusion</h2>
+        <p>ANIS Khatamat a le potentiel d'être <strong>l'application de référence</strong> pour la lecture collective du Coran.</p>
+        <p><strong>Clés du succès:</strong></p>
+        <ul>
+            <li>Focus sur l'expérience utilisateur</li>
+            <li>Qualité technique irréprochable</li>
+            <li>Features intelligentes et différenciantes</li>
+            <li>Communauté engagée</li>
+        </ul>
+        <p><strong>Prochaines étapes immédiates:</strong></p>
+        <ol>
+            <li>Stabiliser environnement dev (Codemagic)</li>
+            <li>Compléter Mushaf électronique</li>
+            <li>Implémenter mode hors ligne</li>
+            <li>Première beta release</li>
+        </ol>
+    </div>
+
+    <hr>
+    <p class="meta">Document généré le 12 Février 2026 | ANIS Khatamat Team | Version 1.0</p>
+</body>
+</html>
