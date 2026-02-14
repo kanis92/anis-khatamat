@@ -8,7 +8,7 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       flutter: stable
-      xcode: latest
+      xcode: 16.1
       cocoapods: default
       ios_signing:
         distribution_type: app_store
