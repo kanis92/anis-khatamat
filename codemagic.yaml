@@ -23,14 +23,6 @@ workflows:
         script: xcode-project use-profiles
       - name: Flutter build IPA
         script: flutter build ipa
-      - name: Export IPA avec SwiftSupport (xcodebuild)
-        script: |
-          rm -rf build/ios/ipa
-          mkdir -p build/ios/ipa
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportPath build/ios/ipa \
-            -exportOptionsPlist ios/ExportOptions.plist
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/archive/*.xcarchive
