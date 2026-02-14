@@ -21,11 +21,14 @@ workflows:
           cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
       - name: Set up code signing
         script: xcode-project use-profiles
-      - name: Flutter build iOS
-        script: flutter build ios --release
+      - name: Flutter build IPA
+        script: flutter build ipa
     artifacts:
-      - build/ios/iphoneos/*.app
+      - build/ios/ipa/*.ipa
     publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
       scripts:
         - name: Build info
           script: |
