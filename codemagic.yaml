@@ -16,9 +16,9 @@ workflows:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
-      - name: Clean iOS Pods (fresh install for gRPC fix)
-        script: |
-          cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
+      # Nettoyage Pods uniquement si erreur gRPC (désactivé pour accélérer)
+      # - name: Clean iOS Pods
+      #   script: cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
       - name: Set up code signing
         script: xcode-project use-profiles
       - name: Flutter build IPA
