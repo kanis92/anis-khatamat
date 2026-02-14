@@ -1,11 +1,18 @@
-# Codemagic - Configuration ANIS Khatamat
-# Documentation: https://docs.codemagic.io/flutter-configuration/yaml
+# Codemagic - ANIS Khatamat
+# Méthode professionnelle : xcode-project build-ipa (archive + export natif Xcode)
+# → IPA correct avec SwiftSupport, pas d'erreur 90426
+#
+# Pour publication auto TestFlight : ajouter dans Codemagic UI
+# - Integration "Developer Portal" avec clé API App Store Connect
+# - Puis décommenter "integrations" et "publishing" ci-dessous
 
 workflows:
   ios-workflow:
     name: iOS Build
     max_build_duration: 90
     instance_type: mac_mini_m1
+    # integrations:
+    #   app_store_connect: NOM_DE_VOTRE_INTEGRATION
     environment:
       flutter: stable
       xcode: 16.2
@@ -16,18 +23,24 @@ workflows:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
-      # Nettoyage Pods uniquement si erreur gRPC (désactivé pour accélérer)
-      # - name: Clean iOS Pods
-      #   script: cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
+      - name: Install CocoaPods
+        script: |
+          cd ios && pod install && cd ..
       - name: Set up code signing
         script: xcode-project use-profiles
-      - name: Flutter build IPA
-        script: flutter build ipa
+      - name: Build IPA (méthode Xcode native - SwiftSupport inclus)
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/xcarchive/*.xcarchive
       - build/ios/archive/*.xcarchive
-      - build/ios/iphoneos/*.app
     publishing:
+      # app_store_connect:
+      #   auth: integration
+      #   submit_to_testflight: true
       scripts:
         - name: Build info
           script: |
