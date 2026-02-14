@@ -10,14 +10,19 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.aniskhatamat.app
     scripts:
       - name: Flutter pub get
         script: flutter pub get
       - name: Clean iOS Pods (fresh install for gRPC fix)
         script: |
           cd ios && rm -rf Pods Podfile.lock .symlinks && cd ..
+      - name: Set up code signing
+        script: xcode-project use-profiles
       - name: Flutter build iOS
-        script: flutter build ios --release --no-codesign
+        script: flutter build ios --release
     artifacts:
       - build/ios/iphoneos/*.app
     publishing:
