@@ -6,6 +6,8 @@ workflows:
     name: iOS Build
     max_build_duration: 90
     instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: app_store_connect
     environment:
       flutter: stable
       xcode: latest
