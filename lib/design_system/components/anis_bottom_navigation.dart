@@ -8,13 +8,19 @@ import '../tokens/anis_motion.dart';
 
 /// Un onglet de la navigation basse.
 class AnisNavigationItem {
-  const AnisNavigationItem({
-    required this.label,
-    required this.icon,
-  });
+  const AnisNavigationItem({required this.label, this.icon, this.materialIcon})
+    : assert(
+        icon != null || materialIcon != null,
+        'AnisNavigationItem requires icon or materialIcon',
+      );
 
   final String label;
-  final AnisIconType icon;
+
+  /// Icône propriétaire ANIS. Prioritaire lorsqu'elle est fournie.
+  final AnisIconType? icon;
+
+  /// Repli Material lorsqu'aucune icône ANIS n'existe encore pour l'onglet.
+  final IconData? materialIcon;
 }
 
 /// Navigation basse ANIS.
@@ -46,9 +52,7 @@ class AnisBottomNavigation extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surfaceElevated,
-        border: BorderDirectional(
-          top: BorderSide(color: colors.borderSubtle),
-        ),
+        border: BorderDirectional(top: BorderSide(color: colors.borderSubtle)),
       ),
       child: SafeArea(
         top: false,
@@ -103,44 +107,51 @@ class _AnisNavigationTab extends StatelessWidget {
         onTap: onTap,
         customBorder: RoundedRectangleBorder(borderRadius: AnisRadius.mdAll),
         child: ExcludeSemantics(
-          child: Padding(
-            padding: const EdgeInsetsDirectional.symmetric(
-              vertical: AnisSpacing.sm,
-              horizontal: AnisSpacing.xs,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: AnisIconSize.minTapTarget,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnisIcon(
-                  type: item.icon,
-                  size: AnisIconSize.lg,
-                  color: tint,
-                ),
-                const SizedBox(height: AnisSpacing.xs),
-                Text(
-                  item.label,
-                  style: text.caption.copyWith(
-                    color: tint,
-                    fontWeight:
-                        selected ? FontWeight.w600 : FontWeight.w400,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                vertical: AnisSpacing.sm,
+                horizontal: AnisSpacing.xs,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (item.icon != null)
+                    AnisIcon(
+                      type: item.icon!,
+                      size: AnisIconSize.lg,
+                      color: tint,
+                    )
+                  else
+                    Icon(item.materialIcon, size: AnisIconSize.lg, color: tint),
+                  const SizedBox(height: AnisSpacing.xs),
+                  Text(
+                    item.label,
+                    style: text.label.copyWith(
+                      color: tint,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AnisSpacing.xs),
-                AnimatedContainer(
-                  duration:
-                      AnisMotion.durationOf(context, AnisMotion.fast),
-                  curve: AnisMotion.enter,
-                  width: selected ? 18 : 0,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: colors.accentGoldStrong,
-                    borderRadius: AnisRadius.pillAll,
+                  const SizedBox(height: AnisSpacing.xs),
+                  AnimatedContainer(
+                    duration: AnisMotion.durationOf(context, AnisMotion.fast),
+                    curve: AnisMotion.enter,
+                    width: selected ? 18 : 0,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: colors.accentGoldStrong,
+                      borderRadius: AnisRadius.pillAll,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

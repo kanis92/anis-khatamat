@@ -22,6 +22,8 @@ import '../screens/khatma_route_screen.dart';
 import '../screens/khatma_completion_screen.dart';
 import '../screens/mushaf_women_screen.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
+import '../design_system/anis_design_system.dart';
+import '../core/widgets/anis_icon.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -210,36 +212,24 @@ class _MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _calculateSelectedIndex(location),
-        onDestinationSelected: (index) => _onItemTapped(context, index),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: AppLocalizations.of(context)!.home,
+      bottomNavigationBar: AnisBottomNavigation(
+        currentIndex: _calculateSelectedIndex(location),
+        onSelected: (index) => _onItemTapped(context, index),
+        items: [
+          AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
+          AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
+          AnisNavigationItem(
+            label: l10n.notifications,
+            icon: AnisIconType.bell,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: const Icon(Icons.menu_book),
-            label: AppLocalizations.of(context)!.khatma,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.notifications_outlined),
-            selectedIcon: const Icon(Icons.notifications),
-            label: AppLocalizations.of(context)!.notifications,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.school_outlined),
-            selectedIcon: const Icon(Icons.school),
-            label: AppLocalizations.of(context)!.training,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: AppLocalizations.of(context)!.settings,
+          AnisNavigationItem(label: l10n.training, icon: AnisIconType.training),
+          AnisNavigationItem(
+            label: l10n.settings,
+            materialIcon: Icons.settings_outlined,
           ),
         ],
       ),
