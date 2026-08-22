@@ -11,4 +11,9 @@ class AppConstants {
   /// Mettez ici l'URL de votre politique de confidentialité (obligatoire pour l'App Store)
   static const String privacyPolicyUrl =
       'https://example.com/privacy-policy';
+
+  /// URL de l'app pour le parrainage / Inviter un ami
+  static const String appWebUrl = 'https://anis-437c3.web.app';
+  static const String? playStoreUrl = null; // Ex: https://play.google.com/store/apps/details?id=...
+  static const String? appStoreUrl = null;  // Ex: https://apps.apple.com/app/id...
 }
