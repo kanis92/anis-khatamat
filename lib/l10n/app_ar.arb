@@ -102,7 +102,6 @@
   "assignedTo": "معين لـ",
   "assignedToLabel": "معين لـ: {name}",
   "@assignedToLabel": {"placeholders": {"name": {"type": "String"}}},
-  "openMushaf": "فتح المصحف",
   "khatmaCompleted": "الختمة مكتملة! ماشاء الله",
   "account": "الحساب",
   "preferences": "التفضيلات",

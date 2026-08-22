@@ -238,8 +238,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get openMushaf => 'Open Mushaf';
-
   @override
   String get completionAlhamdulillah => 'Alhamdulillah';
 

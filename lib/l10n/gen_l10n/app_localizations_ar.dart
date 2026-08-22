@@ -237,8 +237,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get openMushaf => 'فتح المصحف';
-
   @override
   String get completionAlhamdulillah => 'الحمد لله';
 

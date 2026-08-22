@@ -106,7 +106,6 @@
   "assignedTo": "Assigné à",
   "assignedToLabel": "Assigné à: {name}",
   "@assignedToLabel": {"placeholders": {"name": {"type": "String"}}},
-  "openMushaf": "Ouvrir le Mushaf",
   "khatmaCompleted": "Khatma terminée ! ماشاء الله",
   "account": "Compte",
   "preferences": "Préférences",

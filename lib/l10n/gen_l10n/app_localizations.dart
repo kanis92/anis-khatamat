@@ -490,12 +490,6 @@ abstract class AppLocalizations {
   /// **'Assigné à: {name}'**
   String assignedToLabel(String name);
 
-  /// No description provided for @openMushaf.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ouvrir le Mushaf'**
-  String get openMushaf;
-
   /// No description provided for @completionAlhamdulillah.
   ///
   /// In fr, this message translates to:
