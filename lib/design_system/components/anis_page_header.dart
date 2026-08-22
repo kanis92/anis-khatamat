@@ -49,6 +49,8 @@ class AnisPageHeader extends StatelessWidget {
     final colors = context.anisColors;
     final text = context.anisText;
     final largeText = _isLargeAccessibilityText(context);
+    final extremeText = _isExtremeAccessibilityText(context);
+    final titleStyle = extremeText ? text.sectionTitle : text.title;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -60,11 +62,11 @@ class AnisPageHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
+          padding: EdgeInsetsDirectional.fromSTEB(
             AnisSpacing.page,
-            AnisSpacing.md,
+            extremeText ? AnisSpacing.sm : AnisSpacing.md,
             AnisSpacing.page,
-            AnisSpacing.lg,
+            extremeText ? AnisSpacing.md : AnisSpacing.lg,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +86,7 @@ class AnisPageHeader extends StatelessWidget {
                           Text(
                             eyebrow!,
                             style: text.bodySecondary,
-                            maxLines: largeText ? 3 : 1,
+                            maxLines: extremeText ? 2 : (largeText ? 3 : 1),
                             overflow:
                                 largeText
                                     ? TextOverflow.visible
@@ -95,9 +97,20 @@ class AnisPageHeader extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(title, style: text.title, softWrap: true),
+                              Text(
+                                title,
+                                style: titleStyle,
+                                softWrap: true,
+                                maxLines: extremeText ? 2 : 3,
+                                overflow: TextOverflow.visible,
+                              ),
                               if (showSignature) ...[
-                                const SizedBox(height: AnisSpacing.sm),
+                                SizedBox(
+                                  height:
+                                      extremeText
+                                          ? AnisSpacing.xs
+                                          : AnisSpacing.sm,
+                                ),
                                 const AnisSignatureMark(
                                   role: AnisSignatureRole.brand,
                                 ),
@@ -110,7 +123,7 @@ class AnisPageHeader extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   title,
-                                  style: text.title,
+                                  style: titleStyle,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -130,7 +143,7 @@ class AnisPageHeader extends StatelessWidget {
                 ],
               ),
               if (bottom != null) ...[
-                const SizedBox(height: AnisSpacing.lg),
+                SizedBox(height: extremeText ? AnisSpacing.md : AnisSpacing.lg),
                 bottom!,
               ],
             ],
@@ -143,6 +156,13 @@ class AnisPageHeader extends StatelessWidget {
 
 bool _isLargeAccessibilityText(BuildContext context) {
   return MediaQuery.textScalerOf(context).scale(12) >= 15;
+}
+
+/// Palier « accessibility-extra-extra-large » et au-delà : le titre passe en
+/// [AnisTypography.sectionTitle] pour conserver la hiérarchie sans saturer
+/// la hauteur d'en-tête. L'échelle système reste active.
+bool _isExtremeAccessibilityText(BuildContext context) {
+  return MediaQuery.textScalerOf(context).scale(12) >= 20;
 }
 
 /// Pastille d'identité de l'utilisateur.
