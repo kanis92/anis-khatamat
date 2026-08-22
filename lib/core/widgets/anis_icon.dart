@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/app_theme.dart';
+import '../../design_system/tokens/anis_colors.dart';
 
 /// Icônes personnalisées ANIS — système unifié
 /// Style : stroke 1.6, round caps, currentColor (teintable)
@@ -26,12 +26,7 @@ class AnisIcon extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const AnisIcon({
-    super.key,
-    required this.type,
-    this.size = 32,
-    this.color,
-  });
+  const AnisIcon({super.key, required this.type, this.size = 32, this.color});
 
   String get _assetPath {
     switch (type) {
@@ -72,7 +67,7 @@ class AnisIcon extends StatelessWidget {
         fit: BoxFit.cover,
       );
     }
-    final c = color ?? AppTheme.accentGold;
+    final c = color ?? AnisPalette.gold500;
     return SvgPicture.asset(
       _assetPath,
       width: size,

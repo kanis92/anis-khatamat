@@ -3,41 +3,57 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../design_system/anis_theme.dart';
+import '../../design_system/tokens/anis_colors.dart';
 import '../providers/font_provider.dart';
 
 /// Thème de l'application ANIS — La Compagnie du Coran
 /// Palette officielle : Simplicité • Confiance • Spiritualité
-/// Couleurs de la charte graphique
+///
+/// Les couleurs charte ANIS sont des alias vers [AnisPalette].
+/// Les couleurs `LEGACY_FEATURE_*` restent locales jusqu'à migration DS dédiée.
 class AppTheme {
+  // ── Charte ANIS (alias AnisPalette — source de vérité DS) ─────────────
+
   /// Vert foncé principal — #0E5E46
-  static const Color primaryGreen = Color(0xFF0E5E46);
+  static const Color primaryGreen = AnisPalette.green700;
+
   /// Or — #D4AF37 (accents, icônes, highlights)
-  static const Color accentGold = Color(0xFFD4AF37);
-  /// Vert très foncé — #0B2E25 (fond sombre, gradient)
-  static const Color darkGreen = Color(0xFF0B2E25);
+  static const Color accentGold = AnisPalette.gold500;
+
+  /// Vert très foncé — #0B2E25 (fond sombre, gradient legacy)
+  static const Color darkGreen = AnisPalette.green825;
+
   /// Blanc — #FFFFFF
-  static const Color white = Color(0xFFFFFFFF);
+  static const Color white = AnisPalette.white;
+
   /// Rétrocompatibilité
-  static const Color darkNavy = Color(0xFF0B2E25);
-  static const Color cream = Color(0xFFF5F0E8);
+  static const Color darkNavy = AnisPalette.green825;
+
+  static const Color cream = AnisPalette.parchment;
+
   /// Crème très léger (fond clair)
-  static const Color creamLight = Color(0xFFFAF8F5);
+  static const Color creamLight = AnisPalette.ivory;
+
   /// Pour gradient AppBar (vert principal → vert foncé)
-  static const Color teal = Color(0xFF0B2E25);
+  static const Color teal = AnisPalette.green825;
+
+  /// Fond pour les zones de texte arabe (parchemin / manuscrit)
+  static const Color arabicBackground = AnisPalette.parchment;
+
+  // ── LEGACY_FEATURE — Mushaf / réservation (hors DS V1, inchangé visuellement)
 
   /// Thème Mushaf pour femmes — rose vif et bleu clair vif
-  static const Color mushafWomenRose = Color(0xFFE91E63);   // Rose vif (Material Pink)
-  static const Color mushafWomenBlue = Color(0xFF03A9F4);   // Bleu clair vif (Material Light Blue)
+  static const Color mushafWomenRose = Color(0xFFE91E63);
+
+  static const Color mushafWomenBlue = Color(0xFF03A9F4);
+
   static const Color mushafWomenCream = Color(0xFFFDF5F8);
 
   /// Couleur pour les noms personnalisés (réservation pour autrui, sans compte)
-  static const Color customNameColor = Color(0xFFFF6D00); // Orange vif
+  static const Color customNameColor = Color(0xFFFF6D00);
 
   /// Badge Hizb réservé — fluorescent pour distinguer visuellement
-  static const Color hizbReservedBadge = Color(0xFF39FF14); // Vert fluorescent
-
-  /// Fond pour les zones de texte arabe (parchemin / manuscrit)
-  static const Color arabicBackground = Color(0xFFF5F0E8);
+  static const Color hizbReservedBadge = Color(0xFF39FF14);
 
   /// Construit la TextTheme selon la police sélectionnée
   static TextTheme _buildTextTheme(AppFont font, TextTheme base) {
@@ -60,13 +76,12 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.normal,
     Color? color,
     double height = 1.7,
-  }) =>
-      GoogleFonts.amiri(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        height: height,
-      );
+  }) => GoogleFonts.amiri(
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+    height: height,
+  );
 
   /// Police arabe pour les noms, listes et éléments UI arabes
   /// Utilise la police sélectionnée (Cairo par défaut)
@@ -80,16 +95,32 @@ class AppTheme {
     switch (font) {
       case AppFont.cairo:
         return GoogleFonts.cairo(
-            fontSize: fontSize, fontWeight: fontWeight, color: color, height: height);
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+        );
       case AppFont.tajawal:
         return GoogleFonts.tajawal(
-            fontSize: fontSize, fontWeight: fontWeight, color: color, height: height);
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+        );
       case AppFont.readexPro:
         return GoogleFonts.readexPro(
-            fontSize: fontSize, fontWeight: fontWeight, color: color, height: height);
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+        );
       case AppFont.almarai:
         return GoogleFonts.almarai(
-            fontSize: fontSize, fontWeight: fontWeight, color: color, height: height);
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+        );
     }
   }
 
@@ -121,11 +152,18 @@ class AppTheme {
     );
     return base.copyWith(
       textTheme: _buildTextTheme(font, base.textTheme).copyWith(
-        titleLarge: _buildTextTheme(font, base.textTheme).titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        titleMedium: _buildTextTheme(font, base.textTheme).titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        titleLarge: _buildTextTheme(
+          font,
+          base.textTheme,
+        ).titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        titleMedium: _buildTextTheme(
+          font,
+          base.textTheme,
+        ).titleMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
       iconTheme: IconThemeData(color: Colors.grey[700], size: 24),
-      scaffoldBackgroundColor: creamLight, // Fond très clair pour faire ressortir les cartes blanches
+      scaffoldBackgroundColor:
+          creamLight, // Fond très clair pour faire ressortir les cartes blanches
       appBarTheme: const AppBarTheme(
         elevation: 0,
         centerTitle: true,
@@ -149,7 +187,9 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -159,7 +199,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: primaryGreen,
@@ -187,8 +230,14 @@ class AppTheme {
     );
     return base.copyWith(
       textTheme: _buildTextTheme(font, base.textTheme).copyWith(
-        titleLarge: _buildTextTheme(font, base.textTheme).titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        titleMedium: _buildTextTheme(font, base.textTheme).titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        titleLarge: _buildTextTheme(
+          font,
+          base.textTheme,
+        ).titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        titleMedium: _buildTextTheme(
+          font,
+          base.textTheme,
+        ).titleMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
       iconTheme: IconThemeData(color: Colors.grey[400], size: 24),
       scaffoldBackgroundColor: const Color(0xFF071A15),
@@ -214,7 +263,9 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -224,7 +275,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: accentGold,
