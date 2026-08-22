@@ -28,7 +28,13 @@
   "noReadingsScheduled": "Aucune lecture planifiée",
   "createKhatmaToStart": "Créez une Khatma pour commencer à suivre votre progression.",
   "khatmatInProgress": "{count} Khatma(s) en cours",
-  "@khatmatInProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@khatmatInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "continueReading": "Continuez votre lecture pour avancer dans vos Khatmat.",
   "mushaf": "Mushaf",
   "demoMode": "Mode démo (tester sans connexion)",
@@ -51,44 +57,119 @@
   "mushafHizb": "Hizb",
   "mushafPage": "Page",
   "mushafHizbNumber": "Hizb {number}",
-  "@mushafHizbNumber": {"description": "Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR", "placeholders": {"number": {"type": "String"}}},
+  "@mushafHizbNumber": {
+    "description": "Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "mushafPageNumber": "Page {number}",
-  "@mushafPageNumber": {"placeholders": {"number": {"type": "String"}}},
+  "@mushafPageNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "mushafKhatmaHizbContext": "Hizb {number} de votre Khatma",
-  "@mushafKhatmaHizbContext": {"placeholders": {"number": {"type": "String"}}},
+  "@mushafKhatmaHizbContext": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "mushafKhatmaHizbLeft": "Vous avez quitté le Hizb {number} — revenir",
-  "@mushafKhatmaHizbLeft": {"placeholders": {"number": {"type": "String"}}},
+  "@mushafKhatmaHizbLeft": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "mushafBookmarkHere": "Marquer ici",
   "mushafBookmarkHereDesc": "Signet pour reprendre plus tard",
   "mushafUnbookmark": "Retirer le signet",
-
   "completionAlhamdulillah": "Alhamdulillah",
   "completionAccomplished": "Cette Khatma est accomplie.",
   "completionDua": "Qu'Allah accepte cette lecture et les efforts de chacun.",
   "completionHeaderSubtitle": "Votre Khatma est accomplie.",
   "completionHizbAccomplished": "{count} Hizb accomplis",
-  "@completionHizbAccomplished": {"placeholders": {"count": {"type": "int"}}},
+  "@completionHizbAccomplished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionParticipantsCount": "{count} participants",
-  "@completionParticipantsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@completionParticipantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationDays": "Terminée en {days} jours",
-  "@completionDurationDays": {"placeholders": {"days": {"type": "int"}}},
+  "@completionDurationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationOneDay": "Terminée en 1 jour",
   "completionClosedOn": "Clôturée le {date}",
-  "@completionClosedOn": {"placeholders": {"date": {"type": "String"}}},
+  "@completionClosedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "completionCollectiveMessage": "{count} personnes ont participé à cette Khatma.",
-  "@completionCollectiveMessage": {"placeholders": {"count": {"type": "int"}}},
+  "@completionCollectiveMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionWithParticipants": "Avec {names}",
-  "@completionWithParticipants": {"placeholders": {"names": {"type": "String"}}},
+  "@completionWithParticipants": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "completionStartNew": "Commencer une nouvelle Khatma",
   "completionShare": "Partager",
   "completionBackToMyKhatmas": "Retour à mes Khatmas",
   "completionShareMessage": "Alhamdulillah, notre Khatma « {title} » vient d'être accomplie sur Anis. Qu'Allah accepte les efforts de chacun.",
-  "@completionShareMessage": {"placeholders": {"title": {"type": "String"}}},
+  "@completionShareMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "completionViewClosure": "Voir la clôture",
   "completionFinishedBadge": "Terminée",
   "completionSee": "Voir",
   "completionProgressFraction": "{completed}/{total}",
-  "@completionProgressFraction": {"placeholders": {"completed": {"type": "int"}, "total": {"type": "int"}}},
+  "@completionProgressFraction": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "khatmaTitle": "Titre de la Khatma",
   "objectives": "Objectifs",
   "inviteMembers": "Inviter des membres",
@@ -96,7 +177,16 @@
   "nextDistribution": "Suivant → Distribution des Hizb",
   "hizbDistribution": "Distribution des Hizb",
   "hizbAssigned": "{count}/{total} Hizb assignés",
-  "@hizbAssigned": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}}},
+  "@hizbAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "autoDistribution": "Auto",
   "manualDistribution": "Manuel",
   "confirmDistribution": "Confirmer la distribution",
@@ -105,7 +195,13 @@
   "unassigned": "Non assigné",
   "assignedTo": "Assigné à",
   "assignedToLabel": "Assigné à: {name}",
-  "@assignedToLabel": {"placeholders": {"name": {"type": "String"}}},
+  "@assignedToLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "khatmaCompleted": "Khatma terminée ! ماشاء الله",
   "account": "Compte",
   "preferences": "Préférences",
@@ -125,5 +221,60 @@
   "cancel": "Annuler",
   "featureComingSoon": "Fonctionnalité à implémenter",
   "urlNotAvailable": "URL non disponible",
-  "resetEmailMessage": "Un email de réinitialisation vous sera envoyé."
+  "resetEmailMessage": "Un email de réinitialisation vous sera envoyé.",
+  "bookmarks": "Favoris",
+  "completed": "Terminées",
+  "continueAction": "Continuer",
+  "groupKhatma": "Khatma en groupe",
+  "guestBadge": "Invité",
+  "homeCollectiveProgress": "Progression collective",
+  "homeEmptyHint": "Créez une Khatma ou rejoignez-en une pour suivre votre progression.",
+  "homeEmptyTitle": "Commencez votre première Khatma",
+  "homeGoalToday": "Objectif du jour",
+  "homeHizbInProgress": "Hizb {number} en cours",
+  "@homeHizbInProgress": {
+    "description": "Le numéro est déjà formaté par mushafNumber()",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeHizbReserved": "Hizb {number} réservé",
+  "@homeHizbReserved": {
+    "description": "Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeLoadError": "Impossible de charger vos Khatmas",
+  "homeLoadErrorHint": "Vérifiez votre connexion, puis réessayez.",
+  "homePersonalProgress": "Votre progression",
+  "inProgress": "En cours",
+  "joinCollectiveKhatma": "Rejoindre une Khatma collective",
+  "khatmaInProgress": "Khatma en cours",
+  "lastActivity": "Dernière activité",
+  "myTraining": "Ma Formation",
+  "nextPrayer": "Prière suivante",
+  "offlineNotice": "Hors ligne — vos données seront synchronisées",
+  "prayerTimes": "Horaires de prière",
+  "readingGoal": "Objectif de lecture",
+  "readingGoalAchieved": "Objectif atteint !",
+  "readingGoalProgress": "{completed}/{target} Hizb",
+  "@readingGoalProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "resume": "Reprendre",
+  "retry": "Réessayer",
+  "seeAll": "Voir tout",
+  "statistics": "Statistiques"
 }

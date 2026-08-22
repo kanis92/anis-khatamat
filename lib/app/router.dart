@@ -33,7 +33,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final isDemo = ref.watch(demoModeProvider);
       final isLoggedIn = isDemo || authState.valueOrNull != null;
       final isAuthScreen =
-          state.matchedLocation == '/login' || state.matchedLocation == '/register';
+          state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
       final isLoggingIn = isAuthScreen;
 
       if (!isLoggedIn && !isLoggingIn) {
@@ -45,10 +46,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
@@ -70,10 +68,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             initialVerse: t.verse,
             initialPage: t.page,
             initialHizb: t.hizb,
-            hizbDefinitionId: t.hizb == null
-                ? null
-                : (t.hizbDefinitionId ??
-                    HizbDefinitions.quranFoundationHafsV1),
+            hizbDefinitionId:
+                t.hizb == null
+                    ? null
+                    : (t.hizbDefinitionId ??
+                        HizbDefinitions.quranFoundationHafsV1),
             resumePage: t.resumePage,
           );
         },
@@ -87,10 +86,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             initialVerse: t.verse,
             initialPage: t.page,
             initialHizb: t.hizb,
-            hizbDefinitionId: t.hizb == null
-                ? null
-                : (t.hizbDefinitionId ??
-                    HizbDefinitions.quranFoundationHafsV1),
+            hizbDefinitionId:
+                t.hizb == null
+                    ? null
+                    : (t.hizbDefinitionId ??
+                        HizbDefinitions.quranFoundationHafsV1),
             resumePage: t.resumePage,
           );
         },
@@ -104,10 +104,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             initialVerse: t.verse,
             initialPage: t.page,
             initialHizb: t.hizb,
-            hizbDefinitionId: t.hizb == null
-                ? null
-                : (t.hizbDefinitionId ??
-                    HizbDefinitions.quranFoundationHafsV1),
+            hizbDefinitionId:
+                t.hizb == null
+                    ? null
+                    : (t.hizbDefinitionId ??
+                        HizbDefinitions.quranFoundationHafsV1),
             resumePage: t.resumePage,
           );
         },
@@ -119,7 +120,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final preloaded = extra?['khatma'] as Khatma?;
           final playCelebration = extra?['playCelebration'] as bool? ?? false;
-          final seed = preloaded ??
+          final seed =
+              preloaded ??
               Khatma(
                 id: id,
                 title: '',
@@ -160,33 +162,39 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       ShellRoute(
-        builder: (context, state, child) =>
-            _MainShell(location: state.matchedLocation, child: child),
+        builder:
+            (context, state, child) =>
+                _MainShell(location: state.matchedLocation, child: child),
         routes: [
           GoRoute(
             path: '/',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: HomeScreen()),
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: AnisHomePage()),
           ),
           GoRoute(
             path: '/khatma',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: KhatmaScreen()),
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: KhatmaScreen()),
           ),
           GoRoute(
             path: '/notifications',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: NotificationsScreen()),
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: NotificationsScreen()),
           ),
           GoRoute(
             path: '/training',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: TrainingScreen()),
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: TrainingScreen()),
           ),
           GoRoute(
             path: '/settings',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: SettingsScreen()),
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: SettingsScreen()),
           ),
         ],
       ),

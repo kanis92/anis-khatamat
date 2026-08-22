@@ -358,137 +358,83 @@ abstract class AppLocalizations {
   /// **'Version d\'Afrique du Nord'**
   String get mushafWarshDesc;
 
-  /// No description provided for @mushafWomen.
-  String get mushafWomen;
-
-  /// No description provided for @mushafWomenDesc.
-  String get mushafWomenDesc;
-
   /// No description provided for @chooseMushafType.
   ///
   /// In fr, this message translates to:
   /// **'Choisissez le type de Mushaf'**
   String get chooseMushafType;
 
+  /// No description provided for @mushafWomen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mushaf Femmes'**
+  String get mushafWomen;
+
+  /// No description provided for @mushafWomenDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'مصحف حفص — thème rose élégant'**
+  String get mushafWomenDesc;
+
   /// No description provided for @openMushaf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le Mushaf'**
   String get openMushaf;
 
   /// No description provided for @mushafHizb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb'**
   String get mushafHizb;
 
   /// No description provided for @mushafPage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page'**
   String get mushafPage;
 
   /// Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb {number}'**
   String mushafHizbNumber(String number);
 
   /// No description provided for @mushafPageNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {number}'**
   String mushafPageNumber(String number);
 
   /// No description provided for @mushafKhatmaHizbContext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb {number} de votre Khatma'**
   String mushafKhatmaHizbContext(String number);
 
   /// No description provided for @mushafKhatmaHizbLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez quitté le Hizb {number} — revenir'**
   String mushafKhatmaHizbLeft(String number);
 
   /// No description provided for @mushafBookmarkHere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer ici'**
   String get mushafBookmarkHere;
 
   /// No description provided for @mushafBookmarkHereDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signet pour reprendre plus tard'**
   String get mushafBookmarkHereDesc;
 
   /// No description provided for @mushafUnbookmark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le signet'**
   String get mushafUnbookmark;
-
-  /// No description provided for @khatmaTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Titre de la Khatma'**
-  String get khatmaTitle;
-
-  /// No description provided for @objectives.
-  ///
-  /// In fr, this message translates to:
-  /// **'Objectifs'**
-  String get objectives;
-
-  /// No description provided for @inviteMembers.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inviter des membres'**
-  String get inviteMembers;
-
-  /// No description provided for @memberEmail.
-  ///
-  /// In fr, this message translates to:
-  /// **'Email du membre'**
-  String get memberEmail;
-
-  /// No description provided for @nextDistribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Suivant → Distribution des Hizb'**
-  String get nextDistribution;
-
-  /// No description provided for @hizbDistribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Distribution des Hizb'**
-  String get hizbDistribution;
-
-  /// No description provided for @hizbAssigned.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count}/{total} Hizb assignés'**
-  String hizbAssigned(int count, int total);
-
-  /// No description provided for @autoDistribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Auto'**
-  String get autoDistribution;
-
-  /// No description provided for @manualDistribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Manuel'**
-  String get manualDistribution;
-
-  /// No description provided for @confirmDistribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confirmer la distribution'**
-  String get confirmDistribution;
-
-  /// No description provided for @sendReminder.
-  ///
-  /// In fr, this message translates to:
-  /// **'Envoyer un rappel'**
-  String get sendReminder;
-
-  /// No description provided for @listOf60Hizb.
-  ///
-  /// In fr, this message translates to:
-  /// **'Liste des 60 Hizb'**
-  String get listOf60Hizb;
-
-  /// No description provided for @unassigned.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non assigné'**
-  String get unassigned;
-
-  /// No description provided for @assignedTo.
-  ///
-  /// In fr, this message translates to:
-  /// **'Assigné à'**
-  String get assignedTo;
-
-  /// No description provided for @assignedToLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Assigné à: {name}'**
-  String assignedToLabel(String name);
 
   /// No description provided for @completionAlhamdulillah.
   ///
@@ -603,6 +549,97 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{completed}/{total}'**
   String completionProgressFraction(int completed, int total);
+
+  /// No description provided for @khatmaTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre de la Khatma'**
+  String get khatmaTitle;
+
+  /// No description provided for @objectives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs'**
+  String get objectives;
+
+  /// No description provided for @inviteMembers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter des membres'**
+  String get inviteMembers;
+
+  /// No description provided for @memberEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email du membre'**
+  String get memberEmail;
+
+  /// No description provided for @nextDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant → Distribution des Hizb'**
+  String get nextDistribution;
+
+  /// No description provided for @hizbDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distribution des Hizb'**
+  String get hizbDistribution;
+
+  /// No description provided for @hizbAssigned.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count}/{total} Hizb assignés'**
+  String hizbAssigned(int count, int total);
+
+  /// No description provided for @autoDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get autoDistribution;
+
+  /// No description provided for @manualDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manuel'**
+  String get manualDistribution;
+
+  /// No description provided for @confirmDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la distribution'**
+  String get confirmDistribution;
+
+  /// No description provided for @sendReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer un rappel'**
+  String get sendReminder;
+
+  /// No description provided for @listOf60Hizb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste des 60 Hizb'**
+  String get listOf60Hizb;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non assigné'**
+  String get unassigned;
+
+  /// No description provided for @assignedTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assigné à'**
+  String get assignedTo;
+
+  /// No description provided for @assignedToLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assigné à: {name}'**
+  String assignedToLabel(String name);
+
   /// No description provided for @khatmaCompleted.
   ///
   /// In fr, this message translates to:
@@ -722,6 +759,180 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Un email de réinitialisation vous sera envoyé.'**
   String get resetEmailMessage;
+
+  /// No description provided for @bookmarks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Favoris'**
+  String get bookmarks;
+
+  /// No description provided for @completed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminées'**
+  String get completed;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continueAction;
+
+  /// No description provided for @groupKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma en groupe'**
+  String get groupKhatma;
+
+  /// No description provided for @guestBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invité'**
+  String get guestBadge;
+
+  /// No description provided for @homeCollectiveProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression collective'**
+  String get homeCollectiveProgress;
+
+  /// No description provided for @homeEmptyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez une Khatma ou rejoignez-en une pour suivre votre progression.'**
+  String get homeEmptyHint;
+
+  /// No description provided for @homeEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez votre première Khatma'**
+  String get homeEmptyTitle;
+
+  /// No description provided for @homeGoalToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du jour'**
+  String get homeGoalToday;
+
+  /// Le numéro est déjà formaté par mushafNumber()
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb {number} en cours'**
+  String homeHizbInProgress(String number);
+
+  /// Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb {number} réservé'**
+  String homeHizbReserved(String number);
+
+  /// No description provided for @homeLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger vos Khatmas'**
+  String get homeLoadError;
+
+  /// No description provided for @homeLoadErrorHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre connexion, puis réessayez.'**
+  String get homeLoadErrorHint;
+
+  /// No description provided for @homePersonalProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre progression'**
+  String get homePersonalProgress;
+
+  /// No description provided for @inProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get inProgress;
+
+  /// No description provided for @joinCollectiveKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre une Khatma collective'**
+  String get joinCollectiveKhatma;
+
+  /// No description provided for @khatmaInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma en cours'**
+  String get khatmaInProgress;
+
+  /// No description provided for @lastActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière activité'**
+  String get lastActivity;
+
+  /// No description provided for @myTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma Formation'**
+  String get myTraining;
+
+  /// No description provided for @nextPrayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prière suivante'**
+  String get nextPrayer;
+
+  /// No description provided for @offlineNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne — vos données seront synchronisées'**
+  String get offlineNotice;
+
+  /// No description provided for @prayerTimes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horaires de prière'**
+  String get prayerTimes;
+
+  /// No description provided for @readingGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif de lecture'**
+  String get readingGoal;
+
+  /// No description provided for @readingGoalAchieved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif atteint !'**
+  String get readingGoalAchieved;
+
+  /// No description provided for @readingGoalProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{target} Hizb'**
+  String readingGoalProgress(int completed, int target);
+
+  /// No description provided for @resume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get resume;
+
+  /// No description provided for @retry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get retry;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tout'**
+  String get seeAll;
+
+  /// No description provided for @statistics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques'**
+  String get statistics;
 }
 
 class _AppLocalizationsDelegate

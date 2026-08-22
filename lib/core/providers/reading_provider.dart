@@ -10,10 +10,42 @@ import '../models/khatma_with_status.dart';
 import '../utils/my_khatmat_utils.dart';
 import 'auth_provider.dart';
 
-final readingServiceProvider = Provider<ReadingService>((ref) => ReadingService());
+final readingServiceProvider = Provider<ReadingService>(
+  (ref) => ReadingService(),
+);
 
-final khatmaProgressProvider =
-    FutureProvider.family<ReadingProgress?, String>((ref, khatmaId) async {
+/// Identité utilisateur pour Mes Khatmas / dashboard Home.
+final myKhatmatIdentityProvider =
+    Provider<({String? email, String? authUid, String progressUserId})>((ref) {
+      return _myKhatmatIdentity(ref);
+    });
+
+/// Identifiants pour « Mes Khatmas » : email (compte) + uid Firebase (invité).
+({String? email, String? authUid, String progressUserId}) _myKhatmatIdentity(
+  Ref ref,
+) {
+  final isDemo = ref.watch(demoModeProvider);
+  if (isDemo) {
+    return (
+      email: 'demo@test.com',
+      authUid: null,
+      progressUserId: 'demo@test.com',
+    );
+  }
+  final fbUser = ref.watch(authStateProvider).valueOrNull;
+  if (fbUser == null) {
+    return (email: null, authUid: null, progressUserId: '');
+  }
+  final email = fbUser.isAnonymous ? null : fbUser.email;
+  final authUid = fbUser.uid;
+  final progressUserId = email ?? authUid;
+  return (email: email, authUid: authUid, progressUserId: progressUserId);
+}
+
+final khatmaProgressProvider = FutureProvider.family<ReadingProgress?, String>((
+  ref,
+  khatmaId,
+) async {
   final service = ref.watch(readingServiceProvider);
   final user = ref.watch(currentUserProvider);
   final userId = user?.email ?? 'demo';
@@ -27,12 +59,15 @@ final khatmatProvider = FutureProvider<List<Khatma>>((ref) async {
   return service.getKhatmat(userId);
 });
 
-
-final reservationServiceProvider = Provider<ReservationService>((ref) => ReservationService());
+final reservationServiceProvider = Provider<ReservationService>(
+  (ref) => ReservationService(),
+);
 
 /// Chargement explicite par ID (navigation / deep links) avec états d'erreur.
-final khatmaLoadProvider =
-    FutureProvider.family<KhatmaLoadResult, String>((ref, khatmaId) async {
+final khatmaLoadProvider = FutureProvider.family<KhatmaLoadResult, String>((
+  ref,
+  khatmaId,
+) async {
   final service = ref.read(readingServiceProvider);
   try {
     final k = await service.loadKhatmaById(khatmaId);
@@ -46,21 +81,25 @@ final khatmaLoadProvider =
   }
 });
 
-final khatmaByIdProvider =
-    FutureProvider.family<Khatma?, String>((ref, khatmaId) async {
+final khatmaByIdProvider = FutureProvider.family<Khatma?, String>((
+  ref,
+  khatmaId,
+) async {
   final result = await ref.watch(khatmaLoadProvider(khatmaId).future);
   return result.khatma;
 });
 
-final khatmaStreamProvider =
-    StreamProvider.family<Khatma?, String>((ref, khatmaId) {
+final khatmaStreamProvider = StreamProvider.family<Khatma?, String>((
+  ref,
+  khatmaId,
+) {
   final service = ref.watch(readingServiceProvider);
   return service.streamKhatmaById(khatmaId);
 });
 
-
-final khatmatWithStatusProvider =
-    FutureProvider<List<KhatmaWithStatus>>((ref) async {
+final khatmatWithStatusProvider = FutureProvider<List<KhatmaWithStatus>>((
+  ref,
+) async {
   final khatmat = await ref.watch(khatmatProvider.future);
   return sortMyKhatmatStatuses(
     khatmat.map((k) => buildKhatmaWithStatus(k, null)).toList(),

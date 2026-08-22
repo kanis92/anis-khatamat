@@ -28,7 +28,13 @@
   "noReadingsScheduled": "No readings scheduled",
   "createKhatmaToStart": "Create a Khatma to start tracking your progress.",
   "khatmatInProgress": "{count} Khatma(s) in progress",
-  "@khatmatInProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@khatmatInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "continueReading": "Continue reading to advance in your Khatmat.",
   "mushaf": "Mushaf",
   "demoMode": "Demo mode (test without login)",
@@ -57,34 +63,84 @@
   "mushafBookmarkHere": "Bookmark here",
   "mushafBookmarkHereDesc": "Bookmark to continue later",
   "mushafUnbookmark": "Remove bookmark",
-
   "completionAlhamdulillah": "Alhamdulillah",
   "completionAccomplished": "This Khatma is complete.",
   "completionDua": "May Allah accept this recitation and everyone's efforts.",
   "completionHeaderSubtitle": "Your Khatma is complete.",
   "completionHizbAccomplished": "{count} Hizb completed",
-  "@completionHizbAccomplished": {"placeholders": {"count": {"type": "int"}}},
+  "@completionHizbAccomplished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionParticipantsCount": "{count} participants",
-  "@completionParticipantsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@completionParticipantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationDays": "Completed in {days} days",
-  "@completionDurationDays": {"placeholders": {"days": {"type": "int"}}},
+  "@completionDurationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationOneDay": "Completed in 1 day",
   "completionClosedOn": "Closed on {date}",
-  "@completionClosedOn": {"placeholders": {"date": {"type": "String"}}},
+  "@completionClosedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "completionCollectiveMessage": "{count} people took part in this Khatma.",
-  "@completionCollectiveMessage": {"placeholders": {"count": {"type": "int"}}},
+  "@completionCollectiveMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionWithParticipants": "With {names}",
-  "@completionWithParticipants": {"placeholders": {"names": {"type": "String"}}},
+  "@completionWithParticipants": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "completionStartNew": "Start a new Khatma",
   "completionShare": "Share",
   "completionBackToMyKhatmas": "Back to my Khatmas",
   "completionShareMessage": "Alhamdulillah, our Khatma \"{title}\" has been completed on Anis. May Allah accept everyone's efforts.",
-  "@completionShareMessage": {"placeholders": {"title": {"type": "String"}}},
+  "@completionShareMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "completionViewClosure": "View completion",
   "completionFinishedBadge": "Completed",
   "completionSee": "View",
   "completionProgressFraction": "{completed}/{total}",
-  "@completionProgressFraction": {"placeholders": {"completed": {"type": "int"}, "total": {"type": "int"}}},
+  "@completionProgressFraction": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "khatmaTitle": "Khatma title",
   "objectives": "Objectives",
   "inviteMembers": "Invite members",
@@ -92,7 +148,16 @@
   "nextDistribution": "Next → Hizb distribution",
   "hizbDistribution": "Hizb distribution",
   "hizbAssigned": "{count}/{total} Hizb assigned",
-  "@hizbAssigned": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}}},
+  "@hizbAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "autoDistribution": "Auto",
   "manualDistribution": "Manual",
   "confirmDistribution": "Confirm distribution",
@@ -101,7 +166,13 @@
   "unassigned": "Unassigned",
   "assignedTo": "Assigned to",
   "assignedToLabel": "Assigned to: {name}",
-  "@assignedToLabel": {"placeholders": {"name": {"type": "String"}}},
+  "@assignedToLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "khatmaCompleted": "Khatma completed! ماشاء الله",
   "account": "Account",
   "preferences": "Preferences",
@@ -121,5 +192,58 @@
   "cancel": "Cancel",
   "featureComingSoon": "Feature coming soon",
   "urlNotAvailable": "URL not available",
-  "resetEmailMessage": "A reset email will be sent to you."
+  "resetEmailMessage": "A reset email will be sent to you.",
+  "bookmarks": "Bookmarks",
+  "completed": "Completed",
+  "continueAction": "Continue",
+  "groupKhatma": "Group Khatma",
+  "guestBadge": "Guest",
+  "homeCollectiveProgress": "Collective progress",
+  "homeEmptyHint": "Create a Khatma or join one to follow your progress.",
+  "homeEmptyTitle": "Start your first Khatma",
+  "homeGoalToday": "Today's goal",
+  "homeHizbInProgress": "Hizb {number} in progress",
+  "@homeHizbInProgress": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeHizbReserved": "Hizb {number} reserved",
+  "@homeHizbReserved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeLoadError": "Couldn't load your Khatmas",
+  "homeLoadErrorHint": "Check your connection, then try again.",
+  "homePersonalProgress": "Your progress",
+  "inProgress": "In progress",
+  "joinCollectiveKhatma": "Join a collective Khatma",
+  "khatmaInProgress": "Khatma in progress",
+  "lastActivity": "Last activity",
+  "myTraining": "My Training",
+  "nextPrayer": "Next prayer",
+  "offlineNotice": "Offline — your data will sync later",
+  "prayerTimes": "Prayer times",
+  "readingGoal": "Reading goal",
+  "readingGoalAchieved": "Goal achieved!",
+  "readingGoalProgress": "{completed}/{target} Hizb",
+  "@readingGoalProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "resume": "Resume",
+  "retry": "Retry",
+  "seeAll": "See all",
+  "statistics": "Statistics"
 }

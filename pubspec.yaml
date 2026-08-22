@@ -53,6 +53,7 @@ dependencies:
 
   # UI & UX
   google_fonts: ^6.2.1
+  flutter_svg: ^2.0.16+1
   cached_network_image: ^3.4.1
   share_plus: ^10.1.2
   url_launcher: ^6.3.1
@@ -62,6 +63,9 @@ dependencies:
   connectivity_plus: ^6.0.5
   equatable: ^2.0.5
   uuid: ^4.5.1
+  adhan: ^2.0.0+1
+  geolocator: ^14.0.2
+  hijri_date_time: ^1.1.0
 
   # Mushaf - Lecture du Coran
   flutter_quran: ^0.0.2

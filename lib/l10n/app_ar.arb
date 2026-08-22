@@ -28,7 +28,13 @@
   "noReadingsScheduled": "لا توجد قراءات مجدولة",
   "createKhatmaToStart": "أنشئ ختمة لبدء تتبع تقدمك.",
   "khatmatInProgress": "{count} ختمة(ات) قيد التنفيذ",
-  "@khatmatInProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@khatmatInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "continueReading": "استمر في القراءة للتقدم في ختماتك.",
   "mushaf": "المصحف",
   "demoMode": "وضع التجربة (بدون تسجيل)",
@@ -57,34 +63,84 @@
   "mushafBookmarkHere": "وضع علامة هنا",
   "mushafBookmarkHereDesc": "علامة للاستمرار لاحقاً",
   "mushafUnbookmark": "إزالة العلامة",
-
   "completionAlhamdulillah": "الحمد لله",
   "completionAccomplished": "هذه الختمة مكتملة.",
   "completionDua": "تقبل الله هذا الختم وجهد كل مشارك.",
   "completionHeaderSubtitle": "ختمتكم مكتملة.",
   "completionHizbAccomplished": "{count} حزباً مكتملاً",
-  "@completionHizbAccomplished": {"placeholders": {"count": {"type": "int"}}},
+  "@completionHizbAccomplished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionParticipantsCount": "{count} مشاركين",
-  "@completionParticipantsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@completionParticipantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationDays": "اكتملت في {days} أيام",
-  "@completionDurationDays": {"placeholders": {"days": {"type": "int"}}},
+  "@completionDurationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "completionDurationOneDay": "اكتملت في يوم واحد",
   "completionClosedOn": "أُغلقت في {date}",
-  "@completionClosedOn": {"placeholders": {"date": {"type": "String"}}},
+  "@completionClosedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "completionCollectiveMessage": "شارك {count} أشخاص في هذه الختمة.",
-  "@completionCollectiveMessage": {"placeholders": {"count": {"type": "int"}}},
+  "@completionCollectiveMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "completionWithParticipants": "مع {names}",
-  "@completionWithParticipants": {"placeholders": {"names": {"type": "String"}}},
+  "@completionWithParticipants": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "completionStartNew": "بدء ختمة جديدة",
   "completionShare": "مشاركة",
   "completionBackToMyKhatmas": "العودة إلى ختماتي",
   "completionShareMessage": "الحمد لله، اكتملت ختمتنا «{title}» على أنيس. تقبل الله جهود الجميع.",
-  "@completionShareMessage": {"placeholders": {"title": {"type": "String"}}},
+  "@completionShareMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "completionViewClosure": "عرض الإنجاز",
   "completionFinishedBadge": "مكتملة",
   "completionSee": "عرض",
   "completionProgressFraction": "{completed}/{total}",
-  "@completionProgressFraction": {"placeholders": {"completed": {"type": "int"}, "total": {"type": "int"}}},
+  "@completionProgressFraction": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "khatmaTitle": "عنوان الختمة",
   "objectives": "الأهداف",
   "inviteMembers": "دعوة الأعضاء",
@@ -92,7 +148,16 @@
   "nextDistribution": "التالي → توزيع الأحزاب",
   "hizbDistribution": "توزيع الأحزاب",
   "hizbAssigned": "{count}/{total} حزب معين",
-  "@hizbAssigned": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}}},
+  "@hizbAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "autoDistribution": "تلقائي",
   "manualDistribution": "يدوي",
   "confirmDistribution": "تأكيد التوزيع",
@@ -101,7 +166,13 @@
   "unassigned": "غير معين",
   "assignedTo": "معين لـ",
   "assignedToLabel": "معين لـ: {name}",
-  "@assignedToLabel": {"placeholders": {"name": {"type": "String"}}},
+  "@assignedToLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "khatmaCompleted": "الختمة مكتملة! ماشاء الله",
   "account": "الحساب",
   "preferences": "التفضيلات",
@@ -121,5 +192,58 @@
   "cancel": "إلغاء",
   "featureComingSoon": "الميزة قادمة قريباً",
   "urlNotAvailable": "الرابط غير متوفر",
-  "resetEmailMessage": "سيتم إرسال بريد إلكتروني لإعادة التعيين."
+  "resetEmailMessage": "سيتم إرسال بريد إلكتروني لإعادة التعيين.",
+  "bookmarks": "المفضلة",
+  "completed": "مكتملة",
+  "continueAction": "متابعة",
+  "groupKhatma": "ختمة جماعية",
+  "guestBadge": "زائر",
+  "homeCollectiveProgress": "التقدّم الجماعي",
+  "homeEmptyHint": "أنشئ ختمة أو انضم إلى ختمة لمتابعة تقدّمك.",
+  "homeEmptyTitle": "ابدأ ختمتك الأولى",
+  "homeGoalToday": "هدف اليوم",
+  "homeHizbInProgress": "الحزب {number} قيد القراءة",
+  "@homeHizbInProgress": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeHizbReserved": "الحزب {number} محجوز",
+  "@homeHizbReserved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeLoadError": "تعذّر تحميل ختماتك",
+  "homeLoadErrorHint": "تحقّق من الاتصال ثم أعد المحاولة.",
+  "homePersonalProgress": "تقدّمك",
+  "inProgress": "قيد التنفيذ",
+  "joinCollectiveKhatma": "الانضمام إلى ختمة جماعية",
+  "khatmaInProgress": "ختمة جارية",
+  "lastActivity": "آخر نشاط",
+  "myTraining": "تدريبي",
+  "nextPrayer": "الصلاة القادمة",
+  "offlineNotice": "غير متصل — ستُزامَن بياناتك لاحقًا",
+  "prayerTimes": "أوقات الصلاة",
+  "readingGoal": "هدف القراءة",
+  "readingGoalAchieved": "تم تحقيق الهدف!",
+  "readingGoalProgress": "{completed}/{target} حزب",
+  "@readingGoalProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "resume": "استئناف",
+  "retry": "إعادة المحاولة",
+  "seeAll": "عرض الكل",
+  "statistics": "الإحصائيات"
 }
