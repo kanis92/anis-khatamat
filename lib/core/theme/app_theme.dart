@@ -9,6 +9,15 @@ class AppTheme {
   static const Color darkNavy = Color(0xFF1A2B3D);
   static const Color cream = Color(0xFFF5F0E8);
 
+  static const Color darkGreen = Color(0xFF0B2E25);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color creamLight = Color(0xFFFAF8F5);
+  static const Color mushafWomenRose = Color(0xFFE91E63);
+  static const Color mushafWomenBlue = Color(0xFF03A9F4);
+  static const Color mushafWomenCream = Color(0xFFFDF5F8);
+  static const Color customNameColor = Color(0xFFFF6D00);
+  static const Color hizbReservedBadge = Color(0xFF39FF14);
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,

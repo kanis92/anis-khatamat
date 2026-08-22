@@ -15,10 +15,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_theme.dart';
 import 'quran_search_screen.dart';
 
-/// Écran Mushaf Hafs - Lecture du Coran (King Fahd Complex, Madina)
-/// Indicateur Hizb + signets pour pause/reprise
-class MushafHafsScreen extends ConsumerStatefulWidget {
-  const MushafHafsScreen({
+/// Écran Mushaf pour femmes — Même contenu que Hafs, thème rose élégant
+/// مصحف حفص — إصدار نسائي
+class MushafWomenScreen extends ConsumerStatefulWidget {
+  const MushafWomenScreen({
     super.key,
     this.initialSurah,
     this.initialVerse,
@@ -42,10 +42,10 @@ class MushafHafsScreen extends ConsumerStatefulWidget {
   final int? resumePage;
 
   @override
-  ConsumerState<MushafHafsScreen> createState() => _MushafHafsScreenState();
+  ConsumerState<MushafWomenScreen> createState() => _MushafWomenScreenState();
 }
 
-class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
+class _MushafWomenScreenState extends ConsumerState<MushafWomenScreen> {
   int _currentPage = 1;
 
   String get _effectiveDefinitionId =>
@@ -83,13 +83,9 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
   void initState() {
     super.initState();
     FlutterQuran().init().catchError((Object e, StackTrace s) {
-      // Une erreur d'init ne doit pas empêcher la navigation vers le Hizb
-      // demandé : sinon le lecteur reste sur la dernière page mémorisée,
-      // c'est-à-dire un tout autre Hizb.
-      debugPrint('[MushafHafs] FlutterQuran().init() a échoué : $e');
+      debugPrint('[MushafWomen] FlutterQuran().init() a échoué : $e');
     }).whenComplete(() {
       if (!mounted) return;
-      // Sync immédiate pour éviter badge "Page 1 - Hizb 1" quand on affiche page 523
       final actualPage = FlutterQuran().getCurrentPageNumber();
       if (actualPage >= 1 && actualPage <= HizbNavigationService.totalPages) {
         setState(() => _currentPage = actualPage);
@@ -100,7 +96,6 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
 
   void _navigateToInitial() {
     if (!mounted) return;
-    // Synchroniser _currentPage avec la page réelle (évite Hizb 1 erroné)
     final actualPage = FlutterQuran().getCurrentPageNumber();
     if (actualPage >= 1 && actualPage <= HizbNavigationService.totalPages) {
       setState(() => _currentPage = actualPage);
@@ -150,17 +145,26 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
 
     return Scaffold(
       body: FlutterQuranScreen(
-        verseEndColor: AppTheme.primaryGreen,
+        verseEndColor: AppTheme.mushafWomenRose,
         useLatinNumbers: true,
         useLatinNumbersForPage: true,
         rubElHizbColor: Colors.red,
         hizbFilterLayer: true,
         appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppTheme.mushafWomenRose, AppTheme.mushafWomenBlue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
           title: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '${l10n.mushafHafs} - مصحف حفص',
+                '${l10n.mushafWomen} - مصحف حفص',
                 style: GoogleFonts.cairo(
                   fontSize: 16,
                   color: Colors.white,
@@ -175,10 +179,13 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
                 reservedHizb: widget.initialHizb,
                 insideReservedHizb: _insideReservedHizb,
                 onReturnToHizb: _returnToReservedHizb,
+                background: AppTheme.mushafWomenCream,
+                foreground: AppTheme.mushafWomenBlue,
+                glyphColor: AppTheme.mushafWomenRose,
               ),
             ],
           ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -264,7 +271,7 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
                 children: [
                   Icon(
                     isPageBookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
-                    color: isPageBookmarked ? AppTheme.accentGold : AppTheme.primaryGreen,
+                    color: isPageBookmarked ? AppTheme.accentGold : AppTheme.mushafWomenRose,
                     size: 32,
                   ),
                   const SizedBox(width: 16),
@@ -312,7 +319,7 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('${l10n.mushafUnbookmark} — ${l10n.mushafPage} $_currentPage'),
-                          backgroundColor: AppTheme.primaryGreen,
+                          backgroundColor: AppTheme.mushafWomenRose,
                         ),
                       );
                     }
@@ -337,7 +344,7 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('${l10n.mushafBookmarkHere} — ${l10n.mushafPage} $_currentPage'),
-                          backgroundColor: AppTheme.primaryGreen,
+                          backgroundColor: AppTheme.mushafWomenBlue,
                         ),
                       );
                     }
@@ -345,7 +352,7 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
                   icon: const Icon(Icons.bookmark_add),
                   label: Text(l10n.mushafBookmarkHere),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
+                          backgroundColor: AppTheme.mushafWomenBlue,
                     foregroundColor: Colors.white,
                   ),
                 ),

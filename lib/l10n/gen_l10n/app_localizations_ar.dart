@@ -137,10 +137,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mushafWarsh => 'مصحف ورش';
 
   @override
+@override
+  String get mushafWomen => 'مصحف للنساء';
+
+  @override
+  String get mushafWomenDesc => 'مصحف حفص — ثيم وردي أنيق';
+
+  @override
   String get mushafWarshDesc => 'نسخة شمال أفريقيا';
 
   @override
   String get chooseMushafType => 'اختر نوع المصحف';
+@override
+  String get openMushaf => 'فتح المصحف';
+
+  @override
+  String get mushafHizb => 'الحزب';
+
+  @override
+  String get mushafPage => 'صفحة';
+
+  @override
+  String mushafHizbNumber(String number) {
+    return 'الحزب $number';
+  }
+
+  @override
+  String mushafPageNumber(String number) {
+    return 'صفحة $number';
+  }
+
+  @override
+  String mushafKhatmaHizbContext(String number) {
+    return 'الحزب $number من ختمتك';
+  }
+
+  @override
+  String mushafKhatmaHizbLeft(String number) {
+    return 'لقد غادرت الحزب $number — العودة';
+  }
+
+  @override
+  String get mushafBookmarkHere => 'وضع علامة هنا';
+
+  @override
+  String get mushafBookmarkHereDesc => 'علامة للاستمرار لاحقاً';
+
+  @override
+  String get mushafUnbookmark => 'إزالة العلامة';
+
 
   @override
   String get khatmaTitle => 'عنوان الختمة';
@@ -194,6 +239,78 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get openMushaf => 'فتح المصحف';
 
+  @override
+  String get completionAlhamdulillah => 'الحمد لله';
+
+  @override
+  String get completionAccomplished => 'هذه الختمة مكتملة.';
+
+  @override
+  String get completionDua => 'تقبل الله هذا الختم وجهد كل مشارك.';
+
+  @override
+  String get completionHeaderSubtitle => 'ختمتكم مكتملة.';
+
+  @override
+  String completionHizbAccomplished(int count) {
+    return '$count حزباً مكتملاً';
+  }
+
+  @override
+  String completionParticipantsCount(int count) {
+    return '$count مشاركين';
+  }
+
+  @override
+  String completionDurationDays(int days) {
+    return 'اكتملت في $days أيام';
+  }
+
+  @override
+  String get completionDurationOneDay => 'اكتملت في يوم واحد';
+
+  @override
+  String completionClosedOn(String date) {
+    return 'أُغلقت في $date';
+  }
+
+  @override
+  String completionCollectiveMessage(int count) {
+    return 'شارك $count أشخاص في هذه الختمة.';
+  }
+
+  @override
+  String completionWithParticipants(String names) {
+    return 'مع $names';
+  }
+
+  @override
+  String get completionStartNew => 'بدء ختمة جديدة';
+
+  @override
+  String get completionShare => 'مشاركة';
+
+  @override
+  String get completionBackToMyKhatmas => 'العودة إلى ختماتي';
+
+  @override
+  String completionShareMessage(String title) {
+    return 'الحمد لله، اكتملت ختمتنا «$title» على أنيس. تقبل الله جهود الجميع.';
+  }
+
+  @override
+  String get completionViewClosure => 'عرض الإنجاز';
+
+  @override
+  String get completionFinishedBadge => 'مكتملة';
+
+  @override
+  String get completionSee => 'عرض';
+
+  @override
+  String completionProgressFraction(int completed, int total) {
+    return '$completed/$total';
+  }
   @override
   String get khatmaCompleted => 'الختمة مكتملة! ماشاء الله';
 

@@ -358,11 +358,47 @@ abstract class AppLocalizations {
   /// **'Version d\'Afrique du Nord'**
   String get mushafWarshDesc;
 
+  /// No description provided for @mushafWomen.
+  String get mushafWomen;
+
+  /// No description provided for @mushafWomenDesc.
+  String get mushafWomenDesc;
+
   /// No description provided for @chooseMushafType.
   ///
   /// In fr, this message translates to:
   /// **'Choisissez le type de Mushaf'**
   String get chooseMushafType;
+
+  /// No description provided for @openMushaf.
+  String get openMushaf;
+
+  /// No description provided for @mushafHizb.
+  String get mushafHizb;
+
+  /// No description provided for @mushafPage.
+  String get mushafPage;
+
+  /// Le numéro est déjà formaté par mushafNumber() : chiffres arabes-indiques en AR
+  String mushafHizbNumber(String number);
+
+  /// No description provided for @mushafPageNumber.
+  String mushafPageNumber(String number);
+
+  /// No description provided for @mushafKhatmaHizbContext.
+  String mushafKhatmaHizbContext(String number);
+
+  /// No description provided for @mushafKhatmaHizbLeft.
+  String mushafKhatmaHizbLeft(String number);
+
+  /// No description provided for @mushafBookmarkHere.
+  String get mushafBookmarkHere;
+
+  /// No description provided for @mushafBookmarkHereDesc.
+  String get mushafBookmarkHereDesc;
+
+  /// No description provided for @mushafUnbookmark.
+  String get mushafUnbookmark;
 
   /// No description provided for @khatmaTitle.
   ///
@@ -460,6 +496,119 @@ abstract class AppLocalizations {
   /// **'Ouvrir le Mushaf'**
   String get openMushaf;
 
+  /// No description provided for @completionAlhamdulillah.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alhamdulillah'**
+  String get completionAlhamdulillah;
+
+  /// No description provided for @completionAccomplished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette Khatma est accomplie.'**
+  String get completionAccomplished;
+
+  /// No description provided for @completionDua.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu\'Allah accepte cette lecture et les efforts de chacun.'**
+  String get completionDua;
+
+  /// No description provided for @completionHeaderSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Khatma est accomplie.'**
+  String get completionHeaderSubtitle;
+
+  /// No description provided for @completionHizbAccomplished.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} Hizb accomplis'**
+  String completionHizbAccomplished(int count);
+
+  /// No description provided for @completionParticipantsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} participants'**
+  String completionParticipantsCount(int count);
+
+  /// No description provided for @completionDurationDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminée en {days} jours'**
+  String completionDurationDays(int days);
+
+  /// No description provided for @completionDurationOneDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminée en 1 jour'**
+  String get completionDurationOneDay;
+
+  /// No description provided for @completionClosedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clôturée le {date}'**
+  String completionClosedOn(String date);
+
+  /// No description provided for @completionCollectiveMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} personnes ont participé à cette Khatma.'**
+  String completionCollectiveMessage(int count);
+
+  /// No description provided for @completionWithParticipants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec {names}'**
+  String completionWithParticipants(String names);
+
+  /// No description provided for @completionStartNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer une nouvelle Khatma'**
+  String get completionStartNew;
+
+  /// No description provided for @completionShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get completionShare;
+
+  /// No description provided for @completionBackToMyKhatmas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à mes Khatmas'**
+  String get completionBackToMyKhatmas;
+
+  /// No description provided for @completionShareMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alhamdulillah, notre Khatma « {title} » vient d\'être accomplie sur Anis. Qu\'Allah accepte les efforts de chacun.'**
+  String completionShareMessage(String title);
+
+  /// No description provided for @completionViewClosure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la clôture'**
+  String get completionViewClosure;
+
+  /// No description provided for @completionFinishedBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminée'**
+  String get completionFinishedBadge;
+
+  /// No description provided for @completionSee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get completionSee;
+
+  /// No description provided for @completionProgressFraction.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed}/{total}'**
+  String completionProgressFraction(int completed, int total);
   /// No description provided for @khatmaCompleted.
   ///
   /// In fr, this message translates to:

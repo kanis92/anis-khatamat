@@ -138,10 +138,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mushafWarsh => 'Mushaf Warsh';
 
   @override
+@override
+  String get mushafWomen => 'Mushaf for women';
+
+  @override
+  String get mushafWomenDesc => 'Hafs edition — elegant rose theme';
+
+  @override
   String get mushafWarshDesc => 'North African version';
 
   @override
   String get chooseMushafType => 'Choose Mushaf type';
+@override
+  String get openMushaf => 'Open Mushaf';
+
+  @override
+  String get mushafHizb => 'Hizb';
+
+  @override
+  String get mushafPage => 'Page';
+
+  @override
+  String mushafHizbNumber(String number) {
+    return 'Hizb $number';
+  }
+
+  @override
+  String mushafPageNumber(String number) {
+    return 'Page $number';
+  }
+
+  @override
+  String mushafKhatmaHizbContext(String number) {
+    return 'Hizb $number from your Khatma';
+  }
+
+  @override
+  String mushafKhatmaHizbLeft(String number) {
+    return 'You left Hizb $number — go back';
+  }
+
+  @override
+  String get mushafBookmarkHere => 'Bookmark here';
+
+  @override
+  String get mushafBookmarkHereDesc => 'Bookmark to continue later';
+
+  @override
+  String get mushafUnbookmark => 'Remove bookmark';
+
 
   @override
   String get khatmaTitle => 'Khatma title';
@@ -195,6 +240,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get openMushaf => 'Open Mushaf';
 
+  @override
+  String get completionAlhamdulillah => 'Alhamdulillah';
+
+  @override
+  String get completionAccomplished => 'This Khatma is complete.';
+
+  @override
+  String get completionDua =>
+      'May Allah accept this recitation and everyone\'s efforts.';
+
+  @override
+  String get completionHeaderSubtitle => 'Your Khatma is complete.';
+
+  @override
+  String completionHizbAccomplished(int count) {
+    return '$count Hizb completed';
+  }
+
+  @override
+  String completionParticipantsCount(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String completionDurationDays(int days) {
+    return 'Completed in $days days';
+  }
+
+  @override
+  String get completionDurationOneDay => 'Completed in 1 day';
+
+  @override
+  String completionClosedOn(String date) {
+    return 'Closed on $date';
+  }
+
+  @override
+  String completionCollectiveMessage(int count) {
+    return '$count people took part in this Khatma.';
+  }
+
+  @override
+  String completionWithParticipants(String names) {
+    return 'With $names';
+  }
+
+  @override
+  String get completionStartNew => 'Start a new Khatma';
+
+  @override
+  String get completionShare => 'Share';
+
+  @override
+  String get completionBackToMyKhatmas => 'Back to my Khatmas';
+
+  @override
+  String completionShareMessage(String title) {
+    return 'Alhamdulillah, our Khatma \"$title\" has been completed on Anis. May Allah accept everyone\'s efforts.';
+  }
+
+  @override
+  String get completionViewClosure => 'View completion';
+
+  @override
+  String get completionFinishedBadge => 'Completed';
+
+  @override
+  String get completionSee => 'View';
+
+  @override
+  String completionProgressFraction(int completed, int total) {
+    return '$completed/$total';
+  }
   @override
   String get khatmaCompleted => 'Khatma completed! ماشاء الله';
 

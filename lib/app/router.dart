@@ -9,7 +9,6 @@ import '../screens/settings_screen.dart';
 import '../screens/khatma_screen.dart';
 import '../screens/hizb_distribution_screen.dart';
 import '../screens/achievements_screen.dart';
-import '../screens/khatma_detail_screen.dart';
 import '../screens/mushaf_selection_screen.dart';
 import '../screens/mushaf_hafs_screen.dart';
 import '../screens/mushaf_warsh_screen.dart';
@@ -17,6 +16,11 @@ import '../screens/notifications_screen.dart';
 import '../screens/training_screen.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/auth_provider.dart';
+import '../core/constants/hizb_definitions.dart';
+import '../core/models/mushaf_open_target.dart';
+import '../screens/khatma_route_screen.dart';
+import '../screens/khatma_completion_screen.dart';
+import '../screens/mushaf_women_screen.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -59,19 +63,88 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/mushaf/hafs',
-        builder: (context, state) => const MushafHafsScreen(),
+        builder: (context, state) {
+          final t = MushafOpenTarget.fromRoute(state.extra, state.uri);
+          return MushafHafsScreen(
+            initialSurah: t.surah,
+            initialVerse: t.verse,
+            initialPage: t.page,
+            initialHizb: t.hizb,
+            hizbDefinitionId: t.hizb == null
+                ? null
+                : (t.hizbDefinitionId ??
+                    HizbDefinitions.quranFoundationHafsV1),
+            resumePage: t.resumePage,
+          );
+        },
       ),
       GoRoute(
         path: '/mushaf/warsh',
-        builder: (context, state) => const MushafWarshScreen(),
+        builder: (context, state) {
+          final t = MushafOpenTarget.fromRoute(state.extra, state.uri);
+          return MushafWarshScreen(
+            initialSurah: t.surah,
+            initialVerse: t.verse,
+            initialPage: t.page,
+            initialHizb: t.hizb,
+            hizbDefinitionId: t.hizb == null
+                ? null
+                : (t.hizbDefinitionId ??
+                    HizbDefinitions.quranFoundationHafsV1),
+            resumePage: t.resumePage,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/mushaf/women',
+        builder: (context, state) {
+          final t = MushafOpenTarget.fromRoute(state.extra, state.uri);
+          return MushafWomenScreen(
+            initialSurah: t.surah,
+            initialVerse: t.verse,
+            initialPage: t.page,
+            initialHizb: t.hizb,
+            hizbDefinitionId: t.hizb == null
+                ? null
+                : (t.hizbDefinitionId ??
+                    HizbDefinitions.quranFoundationHafsV1),
+            resumePage: t.resumePage,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/khatma/:id/completion',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          final preloaded = extra?['khatma'] as Khatma?;
+          final playCelebration = extra?['playCelebration'] as bool? ?? false;
+          final seed = preloaded ??
+              Khatma(
+                id: id,
+                title: '',
+                isGroup: false,
+                createdBy: '',
+                createdAt: DateTime.now(),
+              );
+          return KhatmaCompletionScreen(
+            khatma: seed,
+            playCelebrationAnimation: playCelebration,
+          );
+        },
       ),
       GoRoute(
         path: '/khatma/:id',
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          final khatma = extra['khatma'];
-          if (khatma == null) return const SizedBox.shrink();
-          return KhatmaDetailScreen(khatma: khatma as Khatma);
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          final preloaded = extra?['khatma'] as Khatma?;
+          final guestId = extra?['guestId'] as String?;
+          return KhatmaRouteScreen(
+            khatmaId: id,
+            preloadedKhatma: preloaded,
+            guestId: guestId,
+          );
         },
       ),
       GoRoute(
