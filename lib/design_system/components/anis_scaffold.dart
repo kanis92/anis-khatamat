@@ -34,24 +34,28 @@ class AnisScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
+    final largeText = MediaQuery.textScalerOf(context).scale(12) >= 15;
+    final bottomPadding =
+        AnisSpacing.bottomSafe + (largeText ? AnisSpacing.xxxl * 2 : 0);
 
     Widget content = Padding(
       padding: EdgeInsetsDirectional.fromSTEB(
         padHorizontal ? AnisSpacing.page : 0,
         AnisSpacing.lg,
         padHorizontal ? AnisSpacing.page : 0,
-        AnisSpacing.bottomSafe,
+        bottomPadding,
       ),
       child: body,
     );
 
     if (scrollable) {
       content = SingleChildScrollView(
-        physics: onRefresh == null
-            ? const BouncingScrollPhysics()
-            : const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
+        physics:
+            onRefresh == null
+                ? const BouncingScrollPhysics()
+                : const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
         child: content,
       );
     }
@@ -68,10 +72,7 @@ class AnisScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: Column(
-        children: [
-          if (header != null) header!,
-          Expanded(child: content),
-        ],
+        children: [if (header != null) header!, Expanded(child: content)],
       ),
     );
   }

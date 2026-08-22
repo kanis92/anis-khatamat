@@ -48,6 +48,8 @@ class AnisBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
+    final text = context.anisText;
+    final compactLabels = _useCompactBottomNavLabels(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -60,20 +62,44 @@ class AnisBottomNavigation extends StatelessWidget {
           padding: const EdgeInsetsDirectional.symmetric(
             vertical: AnisSpacing.sm,
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: _AnisNavigationTab(
-                    item: items[i],
-                    selected: i == currentIndex,
-                    onTap: () {
-                      if (i == currentIndex) return;
-                      AnisHaptics.selection();
-                      onSelected(i);
-                    },
+              if (compactLabels)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    bottom: AnisSpacing.xs,
+                    start: AnisSpacing.sm,
+                    end: AnisSpacing.sm,
+                  ),
+                  child: Text(
+                    items[currentIndex].label,
+                    style: text.label.copyWith(
+                      color: colors.actionPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    maxLines: 2,
                   ),
                 ),
+              Row(
+                children: [
+                  for (var i = 0; i < items.length; i++)
+                    Expanded(
+                      child: _AnisNavigationTab(
+                        item: items[i],
+                        selected: i == currentIndex,
+                        compactLabels: compactLabels,
+                        onTap: () {
+                          if (i == currentIndex) return;
+                          AnisHaptics.selection();
+                          onSelected(i);
+                        },
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
@@ -86,11 +112,13 @@ class _AnisNavigationTab extends StatelessWidget {
   const _AnisNavigationTab({
     required this.item,
     required this.selected,
+    required this.compactLabels,
     required this.onTap,
   });
 
   final AnisNavigationItem item;
   final bool selected;
+  final bool compactLabels;
   final VoidCallback onTap;
 
   @override
@@ -98,6 +126,7 @@ class _AnisNavigationTab extends StatelessWidget {
     final colors = context.anisColors;
     final text = context.anisText;
     final tint = selected ? colors.actionPrimary : colors.textSecondary;
+    final showLabel = !compactLabels;
 
     return Semantics(
       label: item.label,
@@ -128,17 +157,21 @@ class _AnisNavigationTab extends StatelessWidget {
                     )
                   else
                     Icon(item.materialIcon, size: AnisIconSize.lg, color: tint),
-                  const SizedBox(height: AnisSpacing.xs),
-                  Text(
-                    item.label,
-                    style: text.label.copyWith(
-                      color: tint,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  if (showLabel) ...[
+                    const SizedBox(height: AnisSpacing.xs),
+                    Text(
+                      item.label,
+                      style: text.label.copyWith(
+                        color: tint,
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
+                  ] else
+                    const SizedBox(height: AnisSpacing.xs),
                   const SizedBox(height: AnisSpacing.xs),
                   AnimatedContainer(
                     duration: AnisMotion.durationOf(context, AnisMotion.fast),
@@ -158,4 +191,11 @@ class _AnisNavigationTab extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Au-delà de ce seuil, cinq libellés complets ne tiennent plus horizontalement :
+/// libellé sélectionné centré au-dessus de la rangée d'icônes ; icônes seules
+/// en dessous. [Semantics.label] reste le nom complet sur chaque onglet.
+bool _useCompactBottomNavLabels(BuildContext context) {
+  return MediaQuery.textScalerOf(context).scale(12) >= 15;
 }

@@ -48,6 +48,7 @@ class AnisPageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final largeText = _isLargeAccessibilityText(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -69,6 +70,7 @@ class AnisPageHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (leading != null) ...[
                     leading!,
@@ -82,27 +84,45 @@ class AnisPageHeader extends StatelessWidget {
                           Text(
                             eyebrow!,
                             style: text.bodySecondary,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: largeText ? 3 : 1,
+                            overflow:
+                                largeText
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
+                            softWrap: true,
                           ),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                title,
-                                style: text.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (showSignature) ...[
-                              const SizedBox(width: AnisSpacing.sm),
-                              const AnisSignatureMark(
-                                role: AnisSignatureRole.brand,
-                              ),
+                        if (largeText)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title, style: text.title, softWrap: true),
+                              if (showSignature) ...[
+                                const SizedBox(height: AnisSpacing.sm),
+                                const AnisSignatureMark(
+                                  role: AnisSignatureRole.brand,
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
+                          )
+                        else
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  style: text.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (showSignature) ...[
+                                const SizedBox(width: AnisSpacing.sm),
+                                const AnisSignatureMark(
+                                  role: AnisSignatureRole.brand,
+                                ),
+                              ],
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -119,6 +139,10 @@ class AnisPageHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+bool _isLargeAccessibilityText(BuildContext context) {
+  return MediaQuery.textScalerOf(context).scale(12) >= 15;
 }
 
 /// Pastille d'identité de l'utilisateur.
