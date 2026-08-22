@@ -1,0 +1,13 @@
+{
+  "name": "anis-khatamat-firestore-rules-tests",
+  "private": true,
+  "scripts": {
+    "test": "firebase emulators:exec --only firestore,auth 'node khatmat_rules.test.js && node hizb_snapshot_rules.test.js && node queries_rules.test.js && node certification_e2e.test.js'",
+    "test:queries": "firebase emulators:exec --only firestore,auth 'node queries_rules.test.js'",
+    "test:watch": "firebase emulators:exec --only firestore,auth 'node --watch khatmat_rules.test.js'"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.14.0"
+  }
+}
