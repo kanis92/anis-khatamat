@@ -35,9 +35,11 @@ class AnisHomePage extends ConsumerWidget {
     return dashboardAsync.when(
       loading: () => _HomeLoading(header: header),
       error: (_, _) => _HomeError(header: header),
-      data: (dashboard) => dashboard.isEmpty
-          ? _HomeEmpty(header: header)
-          : _HomeDashboard(header: header, dashboard: dashboard),
+      data:
+          (dashboard) =>
+              dashboard.isEmpty
+                  ? _HomeEmpty(header: header)
+                  : _HomeDashboard(header: header, dashboard: dashboard),
     );
   }
 
@@ -73,13 +75,13 @@ class _HomeHeader extends ConsumerWidget {
         AnisBadge(
           label: l10n.guestBadge,
           tone: AnisBadgeTone.notice,
-          icon: Icons.person_outline_rounded,
+          anisIcon: AnisIconType.user,
         ),
       if (prayer != null)
         AnisBadge(
           label: '${prayer.name} · ${prayer.inStr}',
           tone: AnisBadgeTone.active,
-          icon: Icons.schedule_rounded,
+          anisIcon: AnisIconType.mihrab,
           semanticLabel: '${l10n.nextPrayer} : ${prayer.name} ${prayer.inStr}',
         ),
     ];
@@ -87,6 +89,7 @@ class _HomeHeader extends ConsumerWidget {
     return AnisPageHeader(
       eyebrow: l10n.welcomeGreeting,
       title: name,
+      showSignature: false,
       leading: AnisAvatar(initial: initial, semanticLabel: name),
       actions: [
         AnisIconAction.anis(
@@ -95,13 +98,14 @@ class _HomeHeader extends ConsumerWidget {
           onPressed: () => context.push('/notifications'),
         ),
       ],
-      bottom: chips.isEmpty
-          ? null
-          : Wrap(
-              spacing: AnisSpacing.sm,
-              runSpacing: AnisSpacing.sm,
-              children: chips,
-            ),
+      bottom:
+          chips.isEmpty
+              ? null
+              : Wrap(
+                spacing: AnisSpacing.sm,
+                runSpacing: AnisSpacing.sm,
+                children: chips,
+              ),
     );
   }
 }
@@ -191,10 +195,11 @@ class _HomeDashboard extends ConsumerWidget {
     final primary = dashboard.primary;
     final goal = ref.watch(readingGoalProgressProvider).valueOrNull;
     final formation = ref.watch(formationProgressProvider).valueOrNull;
-    final others = dashboard.activeKhatmas
-        .where((s) => s.khatma.id != primary?.status.khatma.id)
-        .take(3)
-        .toList();
+    final others =
+        dashboard.activeKhatmas
+            .where((s) => s.khatma.id != primary?.status.khatma.id)
+            .take(3)
+            .toList();
 
     return AnisScaffold(
       header: header,
@@ -225,7 +230,7 @@ class _HomeDashboard extends ConsumerWidget {
             AnisListTile(
               title: formation.courseTitle,
               subtitle: formation.lessonTitle,
-              leadingIcon: Icons.school_outlined,
+              leading: _homeListLeadingAnis(context, AnisIconType.training),
               onTap: () => context.go('/training'),
               semanticLabel:
                   '${l10n.myTraining} : ${formation.courseTitle}. ${formation.lessonTitle}',
@@ -273,12 +278,11 @@ class _PrimaryKhatmaCard extends StatelessWidget {
 
     final progressLabel =
         isCollective ? l10n.homeCollectiveProgress : l10n.homePersonalProgress;
-    final done = isCollective
-        ? highlight.globalCompletedHizb
-        : (highlight.userPersonalCompleted ?? 0);
-    final value = isCollective
-        ? highlight.globalPercent / 100.0
-        : done / 60.0;
+    final done =
+        isCollective
+            ? highlight.globalCompletedHizb
+            : (highlight.userPersonalCompleted ?? 0);
+    final value = isCollective ? highlight.globalPercent / 100.0 : done / 60.0;
 
     return AnisSurface(
       level: AnisSurfaceLevel.raised,
@@ -300,7 +304,7 @@ class _PrimaryKhatmaCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.khatmaInProgress,
-                      style: text.caption,
+                      style: text.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -335,28 +339,34 @@ class _PrimaryKhatmaCard extends StatelessWidget {
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: AnisBadge(
-                label: reservation.inProgress
-                    ? l10n.homeHizbInProgress(
-                        mushafNumber(context, reservation.hizbNumber))
-                    : l10n.homeHizbReserved(
-                        mushafNumber(context, reservation.hizbNumber)),
-                tone: reservation.inProgress
-                    ? AnisBadgeTone.accent
-                    : AnisBadgeTone.active,
+                label:
+                    reservation.inProgress
+                        ? l10n.homeHizbInProgress(
+                          mushafNumber(context, reservation.hizbNumber),
+                        )
+                        : l10n.homeHizbReserved(
+                          mushafNumber(context, reservation.hizbNumber),
+                        ),
+                tone:
+                    reservation.inProgress
+                        ? AnisBadgeTone.accent
+                        : AnisBadgeTone.active,
                 showSignature: true,
               ),
             ),
           ],
           const SizedBox(height: AnisSpacing.xl),
           AnisPrimaryButton(
-            label: reservation?.inProgress == true
-                ? l10n.resume
-                : l10n.continueAction,
-            icon: Icons.menu_book_rounded,
-            onPressed: () => context.push(
-              KhatmaLinkService.detailPath(khatma.id),
-              extra: {'khatma': khatma},
-            ),
+            label:
+                reservation?.inProgress == true
+                    ? l10n.resume
+                    : l10n.continueAction,
+            anisIcon: AnisIconType.khatma,
+            onPressed:
+                () => context.push(
+                  KhatmaLinkService.detailPath(khatma.id),
+                  extra: {'khatma': khatma},
+                ),
           ),
         ],
       ),
@@ -405,15 +415,14 @@ class _ReadingGoalCard extends StatelessWidget {
           AnisProgressBar(
             value: goal.target == 0 ? 0 : goal.completed / goal.target,
             label: l10n.readingGoal,
-            valueLabel:
-                l10n.readingGoalProgress(goal.completed, goal.target),
+            valueLabel: l10n.readingGoalProgress(goal.completed, goal.target),
             semanticLabel: l10n.homeGoalToday,
           ),
           if (goal.isAchieved) ...[
             const SizedBox(height: AnisSpacing.sm),
             Text(
               l10n.readingGoalAchieved,
-              style: text.caption.copyWith(color: colors.accentGoldText),
+              style: text.bodySecondary.copyWith(color: colors.accentGoldText),
             ),
           ],
         ],
@@ -504,18 +513,20 @@ class _KhatmaRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final khatma = status.khatma;
-    final subtitle = khatma.isGroup || khatma.reservationMode
-        ? l10n.groupKhatma
-        : l10n.individual;
+    final subtitle =
+        khatma.isGroup || khatma.reservationMode
+            ? l10n.groupKhatma
+            : l10n.individual;
 
     return AnisListTile(
       title: khatma.title,
       subtitle: subtitle,
-      leadingIcon: Icons.menu_book_outlined,
-      onTap: () => context.push(
-        KhatmaLinkService.detailPath(khatma.id),
-        extra: {'khatma': khatma},
-      ),
+      leading: _homeListLeadingAnis(context, AnisIconType.khatma),
+      onTap:
+          () => context.push(
+            KhatmaLinkService.detailPath(khatma.id),
+            extra: {'khatma': khatma},
+          ),
     );
   }
 }
@@ -556,8 +567,8 @@ class _QuickAccessRow extends StatelessWidget {
           onTap: () => context.push('/bookmarks'),
         ),
         AnisQuickAction(
-          glyph: AnisGlyph.material(
-            Icons.schedule_rounded,
+          glyph: AnisGlyph.anis(
+            AnisIconType.mihrab,
             size: AnisIconSize.lg,
             color: colors.actionPrimary,
           ),
@@ -590,9 +601,11 @@ class _OfflineNotice extends ConsumerWidget {
     final results = ref.watch(connectivityProvider).valueOrNull;
     if (results == null) return const SizedBox.shrink();
 
-    final offline = results.isEmpty ||
-        results.every((r) =>
-            r == ConnectivityResult.none || r == ConnectivityResult.other);
+    final offline =
+        results.isEmpty ||
+        results.every(
+          (r) => r == ConnectivityResult.none || r == ConnectivityResult.other,
+        );
     if (!offline) return const SizedBox.shrink();
 
     return Padding(
@@ -603,4 +616,23 @@ class _OfflineNotice extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Bloc d'icône ANIS pour [AnisListTile.leading].
+Widget _homeListLeadingAnis(BuildContext context, AnisIconType type) {
+  final colors = context.anisColors;
+  return Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: colors.actionPrimary.withValues(alpha: AnisOpacity.subtleFill),
+      borderRadius: AnisRadius.smAll,
+    ),
+    alignment: Alignment.center,
+    child: AnisGlyph.anis(
+      type,
+      size: AnisIconSize.md,
+      color: colors.actionPrimary,
+    ),
+  );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/anis_icon.dart';
 import '../anis_theme.dart';
 import '../tokens/anis_geometry.dart';
 import 'anis_signature_mark.dart';
@@ -29,6 +30,7 @@ class AnisBadge extends StatelessWidget {
     required this.label,
     this.tone = AnisBadgeTone.neutral,
     this.icon,
+    this.anisIcon,
     this.showSignature = false,
     this.semanticLabel,
   });
@@ -36,6 +38,9 @@ class AnisBadge extends StatelessWidget {
   final String label;
   final AnisBadgeTone tone;
   final IconData? icon;
+
+  /// Icône propriétaire ANIS. Prend le pas sur [icon] lorsqu'elle est fournie.
+  final AnisIconType? anisIcon;
 
   /// Ajoute la marque ۞ en tête. Réservé aux badges qui désignent un repère de
   /// lecture (Hizb, Khatma).
@@ -92,6 +97,13 @@ class AnisBadge extends StatelessWidget {
             if (showSignature) ...[
               AnisSignatureMark(
                 role: AnisSignatureRole.marker,
+                color: foreground,
+              ),
+              const SizedBox(width: AnisSpacing.xs),
+            ] else if (anisIcon != null) ...[
+              AnisIcon(
+                type: anisIcon!,
+                size: AnisIconSize.sm,
                 color: foreground,
               ),
               const SizedBox(width: AnisSpacing.xs),

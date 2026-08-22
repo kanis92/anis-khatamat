@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/anis_icon.dart';
 import '../anis_theme.dart';
 import '../foundations/anis_haptics.dart';
 import '../tokens/anis_geometry.dart';
@@ -39,6 +40,7 @@ class AnisPrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.anisIcon,
     this.expand = true,
     this.feedback = AnisButtonFeedback.none,
     this.semanticLabel,
@@ -47,6 +49,7 @@ class AnisPrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final AnisIconType? anisIcon;
 
   /// Occupe toute la largeur disponible.
   final bool expand;
@@ -61,12 +64,13 @@ class AnisPrimaryButton extends StatelessWidget {
 
     final action = onPressed;
     final button = FilledButton(
-      onPressed: action == null
-          ? null
-          : () {
-              feedback.fire();
-              action();
-            },
+      onPressed:
+          action == null
+              ? null
+              : () {
+                feedback.fire();
+                action();
+              },
       style: FilledButton.styleFrom(
         backgroundColor: colors.actionPrimary,
         foregroundColor: colors.textOnAction,
@@ -84,7 +88,12 @@ class AnisPrimaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: AnisRadius.lgAll),
         textStyle: text.label,
       ),
-      child: _AnisButtonContent(label: label, icon: icon),
+      child: _AnisButtonContent(
+        label: label,
+        icon: icon,
+        anisIcon: anisIcon,
+        iconColor: colors.textOnAction,
+      ),
     );
 
     if (semanticLabel == null) return button;
@@ -121,12 +130,13 @@ class AnisSecondaryButton extends StatelessWidget {
 
     final action = onPressed;
     final button = OutlinedButton(
-      onPressed: action == null
-          ? null
-          : () {
-              feedback.fire();
-              action();
-            },
+      onPressed:
+          action == null
+              ? null
+              : () {
+                feedback.fire();
+                action();
+              },
       style: OutlinedButton.styleFrom(
         backgroundColor: colors.actionSecondarySurface,
         foregroundColor: colors.actionSecondaryText,
@@ -210,14 +220,21 @@ class AnisTextAction extends StatelessWidget {
 }
 
 class _AnisButtonContent extends StatelessWidget {
-  const _AnisButtonContent({required this.label, this.icon});
+  const _AnisButtonContent({
+    required this.label,
+    this.icon,
+    this.anisIcon,
+    this.iconColor,
+  });
 
   final String label;
   final IconData? icon;
+  final AnisIconType? anisIcon;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
-    if (icon == null) {
+    if (icon == null && anisIcon == null) {
       return Text(
         label,
         maxLines: 2,
@@ -228,7 +245,10 @@ class _AnisButtonContent extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: AnisIconSize.md),
+        if (anisIcon != null)
+          AnisIcon(type: anisIcon!, size: AnisIconSize.md, color: iconColor)
+        else
+          Icon(icon, size: AnisIconSize.md, color: iconColor),
         const SizedBox(width: AnisSpacing.sm),
         Flexible(
           child: Text(

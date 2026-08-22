@@ -81,7 +81,7 @@ class AnisPageHeader extends StatelessWidget {
                         if (eyebrow != null)
                           Text(
                             eyebrow!,
-                            style: text.caption,
+                            style: text.bodySecondary,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
