@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../anis_theme.dart';
+import '../foundations/anis_accessibility_layout.dart';
 import '../tokens/anis_geometry.dart';
+import '../tokens/anis_typography.dart';
 import 'anis_signature_mark.dart';
 
 /// En-tête de page ANIS.
@@ -47,10 +49,7 @@ class AnisPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
-    final text = context.anisText;
-    final largeText = _isLargeAccessibilityText(context);
-    final extremeText = _isExtremeAccessibilityText(context);
-    final titleStyle = extremeText ? text.sectionTitle : text.title;
+    final mode = AnisAccessibilityLayout.modeOf(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -64,105 +63,166 @@ class AnisPageHeader extends StatelessWidget {
         child: Padding(
           padding: EdgeInsetsDirectional.fromSTEB(
             AnisSpacing.page,
-            extremeText ? AnisSpacing.sm : AnisSpacing.md,
+            mode == AnisAccessibilityTextMode.extreme
+                ? AnisSpacing.sm
+                : AnisSpacing.md,
             AnisSpacing.page,
-            extremeText ? AnisSpacing.md : AnisSpacing.lg,
+            mode == AnisAccessibilityTextMode.extreme
+                ? AnisSpacing.md
+                : AnisSpacing.lg,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (leading != null) ...[
-                    leading!,
-                    const SizedBox(width: AnisSpacing.md),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (eyebrow != null)
-                          Text(
-                            eyebrow!,
-                            style: text.bodySecondary,
-                            maxLines: extremeText ? 2 : (largeText ? 3 : 1),
-                            overflow:
-                                largeText
-                                    ? TextOverflow.visible
-                                    : TextOverflow.ellipsis,
-                            softWrap: true,
-                          ),
-                        if (largeText)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: titleStyle,
-                                softWrap: true,
-                                maxLines: extremeText ? 2 : 3,
-                                overflow: TextOverflow.visible,
-                              ),
-                              if (showSignature) ...[
-                                SizedBox(
-                                  height:
-                                      extremeText
-                                          ? AnisSpacing.xs
-                                          : AnisSpacing.sm,
-                                ),
-                                const AnisSignatureMark(
-                                  role: AnisSignatureRole.brand,
-                                ),
-                              ],
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  title,
-                                  style: titleStyle,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (showSignature) ...[
-                                const SizedBox(width: AnisSpacing.sm),
-                                const AnisSignatureMark(
-                                  role: AnisSignatureRole.brand,
-                                ),
-                              ],
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                  ...actions,
-                ],
-              ),
-              if (bottom != null) ...[
-                SizedBox(height: extremeText ? AnisSpacing.md : AnisSpacing.lg),
-                bottom!,
-              ],
-            ],
-          ),
+          child: switch (mode) {
+            AnisAccessibilityTextMode.extreme => _buildExtremeLayout(context),
+            AnisAccessibilityTextMode.large => _buildLargeLayout(context),
+            AnisAccessibilityTextMode.normal => _buildNormalLayout(context),
+          },
         ),
       ),
     );
   }
-}
 
-bool _isLargeAccessibilityText(BuildContext context) {
-  return MediaQuery.textScalerOf(context).scale(12) >= 15;
-}
+  /// Palier extrême : identité et actions sur une ligne, titre empilé en dessous.
+  Widget _buildExtremeLayout(BuildContext context) {
+    final text = context.anisText;
 
-/// Palier « accessibility-extra-extra-large » et au-delà : le titre passe en
-/// [AnisTypography.sectionTitle] pour conserver la hiérarchie sans saturer
-/// la hauteur d'en-tête. L'échelle système reste active.
-bool _isExtremeAccessibilityText(BuildContext context) {
-  return MediaQuery.textScalerOf(context).scale(12) >= 20;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [if (leading != null) leading!, const Spacer(), ...actions],
+        ),
+        if (leading != null) const SizedBox(height: AnisSpacing.sm),
+        _titleColumn(
+          text: text,
+          titleStyle: text.accessibilityCompact,
+          eyebrowMaxLines: 2,
+          titleMaxLines: 2,
+          signatureBelow: true,
+        ),
+        if (bottom != null) ...[
+          const SizedBox(height: AnisSpacing.md),
+          bottom!,
+        ],
+      ],
+    );
+  }
+
+  /// Grand texte : avatar et actions encadrent un bloc titre vertical.
+  Widget _buildLargeLayout(BuildContext context) {
+    final text = context.anisText;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (leading != null) ...[
+              leading!,
+              const SizedBox(width: AnisSpacing.md),
+            ],
+            Expanded(
+              child: _titleColumn(
+                text: text,
+                titleStyle: text.sectionTitle,
+                eyebrowMaxLines: 3,
+                titleMaxLines: 3,
+                signatureBelow: true,
+              ),
+            ),
+            ...actions,
+          ],
+        ),
+        if (bottom != null) ...[
+          const SizedBox(height: AnisSpacing.lg),
+          bottom!,
+        ],
+      ],
+    );
+  }
+
+  Widget _buildNormalLayout(BuildContext context) {
+    final text = context.anisText;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (leading != null) ...[
+              leading!,
+              const SizedBox(width: AnisSpacing.md),
+            ],
+            Expanded(
+              child: _titleColumn(
+                text: text,
+                titleStyle: text.title,
+                eyebrowMaxLines: 1,
+                titleMaxLines: 1,
+                signatureBelow: false,
+                titleEllipsis: true,
+              ),
+            ),
+            ...actions,
+          ],
+        ),
+        if (bottom != null) ...[
+          const SizedBox(height: AnisSpacing.lg),
+          bottom!,
+        ],
+      ],
+    );
+  }
+
+  Widget _titleColumn({
+    required AnisTypography text,
+    required TextStyle titleStyle,
+    required int eyebrowMaxLines,
+    required int titleMaxLines,
+    required bool signatureBelow,
+    bool titleEllipsis = false,
+  }) {
+    final titleWidget = Text(
+      title,
+      style: titleStyle,
+      softWrap: !titleEllipsis,
+      maxLines: titleMaxLines,
+      overflow: titleEllipsis ? TextOverflow.ellipsis : TextOverflow.visible,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (eyebrow != null)
+          Text(
+            eyebrow!,
+            style: text.bodySecondary,
+            maxLines: eyebrowMaxLines,
+            overflow:
+                titleEllipsis ? TextOverflow.ellipsis : TextOverflow.visible,
+            softWrap: !titleEllipsis,
+          ),
+        if (signatureBelow)
+          titleWidget
+        else
+          Row(
+            children: [
+              Flexible(child: titleWidget),
+              if (showSignature) ...[
+                const SizedBox(width: AnisSpacing.sm),
+                const AnisSignatureMark(role: AnisSignatureRole.brand),
+              ],
+            ],
+          ),
+        if (showSignature && signatureBelow) ...[
+          const SizedBox(height: AnisSpacing.xs),
+          const AnisSignatureMark(role: AnisSignatureRole.brand),
+        ],
+      ],
+    );
+  }
 }
 
 /// Pastille d'identité de l'utilisateur.
@@ -186,13 +246,15 @@ class AnisAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final compact =
+        AnisAccessibilityLayout.isExtreme(context) ? diameter * 0.9 : diameter;
 
     return Semantics(
       label: semanticLabel,
       image: semanticLabel != null,
       child: Container(
-        width: diameter,
-        height: diameter,
+        width: compact,
+        height: compact,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: colors.actionPrimary,

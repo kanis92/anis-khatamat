@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../anis_theme.dart';
 import '../tokens/anis_geometry.dart';
+import 'anis_bottom_navigation.dart';
 
 /// Structure de page ANIS.
 ///
@@ -34,9 +35,7 @@ class AnisScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
-    final largeText = MediaQuery.textScalerOf(context).scale(12) >= 15;
-    final bottomPadding =
-        AnisSpacing.bottomSafe + (largeText ? AnisSpacing.xxxl * 2 : 0);
+    final bottomPadding = AnisBottomNavigation.bodyBottomInset(context);
 
     Widget content = Padding(
       padding: EdgeInsetsDirectional.fromSTEB(

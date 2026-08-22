@@ -31,6 +31,7 @@ export 'components/anis_section_header.dart';
 export 'components/anis_signature_mark.dart';
 export 'components/anis_skeleton.dart';
 export 'components/anis_surface.dart';
+export 'foundations/anis_accessibility_layout.dart';
 export 'foundations/anis_haptics.dart';
 export 'tokens/anis_colors.dart';
 export 'tokens/anis_effects.dart';

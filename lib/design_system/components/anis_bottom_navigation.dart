@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/widgets/anis_icon.dart';
 import '../anis_theme.dart';
+import '../foundations/anis_accessibility_layout.dart';
 import '../foundations/anis_haptics.dart';
 import '../tokens/anis_geometry.dart';
 import '../tokens/anis_motion.dart';
@@ -28,11 +29,6 @@ class AnisNavigationItem {
 /// Chrome partagé par tous les écrans du shell, migré ici parce que la barre
 /// fait partie de l'identité de la Home. Le comportement est inchangé — mêmes
 /// onglets, mêmes indices, mêmes destinations — seule la présentation évolue.
-///
-/// Trois corrections d'accessibilité par rapport à la version précédente :
-/// chaque onglet est annoncé avec son état sélectionné, la hauteur libre
-/// remplace le `SizedBox(height: 64)` qui tronquait les libellés à 130 %
-/// d'échelle, et le libellé ne descend plus sous 12 px.
 class AnisBottomNavigation extends StatelessWidget {
   const AnisBottomNavigation({
     super.key,
@@ -45,11 +41,59 @@ class AnisBottomNavigation extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onSelected;
 
+  /// Réserve basse pour le corps de page au-dessus de cette barre.
+  static double bodyBottomInset(BuildContext context) {
+    final mode = AnisAccessibilityLayout.modeOf(context);
+    final media = MediaQuery.of(context);
+    final scaler = media.textScaler;
+    final safeBottom = media.padding.bottom;
+    final verticalPad =
+        mode == AnisAccessibilityTextMode.extreme
+            ? AnisSpacing.xs * 2
+            : AnisSpacing.sm * 2;
+    const iconBlock = AnisIconSize.minTapTarget + AnisSpacing.xs * 3 + 3;
+
+    switch (mode) {
+      case AnisAccessibilityTextMode.normal:
+        final labelLine = scaler.scale(13) * 1.35;
+        return safeBottom +
+            verticalPad +
+            iconBlock +
+            labelLine +
+            AnisSpacing.sm;
+      case AnisAccessibilityTextMode.large:
+        final compactLabel = scaler.scale(13) * 1.35 * 2 + AnisSpacing.xs;
+        return safeBottom +
+            verticalPad +
+            iconBlock +
+            compactLabel +
+            AnisSpacing.md;
+      case AnisAccessibilityTextMode.extreme:
+        final compactLabel = scaler.scale(12) * 1.3 + AnisSpacing.sm;
+        return safeBottom +
+            verticalPad +
+            iconBlock +
+            compactLabel +
+            AnisSpacing.xxl;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
-    final compactLabels = _useCompactBottomNavLabels(context);
+    final mode = AnisAccessibilityLayout.modeOf(context);
+    final compactLabels = mode != AnisAccessibilityTextMode.normal;
+    final selectedLabelStyle = switch (mode) {
+      AnisAccessibilityTextMode.extreme => text.accessibilityCompact.copyWith(
+        color: colors.actionPrimary,
+        height: 1.3,
+      ),
+      _ => text.label.copyWith(
+        color: colors.actionPrimary,
+        fontWeight: FontWeight.w600,
+      ),
+    };
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -59,8 +103,11 @@ class AnisBottomNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            vertical: AnisSpacing.sm,
+          padding: EdgeInsetsDirectional.symmetric(
+            vertical:
+                mode == AnisAccessibilityTextMode.extreme
+                    ? AnisSpacing.xs
+                    : AnisSpacing.sm,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -74,13 +121,11 @@ class AnisBottomNavigation extends StatelessWidget {
                   ),
                   child: Text(
                     items[currentIndex].label,
-                    style: text.label.copyWith(
-                      color: colors.actionPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: selectedLabelStyle,
                     textAlign: TextAlign.center,
                     softWrap: true,
-                    maxLines: 2,
+                    maxLines: mode == AnisAccessibilityTextMode.extreme ? 1 : 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               Row(
@@ -191,11 +236,4 @@ class _AnisNavigationTab extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Au-delà de ce seuil, cinq libellés complets ne tiennent plus horizontalement :
-/// libellé sélectionné centré au-dessus de la rangée d'icônes ; icônes seules
-/// en dessous. [Semantics.label] reste le nom complet sur chaque onglet.
-bool _useCompactBottomNavLabels(BuildContext context) {
-  return MediaQuery.textScalerOf(context).scale(12) >= 15;
 }

@@ -16,6 +16,11 @@ import 'reading_provider.dart';
 /// - +1 collection group hizb_reservations (réservations actives user)
 /// - prefs locales pour legacy guest id (pas de lecture cloud)
 final homeDashboardProvider = FutureProvider<HomeDashboardState>((ref) async {
+  // Session démo : état Home local uniquement — aucune requête Firestore / réseau.
+  if (ref.watch(demoModeProvider)) {
+    return HomeDashboardState.empty;
+  }
+
   final identity = ref.watch(myKhatmatIdentityProvider);
   if (identity.progressUserId.isEmpty) {
     return HomeDashboardState.empty;
@@ -23,7 +28,9 @@ final homeDashboardProvider = FutureProvider<HomeDashboardState>((ref) async {
 
   final statuses = await ref.watch(khatmatWithStatusProvider.future);
   final service = ref.read(readingServiceProvider);
-  final progressMap = await service.getProgressMapForUser(identity.progressUserId);
+  final progressMap = await service.getProgressMapForUser(
+    identity.progressUserId,
+  );
 
   final active = statuses.where((s) => !s.isCompleted).toList();
   final guestService = GuestService();
@@ -44,8 +51,10 @@ final homeDashboardProvider = FutureProvider<HomeDashboardState>((ref) async {
   final subcollectionReservations = await service
       .fetchUserActiveReservationsFromSubcollection(identity.progressUserId);
 
-  final userReservations =
-      mergeUserReservations(legacyReservations, subcollectionReservations);
+  final userReservations = mergeUserReservations(
+    legacyReservations,
+    subcollectionReservations,
+  );
 
   return buildHomeDashboardState(
     allStatuses: statuses,
@@ -121,7 +130,9 @@ class FormationProgressInfo {
   });
 }
 
-final formationProgressProvider = FutureProvider<FormationProgressInfo?>((ref) async {
+final formationProgressProvider = FutureProvider<FormationProgressInfo?>((
+  ref,
+) async {
   final coursesAsync = ref.watch(publishedCoursesProvider);
   final courses = coursesAsync.valueOrNull ?? [];
   final user = ref.watch(currentUserProvider);
@@ -138,7 +149,9 @@ final formationProgressProvider = FutureProvider<FormationProgressInfo?>((ref) a
         for (final m in modules) {
           final lessons = await repo.getLessonsForModule(c.id, m.id);
           try {
-            final lesson = lessons.firstWhere((l) => l.id == progress.currentLessonId);
+            final lesson = lessons.firstWhere(
+              (l) => l.id == progress.currentLessonId,
+            );
             lessonTitle = lesson.title;
             break;
           } catch (_) {}

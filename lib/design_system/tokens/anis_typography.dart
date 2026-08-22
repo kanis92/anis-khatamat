@@ -10,12 +10,13 @@ import 'anis_colors.dart';
 /// deux raisons : permettre de changer de fournisseur de police sans toucher à
 /// l'échelle typographique, et rendre l'échelle testable sans accès réseau —
 /// `google_fonts` télécharge ses fichiers au premier usage.
-typedef AnisFontResolver = TextStyle Function({
-  required double fontSize,
-  required FontWeight fontWeight,
-  required Color color,
-  required double height,
-});
+typedef AnisFontResolver =
+    TextStyle Function({
+      required double fontSize,
+      required FontWeight fontWeight,
+      required Color color,
+      required double height,
+    });
 
 /// Hiérarchie typographique ANIS — Latin et arabe d'interface.
 ///
@@ -41,6 +42,7 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
     required this.bodySecondary,
     required this.label,
     required this.caption,
+    required this.accessibilityCompact,
     required this.numberLarge,
     required this.number,
   });
@@ -69,6 +71,12 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
   /// 12 / w400 — mention, métadonnée, horodatage.
   final TextStyle caption;
 
+  /// 12 / w600 — titres compacts à très grande échelle (en-tête, nav sélectionnée).
+  ///
+  /// Base dérivée de [caption] avec graisse de [label]. L'échelle système
+  /// s'applique toujours ; ce token fixe seulement la sémantique compacte.
+  final TextStyle accessibilityCompact;
+
   /// 28 / w700, chiffres tabulaires — valeur de progression dominante.
   final TextStyle numberLarge;
 
@@ -94,13 +102,12 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
     required FontWeight fontWeight,
     required Color color,
     required double height,
-  }) =>
-      TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        color: color,
-        height: height,
-      );
+  }) => TextStyle(
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+    height: height,
+  );
 
   /// Résolveur adossé à `google_fonts` pour la police [font].
   static AnisFontResolver googleFontResolver(AppFont font) {
@@ -109,33 +116,32 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
       required FontWeight fontWeight,
       required Color color,
       required double height,
-    }) =>
-        switch (font) {
-          AppFont.cairo => GoogleFonts.cairo(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              height: height,
-            ),
-          AppFont.tajawal => GoogleFonts.tajawal(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              height: height,
-            ),
-          AppFont.readexPro => GoogleFonts.readexPro(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              height: height,
-            ),
-          AppFont.almarai => GoogleFonts.almarai(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              color: color,
-              height: height,
-            ),
-        };
+    }) => switch (font) {
+      AppFont.cairo => GoogleFonts.cairo(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        height: height,
+      ),
+      AppFont.tajawal => GoogleFonts.tajawal(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        height: height,
+      ),
+      AppFont.readexPro => GoogleFonts.readexPro(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        height: height,
+      ),
+      AppFont.almarai => GoogleFonts.almarai(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        height: height,
+      ),
+    };
   }
 
   /// Applique l'échelle ANIS au-dessus d'un [AnisFontResolver].
@@ -210,6 +216,12 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
         height: 1.4,
         color: colors.textSecondary,
       ),
+      accessibilityCompact: style(
+        size: 12,
+        weight: FontWeight.w600,
+        height: 1.3,
+        color: colors.textPrimary,
+      ),
       numberLarge: style(
         size: 28,
         weight: FontWeight.w700,
@@ -248,6 +260,7 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
     TextStyle? bodySecondary,
     TextStyle? label,
     TextStyle? caption,
+    TextStyle? accessibilityCompact,
     TextStyle? numberLarge,
     TextStyle? number,
   }) {
@@ -260,6 +273,7 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
       bodySecondary: bodySecondary ?? this.bodySecondary,
       label: label ?? this.label,
       caption: caption ?? this.caption,
+      accessibilityCompact: accessibilityCompact ?? this.accessibilityCompact,
       numberLarge: numberLarge ?? this.numberLarge,
       number: number ?? this.number,
     );
@@ -277,6 +291,8 @@ class AnisTypography extends ThemeExtension<AnisTypography> {
       bodySecondary: TextStyle.lerp(bodySecondary, other.bodySecondary, t)!,
       label: TextStyle.lerp(label, other.label, t)!,
       caption: TextStyle.lerp(caption, other.caption, t)!,
+      accessibilityCompact:
+          TextStyle.lerp(accessibilityCompact, other.accessibilityCompact, t)!,
       numberLarge: TextStyle.lerp(numberLarge, other.numberLarge, t)!,
       number: TextStyle.lerp(number, other.number, t)!,
     );
