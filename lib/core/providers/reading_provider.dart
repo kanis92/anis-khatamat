@@ -69,10 +69,14 @@ final khatmaLoadProvider = FutureProvider.family<KhatmaLoadResult, String>((
   khatmaId,
 ) async {
   if (ref.watch(demoModeProvider)) {
-    return resolveDemoKhatmaLoad(
-      (id) => ref.read(readingServiceProvider).findLocalKhatmaById(id),
-      khatmaId,
-    );
+    try {
+      return await resolveDemoKhatmaLoad(
+        (id) => ref.read(readingServiceProvider).findLocalKhatmaById(id),
+        khatmaId,
+      );
+    } catch (_) {
+      return const KhatmaLoadResult.failure(KhatmaLoadFailure.notFound);
+    }
   }
 
   final service = ref.read(readingServiceProvider);

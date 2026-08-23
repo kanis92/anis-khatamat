@@ -1,16 +1,36 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Mode démo pour tester sans connexion Firebase
+import '../bootstrap/firebase_bootstrap.dart';
+
+/// Mode démo explicite (utilisateur ou bootstrap sans Firebase).
 final demoModeProvider = StateProvider<bool>((ref) => false);
+
+/// Résultat du bootstrap Firebase (injecté depuis [main]).
+final firebaseBootstrapProvider = Provider<FirebaseBootstrapResult>(
+  (ref) => anisFirebaseBootstrapResult,
+);
+
+/// Mode runtime dérivé : production / demo / config manquante / échec init.
+final anisRuntimeModeProvider = Provider<AnisRuntimeMode>((ref) {
+  final bootstrap = ref.watch(firebaseBootstrapProvider);
+  final demo = ref.watch(demoModeProvider);
+  return bootstrap.resolveAppMode(demoModeActive: demo);
+});
+
+final firebaseRuntimeStateProvider = Provider<FirebaseRuntimeState>(
+  (ref) => ref.watch(firebaseBootstrapProvider).state,
+);
+
+final firebaseReadyProvider = Provider<bool>(
+  (ref) => ref.watch(firebaseBootstrapProvider).isConfigured,
+);
 
 /// Provider pour l'état d'authentification Firebase
 final authStateProvider = StreamProvider<User?>((ref) {
-  try {
-    return FirebaseAuth.instance.authStateChanges();
-  } catch (_) {
-    return Stream.value(null); // Firebase non configuré
-  }
+  final auth = tryFirebaseAuth();
+  if (auth == null) return Stream.value(null);
+  return auth.authStateChanges();
 });
 
 /// Utilisateur actuel (Firebase ou démo)

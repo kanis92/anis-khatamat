@@ -48,3 +48,11 @@ app.*.map.json
 android/key.properties
 android/upload-key.jks
 *.jks
+
+# Firebase — config privée (B8 HYBRID policy)
+lib/firebase_options.dart
+android/app/google-services.json
+private/firebase/
+private/
+**/dart_defines.json
+**/dart_defines.prod.json

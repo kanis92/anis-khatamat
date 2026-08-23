@@ -1,24 +1,29 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'app/app.dart';
+import 'core/bootstrap/firebase_bootstrap.dart';
 import 'core/providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  bool firebaseReady = false;
-  try {
-    await Firebase.initializeApp();
-    firebaseReady = true;
-  } catch (e) {
-    debugPrint('Firebase non configuré: $e → Mode démo activé');
+  if (kIsWeb) {
+    usePathUrlStrategy();
   }
+
+  final bootstrap = await bootstrapFirebase();
+  anisFirebaseBootstrapResult = bootstrap;
+
+  final autoDemo = !bootstrap.isConfigured;
 
   runApp(
     ProviderScope(
-      overrides: firebaseReady ? [] : [demoModeProvider.overrideWith((ref) => true)],
+      overrides: [
+        firebaseBootstrapProvider.overrideWithValue(bootstrap),
+        if (autoDemo) demoModeProvider.overrideWith((ref) => true),
+      ],
       child: const AnisKhatamatApp(),
     ),
   );

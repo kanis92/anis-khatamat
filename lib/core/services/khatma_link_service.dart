@@ -3,11 +3,11 @@ import '../models/khatma.dart';
 
 /// URLs et chemins de navigation Khatma — source unique pour partage et routing.
 ///
-/// **Web (hash routing, Firebase Hosting)** :
-/// - Invitation : `https://anis-437c3.web.app/#/join/{khatmaId}`
-/// - Détail :     `https://anis-437c3.web.app/#/khatma/{khatmaId}`
+/// **Web V1 — PATH URLs** (Firebase Hosting SPA rewrite) :
+/// - Invitation : `https://<domain>/join/{khatmaId}`
+/// - Détail :     `https://<domain>/khatma/{khatmaId}`
 ///
-/// **In-app (GoRouter)** :
+/// **In-app (GoRouter)** — route canonique interne :
 /// - `/join/{khatmaId}` — parcours rejoindre
 /// - `/khatma/{khatmaId}` — détail (collaboratif ou classique)
 class KhatmaLinkService {
@@ -15,11 +15,39 @@ class KhatmaLinkService {
 
   static String get webBaseUrl => AppConfig.webJoinBaseUrl;
 
+  /// Normalise et valide un identifiant Khatma pour `/join/:id`.
+  static String? normalizeJoinKhatmaId(String? raw) {
+    if (raw == null) return null;
+    final id = raw.trim();
+    if (id.isEmpty || id.length > 128) return null;
+    if (id.contains('/') || id.contains('\\') || id.contains(' ')) return null;
+    return id;
+  }
+
+  /// Extrait un identifiant depuis une URL externe (path ou legacy hash).
+  static String? parseJoinKhatmaIdFromUri(Uri uri) {
+    final path = uri.path;
+    const pathPrefix = '/join/';
+    if (path.startsWith(pathPrefix)) {
+      return normalizeJoinKhatmaId(path.substring(pathPrefix.length));
+    }
+
+    // Legacy hash: https://domain/#/join/{id}
+    if (uri.fragment.startsWith('/join/')) {
+      return normalizeJoinKhatmaId(uri.fragment.substring('/join/'.length));
+    }
+    if (uri.fragment.startsWith('join/')) {
+      return normalizeJoinKhatmaId(uri.fragment.substring('join/'.length));
+    }
+
+    return null;
+  }
+
   /// Lien externe d'invitation (WhatsApp, SMS, QR futur).
-  static String joinUrl(String khatmaId) => '$webBaseUrl/#/join/$khatmaId';
+  static String joinUrl(String khatmaId) => '$webBaseUrl/join/$khatmaId';
 
   /// Lien Web de consultation directe.
-  static String webDetailUrl(String khatmaId) => '$webBaseUrl/#/khatma/$khatmaId';
+  static String webDetailUrl(String khatmaId) => '$webBaseUrl/khatma/$khatmaId';
 
   /// Route GoRouter écran de clôture (WOW 01).
   static String completionPath(String khatmaId) => '/khatma/$khatmaId/completion';

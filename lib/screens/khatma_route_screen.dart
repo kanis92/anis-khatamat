@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/bootstrap/firebase_bootstrap.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/models/khatma.dart';
 import '../core/models/khatma_load_result.dart';
@@ -30,7 +30,7 @@ class KhatmaRouteScreen extends ConsumerWidget {
 
   String? get _effectiveGuestId {
     if (guestId != null && guestId!.isNotEmpty) return guestId;
-    final user = FirebaseAuth.instance.currentUser;
+    final user = tryFirebaseAuth()?.currentUser;
     if (user != null && user.isAnonymous) return user.uid;
     return null;
   }

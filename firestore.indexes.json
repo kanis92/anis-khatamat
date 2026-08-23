@@ -1,0 +1,53 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "khatmat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublic", "order": "ASCENDING"},
+        {"fieldPath": "reservationMode", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "khatmat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublic", "order": "ASCENDING"},
+        {"fieldPath": "reservationMode", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "khatmat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "createdBy", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "khatmat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "members", "arrayConfig": "CONTAINS"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "khatmat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "participantIds", "arrayConfig": "CONTAINS"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "hizb_reservations",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {"fieldPath": "reservedBy", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

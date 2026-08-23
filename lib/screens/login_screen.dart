@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/bootstrap/firebase_bootstrap.dart';
 import '../core/theme/app_theme.dart';
 import '../core/providers/auth_provider.dart';
 
@@ -17,11 +18,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  FirebaseAuth? _auth;
   bool _isLoading = false;
   bool _obscurePassword = true;
-
-  FirebaseAuth get auth => _auth ?? FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -32,6 +30,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final auth = tryFirebaseAuth();
+    if (auth == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Firebase indisponible. Utilisez le mode démo ou relancez l’app.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {

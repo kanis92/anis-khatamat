@@ -29,17 +29,17 @@ Khatma _k({
 
 void main() {
   group('KhatmaLinkService', () {
-    test('11. URL invitation hash Web canonique', () {
+    test('11. URL invitation PATH Web canonique', () {
       expect(
         KhatmaLinkService.joinUrl('abc123'),
-        'https://anis-437c3.web.app/#/join/abc123',
+        'https://anis-437c3.web.app/join/abc123',
       );
     });
 
     test('11b. chemins in-app', () {
       expect(KhatmaLinkService.joinPath('x'), '/join/x');
       expect(KhatmaLinkService.detailPath('x'), '/khatma/x');
-      expect(KhatmaLinkService.webDetailUrl('x'), 'https://anis-437c3.web.app/#/khatma/x');
+      expect(KhatmaLinkService.webDetailUrl('x'), 'https://anis-437c3.web.app/khatma/x');
       expect(KhatmaLinkService.myKhatmasPath, '/khatma');
       expect(KhatmaLinkService.myKhatmasCreatePath, '/khatma?create=1');
       expect(KhatmaLinkService.completionPath('x'), '/khatma/x/completion');

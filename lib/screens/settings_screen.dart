@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
+import '../core/bootstrap/firebase_bootstrap.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/locale_provider.dart';
 import '../core/extensions/l10n_extensions.dart';
@@ -247,7 +247,7 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     ref.read(demoModeProvider.notifier).state = false;
-    await FirebaseAuth.instance.signOut();
+    await tryFirebaseAuth()?.signOut();
     if (context.mounted) context.go('/login');
   }
 }

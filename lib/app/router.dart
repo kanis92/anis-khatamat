@@ -16,6 +16,7 @@ import '../screens/notifications_screen.dart';
 import '../screens/training_screen.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/auth_provider.dart';
+import '../core/services/khatma_link_service.dart';
 import '../core/constants/hizb_definitions.dart';
 import '../core/models/mushaf_open_target.dart';
 import '../screens/khatma_route_screen.dart';
@@ -38,8 +39,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
       final isLoggingIn = isAuthScreen;
+      final isJoinRoute = state.matchedLocation.startsWith('/join/');
 
-      if (!isLoggedIn && !isLoggingIn) {
+      if (!isLoggedIn && !isLoggingIn && !isJoinRoute) {
         return '/login';
       }
       if (isLoggedIn && isLoggingIn) {
@@ -112,6 +114,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     : (t.hizbDefinitionId ??
                         HizbDefinitions.quranFoundationHafsV1),
             resumePage: t.resumePage,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/join/:id',
+        builder: (context, state) {
+          final rawId = state.pathParameters['id'] ?? '';
+          final khatmaId = KhatmaLinkService.normalizeJoinKhatmaId(rawId) ?? '';
+          final guestId = state.uri.queryParameters['guestId'];
+          return KhatmaRouteScreen(
+            khatmaId: khatmaId,
+            guestId: guestId,
           );
         },
       ),
