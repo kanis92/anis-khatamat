@@ -464,4 +464,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statistics => 'Statistics';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'Khatma not found';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'This Khatma no longer exists or the link is invalid.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle => 'Khatma unavailable in demo';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'This Khatma isn\'t available in demo mode. Go back to the list or create a local Khatma.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'Access denied';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'You don\'t have access to this Khatma.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'Network error';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'Couldn\'t load this Khatma. Check your connection.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'Couldn\'t load this Khatma';
+
+  @override
+  String get khatmaRouteLoadErrorMessage =>
+      'Something went wrong. Please try again.';
+
+  @override
+  String get khatmaRouteLoading => 'Loading Khatma...';
+
+  @override
+  String get myKhatmas => 'My Khatmas';
+
+  @override
+  String get joinWithCode => 'Join with a code';
+
+  @override
+  String get back => 'Back';
 }

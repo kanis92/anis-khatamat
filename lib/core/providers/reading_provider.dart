@@ -68,6 +68,13 @@ final khatmaLoadProvider = FutureProvider.family<KhatmaLoadResult, String>((
   ref,
   khatmaId,
 ) async {
+  if (ref.watch(demoModeProvider)) {
+    return resolveDemoKhatmaLoad(
+      (id) => ref.read(readingServiceProvider).findLocalKhatmaById(id),
+      khatmaId,
+    );
+  }
+
   final service = ref.read(readingServiceProvider);
   try {
     final k = await service.loadKhatmaById(khatmaId);
@@ -80,6 +87,27 @@ final khatmaLoadProvider = FutureProvider.family<KhatmaLoadResult, String>((
     return const KhatmaLoadResult.failure(KhatmaLoadFailure.network);
   }
 });
+
+/// Résolution locale d'une Khatma en mode démo — aucun Firestore.
+Future<KhatmaLoadResult> resolveDemoKhatmaLoad(
+  Future<Khatma?> Function(String id) findLocal,
+  String khatmaId,
+) async {
+  if (khatmaId.isEmpty) {
+    return const KhatmaLoadResult.failure(KhatmaLoadFailure.notFound);
+  }
+
+  final local = await findLocal(khatmaId);
+  if (local != null) {
+    return KhatmaLoadResult.data(local);
+  }
+
+  if (khatmaId.startsWith('local_')) {
+    return const KhatmaLoadResult.failure(KhatmaLoadFailure.notFound);
+  }
+
+  return const KhatmaLoadResult.failure(KhatmaLoadFailure.demoUnavailable);
+}
 
 final khatmaByIdProvider = FutureProvider.family<Khatma?, String>((
   ref,

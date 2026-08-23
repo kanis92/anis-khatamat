@@ -460,4 +460,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get statistics => 'الإحصائيات';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'الختمة غير موجودة';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'هذه الختمة لم تعد موجودة أو الرابط غير صالح.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle =>
+      'الختمة غير متاحة في وضع التجربة';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'هذه الختمة غير متاحة في وضع التجربة. ارجع إلى القائمة أو أنشئ ختمة محلية.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'تم رفض الوصول';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'ليس لديك حق الوصول إلى هذه الختمة.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'خطأ في الشبكة';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'تعذّر تحميل هذه الختمة. تحقّق من اتصالك.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'تعذّر تحميل هذه الختمة';
+
+  @override
+  String get khatmaRouteLoadErrorMessage => 'حدث خطأ. أعد المحاولة.';
+
+  @override
+  String get khatmaRouteLoading => 'جارٍ تحميل الختمة...';
+
+  @override
+  String get myKhatmas => 'ختماتي';
+
+  @override
+  String get joinWithCode => 'الانضمام برمز';
+
+  @override
+  String get back => 'رجوع';
 }

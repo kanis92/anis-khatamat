@@ -276,5 +276,19 @@
   "resume": "Reprendre",
   "retry": "Réessayer",
   "seeAll": "Voir tout",
-  "statistics": "Statistiques"
+  "statistics": "Statistiques",
+  "khatmaRouteNotFoundTitle": "Khatma introuvable",
+  "khatmaRouteNotFoundMessage": "Cette Khatma n'existe plus ou le lien n'est pas valide.",
+  "khatmaRouteDemoUnavailableTitle": "Khatma indisponible en démo",
+  "khatmaRouteDemoUnavailableMessage": "Cette Khatma n'est pas accessible en mode démo. Revenez à la liste ou créez une Khatma locale.",
+  "khatmaRouteAccessDeniedTitle": "Accès refusé",
+  "khatmaRouteAccessDeniedMessage": "Vous n'avez pas accès à cette Khatma.",
+  "khatmaRouteNetworkErrorTitle": "Erreur réseau",
+  "khatmaRouteNetworkErrorMessage": "Impossible de charger la Khatma. Vérifiez votre connexion.",
+  "khatmaRouteLoadErrorTitle": "Impossible de charger la Khatma",
+  "khatmaRouteLoadErrorMessage": "Une erreur est survenue. Réessayez.",
+  "khatmaRouteLoading": "Chargement de la Khatma...",
+  "myKhatmas": "Mes Khatmas",
+  "joinWithCode": "Rejoindre avec un code",
+  "back": "Retour"
 }

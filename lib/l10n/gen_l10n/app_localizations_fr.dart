@@ -466,4 +466,51 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statistics => 'Statistiques';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'Khatma introuvable';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'Cette Khatma n\'existe plus ou le lien n\'est pas valide.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle => 'Khatma indisponible en démo';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'Cette Khatma n\'est pas accessible en mode démo. Revenez à la liste ou créez une Khatma locale.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'Accès refusé';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'Vous n\'avez pas accès à cette Khatma.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'Erreur réseau';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'Impossible de charger la Khatma. Vérifiez votre connexion.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'Impossible de charger la Khatma';
+
+  @override
+  String get khatmaRouteLoadErrorMessage =>
+      'Une erreur est survenue. Réessayez.';
+
+  @override
+  String get khatmaRouteLoading => 'Chargement de la Khatma...';
+
+  @override
+  String get myKhatmas => 'Mes Khatmas';
+
+  @override
+  String get joinWithCode => 'Rejoindre avec un code';
+
+  @override
+  String get back => 'Retour';
 }

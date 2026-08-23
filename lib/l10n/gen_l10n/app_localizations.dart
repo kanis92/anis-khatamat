@@ -933,6 +933,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Statistiques'**
   String get statistics;
+
+  /// No description provided for @khatmaRouteNotFoundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma introuvable'**
+  String get khatmaRouteNotFoundTitle;
+
+  /// No description provided for @khatmaRouteNotFoundMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette Khatma n\'existe plus ou le lien n\'est pas valide.'**
+  String get khatmaRouteNotFoundMessage;
+
+  /// No description provided for @khatmaRouteDemoUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma indisponible en démo'**
+  String get khatmaRouteDemoUnavailableTitle;
+
+  /// No description provided for @khatmaRouteDemoUnavailableMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette Khatma n\'est pas accessible en mode démo. Revenez à la liste ou créez une Khatma locale.'**
+  String get khatmaRouteDemoUnavailableMessage;
+
+  /// No description provided for @khatmaRouteAccessDeniedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès refusé'**
+  String get khatmaRouteAccessDeniedTitle;
+
+  /// No description provided for @khatmaRouteAccessDeniedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n\'avez pas accès à cette Khatma.'**
+  String get khatmaRouteAccessDeniedMessage;
+
+  /// No description provided for @khatmaRouteNetworkErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur réseau'**
+  String get khatmaRouteNetworkErrorTitle;
+
+  /// No description provided for @khatmaRouteNetworkErrorMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger la Khatma. Vérifiez votre connexion.'**
+  String get khatmaRouteNetworkErrorMessage;
+
+  /// No description provided for @khatmaRouteLoadErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger la Khatma'**
+  String get khatmaRouteLoadErrorTitle;
+
+  /// No description provided for @khatmaRouteLoadErrorMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Réessayez.'**
+  String get khatmaRouteLoadErrorMessage;
+
+  /// No description provided for @khatmaRouteLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement de la Khatma...'**
+  String get khatmaRouteLoading;
+
+  /// No description provided for @myKhatmas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Khatmas'**
+  String get myKhatmas;
+
+  /// No description provided for @joinWithCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre avec un code'**
+  String get joinWithCode;
+
+  /// No description provided for @back.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get back;
 }
 
 class _AppLocalizationsDelegate

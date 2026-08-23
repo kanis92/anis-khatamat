@@ -245,5 +245,19 @@
   "resume": "استئناف",
   "retry": "إعادة المحاولة",
   "seeAll": "عرض الكل",
-  "statistics": "الإحصائيات"
+  "statistics": "الإحصائيات",
+  "khatmaRouteNotFoundTitle": "الختمة غير موجودة",
+  "khatmaRouteNotFoundMessage": "هذه الختمة لم تعد موجودة أو الرابط غير صالح.",
+  "khatmaRouteDemoUnavailableTitle": "الختمة غير متاحة في وضع التجربة",
+  "khatmaRouteDemoUnavailableMessage": "هذه الختمة غير متاحة في وضع التجربة. ارجع إلى القائمة أو أنشئ ختمة محلية.",
+  "khatmaRouteAccessDeniedTitle": "تم رفض الوصول",
+  "khatmaRouteAccessDeniedMessage": "ليس لديك حق الوصول إلى هذه الختمة.",
+  "khatmaRouteNetworkErrorTitle": "خطأ في الشبكة",
+  "khatmaRouteNetworkErrorMessage": "تعذّر تحميل هذه الختمة. تحقّق من اتصالك.",
+  "khatmaRouteLoadErrorTitle": "تعذّر تحميل هذه الختمة",
+  "khatmaRouteLoadErrorMessage": "حدث خطأ. أعد المحاولة.",
+  "khatmaRouteLoading": "جارٍ تحميل الختمة...",
+  "myKhatmas": "ختماتي",
+  "joinWithCode": "الانضمام برمز",
+  "back": "رجوع"
 }
