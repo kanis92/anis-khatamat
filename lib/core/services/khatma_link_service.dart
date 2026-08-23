@@ -24,6 +24,20 @@ class KhatmaLinkService {
     return id;
   }
 
+  /// Redirige un lien legacy `#/join/{id}` vers le PATH canonique `/join/{id}`.
+  ///
+  /// Retourne `null` si l'URI est déjà canonique ou ne contient pas de join legacy.
+  static String? redirectPathForLegacyJoinUri(Uri uri) {
+    if (uri.path.startsWith('/join/')) return null;
+    final fragment = uri.fragment;
+    if (fragment.isEmpty) return null;
+    if (!fragment.contains('join')) return null;
+
+    final id = parseJoinKhatmaIdFromUri(uri);
+    if (id == null) return null;
+    return joinPath(id);
+  }
+
   /// Extrait un identifiant depuis une URL externe (path ou legacy hash).
   static String? parseJoinKhatmaIdFromUri(Uri uri) {
     final path = uri.path;

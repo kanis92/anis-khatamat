@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../anis_theme.dart';
+import '../foundations/anis_responsive_layout.dart';
 import '../tokens/anis_geometry.dart';
-import 'anis_bottom_navigation.dart';
 
 /// Structure de page ANIS.
 ///
@@ -35,7 +35,7 @@ class AnisScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
-    final bottomPadding = AnisBottomNavigation.bodyBottomInset(context);
+    final bottomPadding = AnisResponsiveLayout.shellBodyBottomInset(context);
 
     Widget content = Padding(
       padding: EdgeInsetsDirectional.fromSTEB(

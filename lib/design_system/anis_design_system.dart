@@ -16,6 +16,8 @@ library;
 export 'anis_theme.dart';
 export 'components/anis_badge.dart';
 export 'components/anis_bottom_navigation.dart';
+export 'components/anis_side_navigation.dart';
+export 'foundations/anis_responsive_layout.dart';
 export 'components/anis_buttons.dart';
 export 'components/anis_empty_state.dart';
 export 'components/anis_glyph.dart';

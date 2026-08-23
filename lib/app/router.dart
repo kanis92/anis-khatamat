@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/web/legacy_join_url_bridge.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
@@ -26,11 +29,14 @@ import '../l10n/gen_l10n/app_localizations.dart';
 import '../design_system/anis_design_system.dart';
 import '../core/widgets/anis_icon.dart';
 
-/// Notifie GoRouter lorsque l'auth ou le mode démo change, sans [ref.watch] dans redirect.
+/// Notifie GoRouter lorsque l'auth, le mode démo ou un hash legacy change.
 class _RouterRefreshNotifier extends ChangeNotifier {
   _RouterRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (_, __) => notifyListeners());
     ref.listen(demoModeProvider, (_, __) => notifyListeners());
+    if (kIsWeb) {
+      listenLegacyJoinHashChanges(notifyListeners);
+    }
   }
 }
 
@@ -41,11 +47,32 @@ final _routerRefreshProvider = Provider<_RouterRefreshNotifier>(
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ref.watch(_routerRefreshProvider);
 
+  final initialLocation = () {
+    if (kIsWeb) {
+      final legacy = KhatmaLinkService.redirectPathForLegacyJoinUri(Uri.base);
+      if (legacy != null) {
+        stripLegacyJoinFragment(legacy);
+        return legacy;
+      }
+    }
+    return '/login';
+  }();
+
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: initialLocation,
     debugLogDiagnostics: true,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
+      if (kIsWeb) {
+        final legacyJoin = KhatmaLinkService.redirectPathForLegacyJoinUri(
+          Uri.base,
+        );
+        if (legacyJoin != null && state.uri.path != legacyJoin) {
+          stripLegacyJoinFragment(legacyJoin);
+          return legacyJoin;
+        }
+      }
+
       final isDemo = ref.read(demoModeProvider);
       final isLoggedIn = isDemo || ref.read(authStateProvider).valueOrNull != null;
       final isAuthScreen =
@@ -240,28 +267,47 @@ class _MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final items = _shellNavigationItems(l10n);
+    final currentIndex = _calculateSelectedIndex(location);
+    final onSelected = (int index) => _onItemTapped(context, index);
+    final content = AnisShellContent(child: child);
+
+    if (AnisResponsiveLayout.usesSideNavigation(context)) {
+      return Scaffold(
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AnisSideNavigation(
+              items: items,
+              currentIndex: currentIndex,
+              onSelected: onSelected,
+            ),
+            Expanded(child: content),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
-      body: child,
+      body: content,
       bottomNavigationBar: AnisBottomNavigation(
-        currentIndex: _calculateSelectedIndex(location),
-        onSelected: (index) => _onItemTapped(context, index),
-        items: [
-          AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
-          AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
-          AnisNavigationItem(
-            label: l10n.notifications,
-            icon: AnisIconType.bell,
-          ),
-          AnisNavigationItem(label: l10n.training, icon: AnisIconType.training),
-          AnisNavigationItem(
-            label: l10n.settings,
-            materialIcon: Icons.settings_outlined,
-          ),
-        ],
+        currentIndex: currentIndex,
+        onSelected: onSelected,
+        items: items,
       ),
     );
   }
+
+  static List<AnisNavigationItem> _shellNavigationItems(AppLocalizations l10n) => [
+    AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
+    AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
+    AnisNavigationItem(label: l10n.notifications, icon: AnisIconType.bell),
+    AnisNavigationItem(label: l10n.training, icon: AnisIconType.training),
+    AnisNavigationItem(
+      label: l10n.settings,
+      materialIcon: Icons.settings_outlined,
+    ),
+  ];
 
   int _calculateSelectedIndex(String location) {
     if (location.startsWith('/khatma')) return 1;
