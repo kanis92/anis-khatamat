@@ -1,10 +1,6 @@
 import 'khatma.dart';
 
-enum KhatmaLoadFailure {
-  notFound,
-  accessDenied,
-  network,
-}
+enum KhatmaLoadFailure { notFound, accessDenied, network, demoUnavailable }
 
 /// Résultat explicite du chargement d'une Khatma par ID (navigation / deep links).
 class KhatmaLoadResult {
@@ -14,10 +10,10 @@ class KhatmaLoadResult {
   const KhatmaLoadResult._({this.khatma, this.failure});
 
   const KhatmaLoadResult.data(Khatma khatma)
-      : this._(khatma: khatma, failure: null);
+    : this._(khatma: khatma, failure: null);
 
   const KhatmaLoadResult.failure(KhatmaLoadFailure reason)
-      : this._(khatma: null, failure: reason);
+    : this._(khatma: null, failure: reason);
 
   bool get isSuccess => khatma != null && failure == null;
 }

@@ -138,18 +138,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mushafWarsh => 'Mushaf Warsh';
 
   @override
-@override
-  String get mushafWomen => 'Mushaf for women';
-
-  @override
-  String get mushafWomenDesc => 'Hafs edition — elegant rose theme';
-
-  @override
   String get mushafWarshDesc => 'North African version';
 
   @override
   String get chooseMushafType => 'Choose Mushaf type';
-@override
+
+  @override
+  String get mushafWomen => 'Women\'s Mushaf';
+
+  @override
+  String get mushafWomenDesc => 'Hafs Mushaf — elegant rose theme';
+
+  @override
   String get openMushaf => 'Open Mushaf';
 
   @override
@@ -187,57 +187,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mushafUnbookmark => 'Remove bookmark';
 
-
-  @override
-  String get khatmaTitle => 'Khatma title';
-
-  @override
-  String get objectives => 'Objectives';
-
-  @override
-  String get inviteMembers => 'Invite members';
-
-  @override
-  String get memberEmail => 'Member email';
-
-  @override
-  String get nextDistribution => 'Next → Hizb distribution';
-
-  @override
-  String get hizbDistribution => 'Hizb distribution';
-
-  @override
-  String hizbAssigned(int count, int total) {
-    return '$count/$total Hizb assigned';
-  }
-
-  @override
-  String get autoDistribution => 'Auto';
-
-  @override
-  String get manualDistribution => 'Manual';
-
-  @override
-  String get confirmDistribution => 'Confirm distribution';
-
-  @override
-  String get sendReminder => 'Send reminder';
-
-  @override
-  String get listOf60Hizb => 'List of 60 Hizb';
-
-  @override
-  String get unassigned => 'Unassigned';
-
-  @override
-  String get assignedTo => 'Assigned to';
-
-  @override
-  String assignedToLabel(String name) {
-    return 'Assigned to: $name';
-  }
-
-  @override
   @override
   String get completionAlhamdulillah => 'Alhamdulillah';
 
@@ -311,6 +260,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String completionProgressFraction(int completed, int total) {
     return '$completed/$total';
   }
+
+  @override
+  String get khatmaTitle => 'Khatma title';
+
+  @override
+  String get objectives => 'Objectives';
+
+  @override
+  String get inviteMembers => 'Invite members';
+
+  @override
+  String get memberEmail => 'Member email';
+
+  @override
+  String get nextDistribution => 'Next → Hizb distribution';
+
+  @override
+  String get hizbDistribution => 'Hizb distribution';
+
+  @override
+  String hizbAssigned(int count, int total) {
+    return '$count/$total Hizb assigned';
+  }
+
+  @override
+  String get autoDistribution => 'Auto';
+
+  @override
+  String get manualDistribution => 'Manual';
+
+  @override
+  String get confirmDistribution => 'Confirm distribution';
+
+  @override
+  String get sendReminder => 'Send reminder';
+
+  @override
+  String get listOf60Hizb => 'List of 60 Hizb';
+
+  @override
+  String get unassigned => 'Unassigned';
+
+  @override
+  String get assignedTo => 'Assigned to';
+
+  @override
+  String assignedToLabel(String name) {
+    return 'Assigned to: $name';
+  }
+
   @override
   String get khatmaCompleted => 'Khatma completed! ماشاء الله';
 
@@ -371,4 +370,145 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetEmailMessage => 'A reset email will be sent to you.';
+
+  @override
+  String get bookmarks => 'Bookmarks';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get groupKhatma => 'Group Khatma';
+
+  @override
+  String get guestBadge => 'Guest';
+
+  @override
+  String get homeCollectiveProgress => 'Collective progress';
+
+  @override
+  String get homeEmptyHint =>
+      'Create a Khatma or join one to follow your progress.';
+
+  @override
+  String get homeEmptyTitle => 'Start your first Khatma';
+
+  @override
+  String get homeGoalToday => 'Today\'s goal';
+
+  @override
+  String homeHizbInProgress(String number) {
+    return 'Hizb $number in progress';
+  }
+
+  @override
+  String homeHizbReserved(String number) {
+    return 'Hizb $number reserved';
+  }
+
+  @override
+  String get homeLoadError => 'Couldn\'t load your Khatmas';
+
+  @override
+  String get homeLoadErrorHint => 'Check your connection, then try again.';
+
+  @override
+  String get homePersonalProgress => 'Your progress';
+
+  @override
+  String get inProgress => 'In progress';
+
+  @override
+  String get joinCollectiveKhatma => 'Join a collective Khatma';
+
+  @override
+  String get khatmaInProgress => 'Khatma in progress';
+
+  @override
+  String get lastActivity => 'Last activity';
+
+  @override
+  String get myTraining => 'My Training';
+
+  @override
+  String get nextPrayer => 'Next prayer';
+
+  @override
+  String get offlineNotice => 'Offline — your data will sync later';
+
+  @override
+  String get prayerTimes => 'Prayer times';
+
+  @override
+  String get readingGoal => 'Reading goal';
+
+  @override
+  String get readingGoalAchieved => 'Goal achieved!';
+
+  @override
+  String readingGoalProgress(int completed, int target) {
+    return '$completed/$target Hizb';
+  }
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get statistics => 'Statistics';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'Khatma not found';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'This Khatma no longer exists or the link is invalid.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle => 'Khatma unavailable in demo';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'This Khatma isn\'t available in demo mode. Go back to the list or create a local Khatma.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'Access denied';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'You don\'t have access to this Khatma.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'Network error';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'Couldn\'t load this Khatma. Check your connection.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'Couldn\'t load this Khatma';
+
+  @override
+  String get khatmaRouteLoadErrorMessage =>
+      'Something went wrong. Please try again.';
+
+  @override
+  String get khatmaRouteLoading => 'Loading Khatma...';
+
+  @override
+  String get myKhatmas => 'My Khatmas';
+
+  @override
+  String get joinWithCode => 'Join with a code';
+
+  @override
+  String get back => 'Back';
 }

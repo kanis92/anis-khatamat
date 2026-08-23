@@ -137,18 +137,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mushafWarsh => 'مصحف ورش';
 
   @override
-@override
-  String get mushafWomen => 'مصحف للنساء';
-
-  @override
-  String get mushafWomenDesc => 'مصحف حفص — ثيم وردي أنيق';
-
-  @override
   String get mushafWarshDesc => 'نسخة شمال أفريقيا';
 
   @override
   String get chooseMushafType => 'اختر نوع المصحف';
-@override
+
+  @override
+  String get mushafWomen => 'مصحف النساء';
+
+  @override
+  String get mushafWomenDesc => 'مصحف حفص — تصميم وردي أنيق';
+
+  @override
   String get openMushaf => 'فتح المصحف';
 
   @override
@@ -186,57 +186,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get mushafUnbookmark => 'إزالة العلامة';
 
-
-  @override
-  String get khatmaTitle => 'عنوان الختمة';
-
-  @override
-  String get objectives => 'الأهداف';
-
-  @override
-  String get inviteMembers => 'دعوة الأعضاء';
-
-  @override
-  String get memberEmail => 'بريد العضو';
-
-  @override
-  String get nextDistribution => 'التالي → توزيع الأحزاب';
-
-  @override
-  String get hizbDistribution => 'توزيع الأحزاب';
-
-  @override
-  String hizbAssigned(int count, int total) {
-    return '$count/$total حزب معين';
-  }
-
-  @override
-  String get autoDistribution => 'تلقائي';
-
-  @override
-  String get manualDistribution => 'يدوي';
-
-  @override
-  String get confirmDistribution => 'تأكيد التوزيع';
-
-  @override
-  String get sendReminder => 'إرسال تذكير';
-
-  @override
-  String get listOf60Hizb => 'قائمة الأربعين حزباً';
-
-  @override
-  String get unassigned => 'غير معين';
-
-  @override
-  String get assignedTo => 'معين لـ';
-
-  @override
-  String assignedToLabel(String name) {
-    return 'معين لـ: $name';
-  }
-
-  @override
   @override
   String get completionAlhamdulillah => 'الحمد لله';
 
@@ -309,6 +258,56 @@ class AppLocalizationsAr extends AppLocalizations {
   String completionProgressFraction(int completed, int total) {
     return '$completed/$total';
   }
+
+  @override
+  String get khatmaTitle => 'عنوان الختمة';
+
+  @override
+  String get objectives => 'الأهداف';
+
+  @override
+  String get inviteMembers => 'دعوة الأعضاء';
+
+  @override
+  String get memberEmail => 'بريد العضو';
+
+  @override
+  String get nextDistribution => 'التالي → توزيع الأحزاب';
+
+  @override
+  String get hizbDistribution => 'توزيع الأحزاب';
+
+  @override
+  String hizbAssigned(int count, int total) {
+    return '$count/$total حزب معين';
+  }
+
+  @override
+  String get autoDistribution => 'تلقائي';
+
+  @override
+  String get manualDistribution => 'يدوي';
+
+  @override
+  String get confirmDistribution => 'تأكيد التوزيع';
+
+  @override
+  String get sendReminder => 'إرسال تذكير';
+
+  @override
+  String get listOf60Hizb => 'قائمة الأربعين حزباً';
+
+  @override
+  String get unassigned => 'غير معين';
+
+  @override
+  String get assignedTo => 'معين لـ';
+
+  @override
+  String assignedToLabel(String name) {
+    return 'معين لـ: $name';
+  }
+
   @override
   String get khatmaCompleted => 'الختمة مكتملة! ماشاء الله';
 
@@ -368,4 +367,144 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetEmailMessage => 'سيتم إرسال بريد إلكتروني لإعادة التعيين.';
+
+  @override
+  String get bookmarks => 'المفضلة';
+
+  @override
+  String get completed => 'مكتملة';
+
+  @override
+  String get continueAction => 'متابعة';
+
+  @override
+  String get groupKhatma => 'ختمة جماعية';
+
+  @override
+  String get guestBadge => 'زائر';
+
+  @override
+  String get homeCollectiveProgress => 'التقدّم الجماعي';
+
+  @override
+  String get homeEmptyHint => 'أنشئ ختمة أو انضم إلى ختمة لمتابعة تقدّمك.';
+
+  @override
+  String get homeEmptyTitle => 'ابدأ ختمتك الأولى';
+
+  @override
+  String get homeGoalToday => 'هدف اليوم';
+
+  @override
+  String homeHizbInProgress(String number) {
+    return 'الحزب $number قيد القراءة';
+  }
+
+  @override
+  String homeHizbReserved(String number) {
+    return 'الحزب $number محجوز';
+  }
+
+  @override
+  String get homeLoadError => 'تعذّر تحميل ختماتك';
+
+  @override
+  String get homeLoadErrorHint => 'تحقّق من الاتصال ثم أعد المحاولة.';
+
+  @override
+  String get homePersonalProgress => 'تقدّمك';
+
+  @override
+  String get inProgress => 'قيد التنفيذ';
+
+  @override
+  String get joinCollectiveKhatma => 'الانضمام إلى ختمة جماعية';
+
+  @override
+  String get khatmaInProgress => 'ختمة جارية';
+
+  @override
+  String get lastActivity => 'آخر نشاط';
+
+  @override
+  String get myTraining => 'تدريبي';
+
+  @override
+  String get nextPrayer => 'الصلاة القادمة';
+
+  @override
+  String get offlineNotice => 'غير متصل — ستُزامَن بياناتك لاحقًا';
+
+  @override
+  String get prayerTimes => 'أوقات الصلاة';
+
+  @override
+  String get readingGoal => 'هدف القراءة';
+
+  @override
+  String get readingGoalAchieved => 'تم تحقيق الهدف!';
+
+  @override
+  String readingGoalProgress(int completed, int target) {
+    return '$completed/$target حزب';
+  }
+
+  @override
+  String get resume => 'استئناف';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get statistics => 'الإحصائيات';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'الختمة غير موجودة';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'هذه الختمة لم تعد موجودة أو الرابط غير صالح.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle =>
+      'الختمة غير متاحة في وضع التجربة';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'هذه الختمة غير متاحة في وضع التجربة. ارجع إلى القائمة أو أنشئ ختمة محلية.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'تم رفض الوصول';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'ليس لديك حق الوصول إلى هذه الختمة.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'خطأ في الشبكة';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'تعذّر تحميل هذه الختمة. تحقّق من اتصالك.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'تعذّر تحميل هذه الختمة';
+
+  @override
+  String get khatmaRouteLoadErrorMessage => 'حدث خطأ. أعد المحاولة.';
+
+  @override
+  String get khatmaRouteLoading => 'جارٍ تحميل الختمة...';
+
+  @override
+  String get myKhatmas => 'ختماتي';
+
+  @override
+  String get joinWithCode => 'الانضمام برمز';
+
+  @override
+  String get back => 'رجوع';
 }

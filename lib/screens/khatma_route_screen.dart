@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/extensions/l10n_extensions.dart';
 import '../core/models/khatma.dart';
 import '../core/models/khatma_load_result.dart';
 import '../core/providers/reading_provider.dart';
@@ -36,10 +37,12 @@ class KhatmaRouteScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     if (khatmaId.isEmpty) {
       return _KhatmaRouteErrorScaffold(
-        title: 'Khatma introuvable',
-        message: 'Cette Khatma n\'existe plus ou le lien n\'est pas valide.',
+        title: l10n.khatmaRouteNotFoundTitle,
+        message: l10n.khatmaRouteNotFoundMessage,
         onBack: () => _goBack(context),
         onMyKhatmas: () => context.go('/khatma'),
       );
@@ -62,47 +65,78 @@ class KhatmaRouteScreen extends ConsumerWidget {
     }
 
     return loadAsync.when(
-      loading: () => seed != null
-          ? _buildExperience(seed)
-          : const _KhatmaRouteLoadingScaffold(),
-      error: (_, __) => _KhatmaRouteErrorScaffold(
-        title: 'Erreur réseau',
-        message: 'Impossible de charger la Khatma. Vérifiez votre connexion.',
-        onBack: () => _goBack(context),
-        onRetry: () {
-          ref.invalidate(khatmaLoadProvider(khatmaId));
-          ref.invalidate(khatmaStreamProvider(khatmaId));
-        },
-        onMyKhatmas: () => context.go('/khatma'),
-      ),
+      loading:
+          () =>
+              seed != null
+                  ? _buildExperience(seed)
+                  : _KhatmaRouteLoadingScaffold(
+                    message: l10n.khatmaRouteLoading,
+                  ),
+      error:
+          (_, __) => _KhatmaRouteErrorScaffold(
+            title: l10n.khatmaRouteLoadErrorTitle,
+            message: l10n.khatmaRouteLoadErrorMessage,
+            onBack: () => _goBack(context),
+            onRetry: () {
+              ref.invalidate(khatmaLoadProvider(khatmaId));
+              ref.invalidate(khatmaStreamProvider(khatmaId));
+            },
+            onMyKhatmas: () => context.go('/khatma'),
+            retryLabel: l10n.retry,
+            myKhatmasLabel: l10n.myKhatmas,
+            backLabel: l10n.back,
+            screenTitle: l10n.khatma,
+          ),
       data: (result) {
         if (result.failure == KhatmaLoadFailure.accessDenied) {
           return _KhatmaRouteErrorScaffold(
-            title: 'Accès refusé',
-            message: 'Vous n\'avez pas accès à cette Khatma.',
+            title: l10n.khatmaRouteAccessDeniedTitle,
+            message: l10n.khatmaRouteAccessDeniedMessage,
             onBack: () => _goBack(context),
             onMyKhatmas: () => context.go('/khatma'),
+            backLabel: l10n.back,
+            myKhatmasLabel: l10n.myKhatmas,
+            screenTitle: l10n.khatma,
           );
         }
         if (result.failure == KhatmaLoadFailure.network) {
           return _KhatmaRouteErrorScaffold(
-            title: 'Erreur réseau',
-            message: 'Impossible de charger la Khatma. Vérifiez votre connexion.',
+            title: l10n.khatmaRouteNetworkErrorTitle,
+            message: l10n.khatmaRouteNetworkErrorMessage,
             onBack: () => _goBack(context),
             onRetry: () => ref.invalidate(khatmaLoadProvider(khatmaId)),
             onMyKhatmas: () => context.go('/khatma'),
+            retryLabel: l10n.retry,
+            myKhatmasLabel: l10n.myKhatmas,
+            backLabel: l10n.back,
+            screenTitle: l10n.khatma,
+          );
+        }
+        if (result.failure == KhatmaLoadFailure.demoUnavailable) {
+          return _KhatmaRouteErrorScaffold(
+            title: l10n.khatmaRouteDemoUnavailableTitle,
+            message: l10n.khatmaRouteDemoUnavailableMessage,
+            onBack: () => _goBack(context),
+            onMyKhatmas: () => context.go('/khatma'),
+            backLabel: l10n.back,
+            myKhatmasLabel: l10n.myKhatmas,
+            screenTitle: l10n.khatma,
           );
         }
         if (result.khatma != null) {
           return _buildExperience(result.khatma!);
         }
         return _KhatmaRouteErrorScaffold(
-          title: 'Khatma introuvable',
-          message: 'Cette Khatma n\'existe plus ou le lien n\'est pas valide.',
+          title: l10n.khatmaRouteNotFoundTitle,
+          message: l10n.khatmaRouteNotFoundMessage,
           onBack: () => _goBack(context),
           onMyKhatmas: () => context.go('/khatma'),
-          secondaryActionLabel: 'Rejoindre avec un code',
-          onSecondaryAction: () => context.go(KhatmaLinkService.joinPath(khatmaId)),
+          secondaryActionLabel: l10n.joinWithCode,
+          onSecondaryAction:
+              () => context.go(KhatmaLinkService.joinPath(khatmaId)),
+          backLabel: l10n.back,
+          myKhatmasLabel: l10n.myKhatmas,
+          screenTitle: l10n.khatma,
         );
       },
     );
@@ -118,7 +152,10 @@ class KhatmaRouteScreen extends ConsumerWidget {
     }
     switch (khatmaExperienceFor(khatma)) {
       case KhatmaExperience.collaborative:
-        return HizbReservationScreen(khatma: khatma, guestId: _effectiveGuestId);
+        return HizbReservationScreen(
+          khatma: khatma,
+          guestId: _effectiveGuestId,
+        );
       case KhatmaExperience.classic:
         return KhatmaDetailScreen(khatma: khatma);
     }
@@ -134,19 +171,22 @@ class KhatmaRouteScreen extends ConsumerWidget {
 }
 
 class _KhatmaRouteLoadingScaffold extends StatelessWidget {
-  const _KhatmaRouteLoadingScaffold();
+  const _KhatmaRouteLoadingScaffold({required this.message});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Khatma')),
-      body: const Center(
+      appBar: AppBar(title: Text(l10n.khatma)),
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Chargement de la Khatma...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(message),
           ],
         ),
       ),
@@ -155,14 +195,6 @@ class _KhatmaRouteLoadingScaffold extends StatelessWidget {
 }
 
 class _KhatmaRouteErrorScaffold extends StatelessWidget {
-  final String title;
-  final String message;
-  final VoidCallback onBack;
-  final VoidCallback? onRetry;
-  final VoidCallback? onMyKhatmas;
-  final String? secondaryActionLabel;
-  final VoidCallback? onSecondaryAction;
-
   const _KhatmaRouteErrorScaffold({
     required this.title,
     required this.message,
@@ -171,12 +203,32 @@ class _KhatmaRouteErrorScaffold extends StatelessWidget {
     this.onMyKhatmas,
     this.secondaryActionLabel,
     this.onSecondaryAction,
+    this.retryLabel,
+    this.backLabel,
+    this.myKhatmasLabel,
+    this.screenTitle,
   });
+
+  final String title;
+  final String message;
+  final VoidCallback onBack;
+  final VoidCallback? onRetry;
+  final VoidCallback? onMyKhatmas;
+  final String? secondaryActionLabel;
+  final VoidCallback? onSecondaryAction;
+  final String? retryLabel;
+  final String? backLabel;
+  final String? myKhatmasLabel;
+  final String? screenTitle;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final actionLabel =
+        onRetry != null ? (retryLabel ?? l10n.retry) : (backLabel ?? l10n.back);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Khatma')),
+      appBar: AppBar(title: Text(screenTitle ?? l10n.khatma)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -184,19 +236,22 @@ class _KhatmaRouteErrorScaffold extends StatelessWidget {
             fallbackIcon: Icons.error_outline,
             title: title,
             subtitle: message,
-            actionLabel: onRetry != null ? 'Réessayer' : 'Retour',
+            actionLabel: actionLabel,
             onAction: onRetry ?? onBack,
           ),
           if (onMyKhatmas != null) ...[
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: onMyKhatmas,
-              child: const Text('Mes Khatmas'),
+              child: Text(myKhatmasLabel ?? l10n.myKhatmas),
             ),
           ],
           if (secondaryActionLabel != null && onSecondaryAction != null) ...[
             const SizedBox(height: 8),
-            TextButton(onPressed: onSecondaryAction, child: Text(secondaryActionLabel!)),
+            TextButton(
+              onPressed: onSecondaryAction,
+              child: Text(secondaryActionLabel!),
+            ),
           ],
         ],
       ),

@@ -104,6 +104,10 @@ class ReadingService {
     return null;
   }
 
+  /// Cache local uniquement — aucun accès Firestore (mode démo / offline).
+  Future<Khatma?> findLocalKhatmaById(String khatmaId) =>
+      _findLocalKhatma(khatmaId);
+
   Future<Khatma?> getKhatmaById(String khatmaId) async {
     try {
       return await loadKhatmaById(khatmaId);
@@ -121,8 +125,7 @@ class ReadingService {
     final fs = _firestore;
     if (fs != null) {
       try {
-        final parentStream =
-            fs.collection('khatmat').doc(khatmaId).snapshots();
+        final parentStream = fs.collection('khatmat').doc(khatmaId).snapshots();
         final reservationsStream =
             _reservationRepo.collectionRef(khatmaId).snapshots();
         return combineKhatmaAndReservationsStream(
@@ -176,9 +179,10 @@ class ReadingService {
     if (fs == null) return [];
     try {
       final snapshot = await fs.collection('khatmat').limit(200).get();
-      final list = snapshot.docs
-          .map((d) => Khatma.fromMap({...d.data(), 'id': d.id}))
-          .toList();
+      final list =
+          snapshot.docs
+              .map((d) => Khatma.fromMap({...d.data(), 'id': d.id}))
+              .toList();
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     } catch (e) {
@@ -203,10 +207,7 @@ class ReadingService {
   /// de chaque query sont alignées sur les rules (`createdBy` / `members` /
   /// `participantIds` = email du token ou uid). Une query trop large ferait
   /// refuser **toute** la liste : chaque query est donc isolée.
-  Future<List<Khatma>> getMyKhatmat({
-    String? email,
-    String? authUid,
-  }) async {
+  Future<List<Khatma>> getMyKhatmat({String? email, String? authUid}) async {
     await AuthDiag.logContext('getMyKhatmat');
     final localList = await _getKhatmatLocal();
     final user = _firebaseUser;
@@ -233,47 +234,51 @@ class ReadingService {
                 .map((d) => Khatma.fromMap({...d.data(), 'id': d.id}))
                 .toList();
           } catch (e) {
-            logFirestoreAccess(
-              'getMyKhatmat.$label',
-              e,
-              hasFirebaseAuth: true,
-            );
+            logFirestoreAccess('getMyKhatmat.$label', e, hasFirebaseAuth: true);
             return const [];
           }
         }
 
         final futures = <Future<List<Khatma>>>[];
         if (plan.queryCreatedBy) {
-          futures.add(run(
-            'createdBy',
-            col
-                .where('createdBy', isEqualTo: plan.email)
-                .orderBy('createdAt', descending: true),
-          ));
+          futures.add(
+            run(
+              'createdBy',
+              col
+                  .where('createdBy', isEqualTo: plan.email)
+                  .orderBy('createdAt', descending: true),
+            ),
+          );
         }
         if (plan.queryMembers) {
-          futures.add(run(
-            'members',
-            col
-                .where('members', arrayContains: plan.email)
-                .orderBy('createdAt', descending: true),
-          ));
+          futures.add(
+            run(
+              'members',
+              col
+                  .where('members', arrayContains: plan.email)
+                  .orderBy('createdAt', descending: true),
+            ),
+          );
         }
         if (plan.queryParticipantEmail) {
-          futures.add(run(
-            'participantEmail',
-            col
-                .where('participantIds', arrayContains: plan.email)
-                .orderBy('createdAt', descending: true),
-          ));
+          futures.add(
+            run(
+              'participantEmail',
+              col
+                  .where('participantIds', arrayContains: plan.email)
+                  .orderBy('createdAt', descending: true),
+            ),
+          );
         }
         if (plan.queryParticipantUid) {
-          futures.add(run(
-            'participantUid',
-            col
-                .where('participantIds', arrayContains: plan.authUid)
-                .orderBy('createdAt', descending: true),
-          ));
+          futures.add(
+            run(
+              'participantUid',
+              col
+                  .where('participantIds', arrayContains: plan.authUid)
+                  .orderBy('createdAt', descending: true),
+            ),
+          );
         }
 
         queryResults.addAll(await Future.wait(futures));
@@ -301,9 +306,16 @@ class ReadingService {
     final filterUid = plan.skipRemote ? authUid : plan.authUid;
 
     var merged = mergeMyKhatmatQueries(queryResults);
-    merged = merged
-        .where((k) => userBelongsToKhatma(k, email: filterEmail, authUid: filterUid))
-        .toList();
+    merged =
+        merged
+            .where(
+              (k) => userBelongsToKhatma(
+                k,
+                email: filterEmail,
+                authUid: filterUid,
+              ),
+            )
+            .toList();
 
     final firestoreIds = merged.map((k) => k.id).toSet();
     for (final k in localList) {
@@ -318,10 +330,12 @@ class ReadingService {
   }
 
   /// @deprecated Utiliser [getMyKhatmat].
-  Future<List<Khatma>> getKhatmat(String userId) =>
-      getMyKhatmat(email: userId);
+  Future<List<Khatma>> getKhatmat(String userId) => getMyKhatmat(email: userId);
 
-  Future<void> _backfillParticipantId(String khatmaId, String participantId) async {
+  Future<void> _backfillParticipantId(
+    String khatmaId,
+    String participantId,
+  ) async {
     final fs = _firestore;
     if (fs == null || participantId.isEmpty) return;
     try {
@@ -334,30 +348,40 @@ class ReadingService {
   }
 
   /// Une seule requête pour toute la progression utilisateur (évite N+1).
-  Future<Map<String, ReadingProgress>> getProgressMapForUser(String userId) async {
+  Future<Map<String, ReadingProgress>> getProgressMapForUser(
+    String userId,
+  ) async {
     final map = <String, ReadingProgress>{};
     final fs = _firestore;
     if (fs != null) {
       try {
-        final snap = await fs
-            .collection('reading_progress')
-            .where('userId', isEqualTo: userId)
-            .get();
+        final snap =
+            await fs
+                .collection('reading_progress')
+                .where('userId', isEqualTo: userId)
+                .get();
         for (final doc in snap.docs) {
           final data = doc.data();
           final khatmaId = data['khatmaId'] as String? ?? '';
           if (khatmaId.isEmpty) continue;
-          map[khatmaId] = ReadingProgress.fromMap({...data, 'khatmaId': khatmaId});
+          map[khatmaId] = ReadingProgress.fromMap({
+            ...data,
+            'khatmaId': khatmaId,
+          });
         }
         return map;
       } catch (_) {}
     }
     final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys().where((k) => k.startsWith(_progressKey))) {
+    for (final key in prefs.getKeys().where(
+      (k) => k.startsWith(_progressKey),
+    )) {
       if (!key.contains(userId)) continue;
       final json = prefs.getString(key);
       if (json == null) continue;
-      final p = ReadingProgress.fromMap(jsonDecode(json) as Map<String, dynamic>);
+      final p = ReadingProgress.fromMap(
+        jsonDecode(json) as Map<String, dynamic>,
+      );
       map[p.khatmaId] = p;
     }
     return map;
@@ -395,7 +419,10 @@ class ReadingService {
     } else {
       list.insert(0, toSave);
     }
-    await prefs.setString(_khatmatKey, jsonEncode(list.map((k) => k.toMap()).toList()));
+    await prefs.setString(
+      _khatmatKey,
+      jsonEncode(list.map((k) => k.toMap()).toList()),
+    );
     final fs = _firestore;
     if (fs != null) {
       if (identity == null || !identity.canWriteKhatma) {
@@ -420,20 +447,25 @@ class ReadingService {
             data['participantIds'] = [toSave.createdBy];
           }
           final doc = await fs.collection('khatmat').add(data);
-          final updated = canonicalToSave.copyWith(
-            id: doc.id,
-          );
+          final updated = canonicalToSave.copyWith(id: doc.id);
           await _reservationRepo.initializeSubcollection(
             doc.id,
             hizbDefinitionId: updated.hizbDefinitionId,
           );
-          final newList = list.map((k) => k.id == khatma.id ? updated : k).toList();
-          await prefs.setString(_khatmatKey, jsonEncode(newList.map((k) => k.toMap()).toList()));
+          final newList =
+              list.map((k) => k.id == khatma.id ? updated : k).toList();
+          await prefs.setString(
+            _khatmatKey,
+            jsonEncode(newList.map((k) => k.toMap()).toList()),
+          );
           return updated;
         } else {
           final data = toSave.toMap();
           data.remove('id');
-          await fs.collection('khatmat').doc(toSave.id).set(data, SetOptions(merge: true));
+          await fs
+              .collection('khatmat')
+              .doc(toSave.id)
+              .set(data, SetOptions(merge: true));
         }
       } on FirebaseException catch (e) {
         logFirestoreAccess(
@@ -458,28 +490,45 @@ class ReadingService {
     final fs = _firestore;
     if (fs != null) {
       try {
-        final doc = await fs
-            .collection('reading_progress')
-            .doc('${khatmaId}_$userId')
-            .get();
+        final doc =
+            await fs
+                .collection('reading_progress')
+                .doc('${khatmaId}_$userId')
+                .get();
         if (doc.exists) {
-          return ReadingProgress.fromMap({...doc.data()!, 'khatmaId': khatmaId, 'userId': userId});
+          return ReadingProgress.fromMap({
+            ...doc.data()!,
+            'khatmaId': khatmaId,
+            'userId': userId,
+          });
         }
       } catch (_) {}
     }
     return await _getProgressLocal(khatmaId, userId);
   }
 
-  Future<ReadingProgress?> _getProgressLocal(String khatmaId, String userId) async {
+  Future<ReadingProgress?> _getProgressLocal(
+    String khatmaId,
+    String userId,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final map = prefs.getString('$_progressKey$khatmaId\$$userId');
     if (map == null) return null;
     return ReadingProgress.fromMap(jsonDecode(map) as Map<String, dynamic>);
   }
 
-  Future<void> toggleHizbCompleted(String khatmaId, String userId, int hizbNumber) async {
-    final progress = await getProgress(khatmaId, userId) ??
-        ReadingProgress(khatmaId: khatmaId, userId: userId, lastUpdated: DateTime.now());
+  Future<void> toggleHizbCompleted(
+    String khatmaId,
+    String userId,
+    int hizbNumber,
+  ) async {
+    final progress =
+        await getProgress(khatmaId, userId) ??
+        ReadingProgress(
+          khatmaId: khatmaId,
+          userId: userId,
+          lastUpdated: DateTime.now(),
+        );
     final newSet = Set<int>.from(progress.completedHizb);
     if (newSet.contains(hizbNumber)) {
       newSet.remove(hizbNumber);
@@ -525,24 +574,25 @@ class ReadingService {
       throw HizbReservationConflictException(hizbNumber);
     }
 
-    final reservations = Map<int, HizbReservation>.from(khatma.hizbReservations);
-    var current = reservations[hizbNumber] ??
+    final reservations = Map<int, HizbReservation>.from(
+      khatma.hizbReservations,
+    );
+    var current =
+        reservations[hizbNumber] ??
         HizbIndexRepository.reservationSnapshot(
           hizbNumber,
           definitionId: khatma.hizbDefinitionId,
         );
     // Résoudre les états expirés
-    if (current.isSoftLocked && current.softLockExpiresAt != null &&
+    if (current.isSoftLocked &&
+        current.softLockExpiresAt != null &&
         DateTime.now().isAfter(current.softLockExpiresAt!)) {
-      current = current.transitionTo(
-        status: HizbReservationStatus.available,
-      );
+      current = current.transitionTo(status: HizbReservationStatus.available);
     }
-    if (current.isReserved && current.expiresAt != null &&
+    if (current.isReserved &&
+        current.expiresAt != null &&
         DateTime.now().isAfter(current.expiresAt!)) {
-      current = current.transitionTo(
-        status: HizbReservationStatus.expired,
-      );
+      current = current.transitionTo(status: HizbReservationStatus.expired);
     }
 
     if (!current.isAvailable) {
@@ -550,11 +600,16 @@ class ReadingService {
     }
 
     final now = DateTime.now();
-    final expiresAt = now.add(Duration(hours: ReservationConfig.reservationExpirationHours));
+    final expiresAt = now.add(
+      Duration(hours: ReservationConfig.reservationExpirationHours),
+    );
     reservations[hizbNumber] = current.transitionTo(
       status: HizbReservationStatus.reserved,
       reservedBy: userId,
-      reservedForName: reservedForName?.trim().isNotEmpty == true ? reservedForName!.trim() : null,
+      reservedForName:
+          reservedForName?.trim().isNotEmpty == true
+              ? reservedForName!.trim()
+              : null,
       reservedAt: now,
       expiresAt: expiresAt,
     );
@@ -565,7 +620,11 @@ class ReadingService {
 
   /// Libère une réservation (annulation par le participant).
   /// Fallback local uniquement pour Khatmas local_*.
-  Future<void> releaseHizb(String khatmaId, int hizbNumber, String userId) async {
+  Future<void> releaseHizb(
+    String khatmaId,
+    int hizbNumber,
+    String userId,
+  ) async {
     final khatma = await getKhatmaById(khatmaId);
     if (khatma == null || !khatma.reservationMode) return;
     if (!khatma.id.startsWith('local_') && _firestore == null) {
@@ -573,11 +632,15 @@ class ReadingService {
     }
 
     final current = khatma.hizbReservations[hizbNumber];
-    if (current == null || current.reservedBy != userId || !current.isReserved) {
+    if (current == null ||
+        current.reservedBy != userId ||
+        !current.isReserved) {
       return;
     }
 
-    final reservations = Map<int, HizbReservation>.from(khatma.hizbReservations);
+    final reservations = Map<int, HizbReservation>.from(
+      khatma.hizbReservations,
+    );
     reservations[hizbNumber] = current.transitionTo(
       status: HizbReservationStatus.available,
     );
@@ -598,12 +661,16 @@ class ReadingService {
     if (khatma == null || !khatma.reservationMode) return;
 
     final current = khatma.hizbReservations[hizbNumber];
-    if (current == null || current.reservedBy != userId || !current.isReserved) {
+    if (current == null ||
+        current.reservedBy != userId ||
+        !current.isReserved) {
       return;
     }
 
     final now = DateTime.now();
-    final reservations = Map<int, HizbReservation>.from(khatma.hizbReservations);
+    final reservations = Map<int, HizbReservation>.from(
+      khatma.hizbReservations,
+    );
     reservations[hizbNumber] = current.copyWith(
       status: HizbReservationStatus.completed,
       completedAt: now,
@@ -613,14 +680,22 @@ class ReadingService {
     await saveKhatma(updated);
 
     await _historyService.logHizbCompleted(userId, now);
-    final progress = await getProgress(khatmaId, userId) ??
-        ReadingProgress(khatmaId: khatmaId, userId: userId, lastUpdated: now, authUid: authUid);
+    final progress =
+        await getProgress(khatmaId, userId) ??
+        ReadingProgress(
+          khatmaId: khatmaId,
+          userId: userId,
+          lastUpdated: now,
+          authUid: authUid,
+        );
     final newSet = Set<int>.from(progress.completedHizb)..add(hizbNumber);
-    await saveProgress(progress.copyWith(
-      completedHizb: newSet,
-      lastUpdated: now,
-      authUid: authUid ?? progress.authUid,
-    ));
+    await saveProgress(
+      progress.copyWith(
+        completedHizb: newSet,
+        lastUpdated: now,
+        authUid: authUid ?? progress.authUid,
+      ),
+    );
   }
 
   /// Ajoute un invité (Firebase Anonymous UID) à une Khatma.
@@ -639,7 +714,8 @@ class ReadingService {
     }
 
     final docRef = fs.collection('khatmat').doc(khatmaId);
-    final needsMigration = legacyGuestId != null &&
+    final needsMigration =
+        legacyGuestId != null &&
         legacyGuestId.isNotEmpty &&
         legacyGuestId.startsWith('guest_') &&
         legacyGuestId != authUid;
@@ -657,10 +733,13 @@ class ReadingService {
           'participantIds': FieldValue.arrayUnion([authUid]),
         });
 
-        if (khatma.reservationSchemaVersion >= ReservationSchema.subcollection) {
+        if (khatma.reservationSchemaVersion >=
+            ReservationSchema.subcollection) {
           for (var i = 1; i <= AppConstants.totalHizb; i++) {
             final d = await tx.get(
-              docRef.collection(ReservationSchema.subcollectionName).doc(i.toString()),
+              docRef
+                  .collection(ReservationSchema.subcollectionName)
+                  .doc(i.toString()),
             );
             if (!d.exists || d.data() == null) continue;
             final r = HizbReservation.fromMap(d.data()!);
@@ -676,7 +755,9 @@ class ReadingService {
             }
           }
         } else {
-          final reservations = Map<int, HizbReservation>.from(khatma.hizbReservations);
+          final reservations = Map<int, HizbReservation>.from(
+            khatma.hizbReservations,
+          );
           for (final entry in reservations.entries.toList()) {
             final r = entry.value;
             var updated = r;
@@ -691,8 +772,9 @@ class ReadingService {
             }
           }
           tx.update(docRef, {
-            'hizbReservations':
-                reservations.map((k, v) => MapEntry(k.toString(), v.toMap())),
+            'hizbReservations': reservations.map(
+              (k, v) => MapEntry(k.toString(), v.toMap()),
+            ),
           });
         }
       });
@@ -706,7 +788,11 @@ class ReadingService {
   }
 
   /// Ajoute un membre (avec compte) à une Khatma — mise à jour partielle Firestore.
-  Future<void> addMemberToKhatma(String khatmaId, String memberEmail, {String? displayName}) async {
+  Future<void> addMemberToKhatma(
+    String khatmaId,
+    String memberEmail, {
+    String? displayName,
+  }) async {
     final fs = _firestore;
     if (fs == null) {
       debugPrint('ReadingService.addMemberToKhatma: Firestore indisponible');
@@ -743,10 +829,11 @@ class ReadingService {
     final fs = _firestore;
     if (fs != null) {
       try {
-        final snapshot = await fs
-            .collection('reading_progress')
-            .where('khatmaId', isEqualTo: khatmaId)
-            .get();
+        final snapshot =
+            await fs
+                .collection('reading_progress')
+                .where('khatmaId', isEqualTo: khatmaId)
+                .get();
         final allCompleted = <int>{};
         for (final doc in snapshot.docs) {
           final progress = ReadingProgress.fromMap(doc.data());
@@ -756,12 +843,16 @@ class ReadingService {
       } catch (_) {}
     }
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((k) => k.startsWith('$_progressKey$khatmaId\$'));
+    final keys = prefs.getKeys().where(
+      (k) => k.startsWith('$_progressKey$khatmaId\$'),
+    );
     final allCompleted = <int>{};
     for (final key in keys) {
       final json = prefs.getString(key);
       if (json != null) {
-        final p = ReadingProgress.fromMap(jsonDecode(json) as Map<String, dynamic>);
+        final p = ReadingProgress.fromMap(
+          jsonDecode(json) as Map<String, dynamic>,
+        );
         allCompleted.addAll(p.completedHizb);
       }
     }
@@ -773,16 +864,18 @@ class ReadingService {
   /// La rule collectionGroup n'autorise que `reservedBy == canonicalId()`.
   /// [participantId] doit donc être l'email du token ou l'uid anonyme — jamais
   /// une identité synthétique (demo@test.com) sans session.
-  Future<Map<String, UserKhatmaReservationInfo>> fetchUserActiveReservationsFromSubcollection(
-    String participantId,
-  ) async {
+  Future<Map<String, UserKhatmaReservationInfo>>
+  fetchUserActiveReservationsFromSubcollection(String participantId) async {
     final fs = _firestore;
     final user = _firebaseUser;
     if (fs == null || participantId.isEmpty || user == null) return {};
 
-    final canonical = user.isAnonymous
-        ? user.uid
-        : (user.email?.trim().isNotEmpty == true ? user.email!.trim() : user.uid);
+    final canonical =
+        user.isAnonymous
+            ? user.uid
+            : (user.email?.trim().isNotEmpty == true
+                ? user.email!.trim()
+                : user.uid);
     if (canonical != participantId) {
       if (kDebugMode) {
         debugPrint(
@@ -794,11 +887,12 @@ class ReadingService {
     }
 
     try {
-      final snap = await fs
-          .collectionGroup(ReservationSchema.subcollectionName)
-          .where('reservedBy', isEqualTo: participantId)
-          .limit(40)
-          .get();
+      final snap =
+          await fs
+              .collectionGroup(ReservationSchema.subcollectionName)
+              .where('reservedBy', isEqualTo: participantId)
+              .limit(40)
+              .get();
 
       final map = <String, UserKhatmaReservationInfo>{};
       for (final doc in snap.docs) {
@@ -809,9 +903,8 @@ class ReadingService {
         final khatmaId = doc.reference.parent.parent?.id;
         if (khatmaId == null || khatmaId.isEmpty) continue;
 
-        final hizbNumber = (data['hizbNumber'] as num?)?.toInt() ??
-            int.tryParse(doc.id) ??
-            0;
+        final hizbNumber =
+            (data['hizbNumber'] as num?)?.toInt() ?? int.tryParse(doc.id) ?? 0;
         if (hizbNumber < 1) continue;
 
         DateTime? reservedAt;
@@ -857,7 +950,9 @@ class ReadingService {
       if (key.contains(userId)) {
         final json = prefs.getString(key);
         if (json != null) {
-          final p = ReadingProgress.fromMap(jsonDecode(json) as Map<String, dynamic>);
+          final p = ReadingProgress.fromMap(
+            jsonDecode(json) as Map<String, dynamic>,
+          );
           total += p.completedCount;
         }
       }

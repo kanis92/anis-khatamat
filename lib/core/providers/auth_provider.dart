@@ -15,18 +15,20 @@ final authStateProvider = StreamProvider<User?>((ref) {
 
 /// Utilisateur actuel (Firebase ou démo)
 class AppUser {
+  final String? uid;
   final String? email;
   final String? displayName;
 
-  AppUser({this.email, this.displayName});
+  AppUser({this.uid, this.email, this.displayName});
 
   factory AppUser.fromFirebase(User user) =>
-      AppUser(email: user.email, displayName: user.displayName);
+      AppUser(uid: user.uid, email: user.email, displayName: user.displayName);
 
   static AppUser get demo => AppUser(
-        email: 'demo@test.com',
-        displayName: 'Utilisateur démo',
-      );
+    uid: 'demo-user',
+    email: 'demo@test.com',
+    displayName: 'Utilisateur démo',
+  );
 }
 
 /// Provider pour l'utilisateur actuel

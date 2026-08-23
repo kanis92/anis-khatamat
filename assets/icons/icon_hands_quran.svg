@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Open Quran on top -->
+  <path d="M10 18 C10 15 16 13 24 15 C32 13 38 15 38 18 L38 32 C38 35 32 37 24 35 C16 37 10 35 10 32 Z" stroke-width="2"/>
+  <path d="M24 15 L24 35" stroke-width="1.5"/>
+  <path d="M13 22 L19 22 M13 26 L21 26 M13 30 L17 30" stroke-width="1.2" opacity="0.6"/>
+  <path d="M29 22 L35 22 M27 26 L35 26 M31 30 L35 30" stroke-width="1.2" opacity="0.6"/>
+  <!-- Left arm / hand -->
+  <path d="M4 44 C4 38 8 33 14 31 L20 29 L21 34 L15 36 C11 38 8 42 7 44 Z" stroke-width="2"/>
+  <!-- Right arm / hand -->
+  <path d="M44 44 C44 38 40 33 34 31 L28 29 L27 34 L33 36 C37 38 40 42 41 44 Z" stroke-width="2"/>
+</svg>

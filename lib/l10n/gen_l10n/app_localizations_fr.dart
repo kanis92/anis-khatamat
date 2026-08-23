@@ -142,13 +142,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mushafWarshDesc => 'Version d\'Afrique du Nord';
 
   @override
+  String get chooseMushafType => 'Choisissez le type de Mushaf';
+
+  @override
   String get mushafWomen => 'Mushaf Femmes';
 
   @override
   String get mushafWomenDesc => 'مصحف حفص — thème rose élégant';
-
-  @override
-  String get chooseMushafType => 'Choisissez le type de Mushaf';
 
   @override
   String get openMushaf => 'Ouvrir le Mushaf';
@@ -188,56 +188,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get mushafUnbookmark => 'Retirer le signet';
 
-  @override
-  String get khatmaTitle => 'Titre de la Khatma';
-
-  @override
-  String get objectives => 'Objectifs';
-
-  @override
-  String get inviteMembers => 'Inviter des membres';
-
-  @override
-  String get memberEmail => 'Email du membre';
-
-  @override
-  String get nextDistribution => 'Suivant → Distribution des Hizb';
-
-  @override
-  String get hizbDistribution => 'Distribution des Hizb';
-
-  @override
-  String hizbAssigned(int count, int total) {
-    return '$count/$total Hizb assignés';
-  }
-
-  @override
-  String get autoDistribution => 'Auto';
-
-  @override
-  String get manualDistribution => 'Manuel';
-
-  @override
-  String get confirmDistribution => 'Confirmer la distribution';
-
-  @override
-  String get sendReminder => 'Envoyer un rappel';
-
-  @override
-  String get listOf60Hizb => 'Liste des 60 Hizb';
-
-  @override
-  String get unassigned => 'Non assigné';
-
-  @override
-  String get assignedTo => 'Assigné à';
-
-  @override
-  String assignedToLabel(String name) {
-    return 'Assigné à: $name';
-  }
-
-  @override
   @override
   String get completionAlhamdulillah => 'Alhamdulillah';
 
@@ -311,6 +261,56 @@ class AppLocalizationsFr extends AppLocalizations {
   String completionProgressFraction(int completed, int total) {
     return '$completed/$total';
   }
+
+  @override
+  String get khatmaTitle => 'Titre de la Khatma';
+
+  @override
+  String get objectives => 'Objectifs';
+
+  @override
+  String get inviteMembers => 'Inviter des membres';
+
+  @override
+  String get memberEmail => 'Email du membre';
+
+  @override
+  String get nextDistribution => 'Suivant → Distribution des Hizb';
+
+  @override
+  String get hizbDistribution => 'Distribution des Hizb';
+
+  @override
+  String hizbAssigned(int count, int total) {
+    return '$count/$total Hizb assignés';
+  }
+
+  @override
+  String get autoDistribution => 'Auto';
+
+  @override
+  String get manualDistribution => 'Manuel';
+
+  @override
+  String get confirmDistribution => 'Confirmer la distribution';
+
+  @override
+  String get sendReminder => 'Envoyer un rappel';
+
+  @override
+  String get listOf60Hizb => 'Liste des 60 Hizb';
+
+  @override
+  String get unassigned => 'Non assigné';
+
+  @override
+  String get assignedTo => 'Assigné à';
+
+  @override
+  String assignedToLabel(String name) {
+    return 'Assigné à: $name';
+  }
+
   @override
   String get khatmaCompleted => 'Khatma terminée ! ماشاء الله';
 
@@ -372,4 +372,145 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get resetEmailMessage =>
       'Un email de réinitialisation vous sera envoyé.';
+
+  @override
+  String get bookmarks => 'Favoris';
+
+  @override
+  String get completed => 'Terminées';
+
+  @override
+  String get continueAction => 'Continuer';
+
+  @override
+  String get groupKhatma => 'Khatma en groupe';
+
+  @override
+  String get guestBadge => 'Invité';
+
+  @override
+  String get homeCollectiveProgress => 'Progression collective';
+
+  @override
+  String get homeEmptyHint =>
+      'Créez une Khatma ou rejoignez-en une pour suivre votre progression.';
+
+  @override
+  String get homeEmptyTitle => 'Commencez votre première Khatma';
+
+  @override
+  String get homeGoalToday => 'Objectif du jour';
+
+  @override
+  String homeHizbInProgress(String number) {
+    return 'Hizb $number en cours';
+  }
+
+  @override
+  String homeHizbReserved(String number) {
+    return 'Hizb $number réservé';
+  }
+
+  @override
+  String get homeLoadError => 'Impossible de charger vos Khatmas';
+
+  @override
+  String get homeLoadErrorHint => 'Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get homePersonalProgress => 'Votre progression';
+
+  @override
+  String get inProgress => 'En cours';
+
+  @override
+  String get joinCollectiveKhatma => 'Rejoindre une Khatma collective';
+
+  @override
+  String get khatmaInProgress => 'Khatma en cours';
+
+  @override
+  String get lastActivity => 'Dernière activité';
+
+  @override
+  String get myTraining => 'Ma Formation';
+
+  @override
+  String get nextPrayer => 'Prière suivante';
+
+  @override
+  String get offlineNotice => 'Hors ligne — vos données seront synchronisées';
+
+  @override
+  String get prayerTimes => 'Horaires de prière';
+
+  @override
+  String get readingGoal => 'Objectif de lecture';
+
+  @override
+  String get readingGoalAchieved => 'Objectif atteint !';
+
+  @override
+  String readingGoalProgress(int completed, int target) {
+    return '$completed/$target Hizb';
+  }
+
+  @override
+  String get resume => 'Reprendre';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get seeAll => 'Voir tout';
+
+  @override
+  String get statistics => 'Statistiques';
+
+  @override
+  String get khatmaRouteNotFoundTitle => 'Khatma introuvable';
+
+  @override
+  String get khatmaRouteNotFoundMessage =>
+      'Cette Khatma n\'existe plus ou le lien n\'est pas valide.';
+
+  @override
+  String get khatmaRouteDemoUnavailableTitle => 'Khatma indisponible en démo';
+
+  @override
+  String get khatmaRouteDemoUnavailableMessage =>
+      'Cette Khatma n\'est pas accessible en mode démo. Revenez à la liste ou créez une Khatma locale.';
+
+  @override
+  String get khatmaRouteAccessDeniedTitle => 'Accès refusé';
+
+  @override
+  String get khatmaRouteAccessDeniedMessage =>
+      'Vous n\'avez pas accès à cette Khatma.';
+
+  @override
+  String get khatmaRouteNetworkErrorTitle => 'Erreur réseau';
+
+  @override
+  String get khatmaRouteNetworkErrorMessage =>
+      'Impossible de charger la Khatma. Vérifiez votre connexion.';
+
+  @override
+  String get khatmaRouteLoadErrorTitle => 'Impossible de charger la Khatma';
+
+  @override
+  String get khatmaRouteLoadErrorMessage =>
+      'Une erreur est survenue. Réessayez.';
+
+  @override
+  String get khatmaRouteLoading => 'Chargement de la Khatma...';
+
+  @override
+  String get myKhatmas => 'Mes Khatmas';
+
+  @override
+  String get joinWithCode => 'Rejoindre avec un code';
+
+  @override
+  String get back => 'Retour';
 }
