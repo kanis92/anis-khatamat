@@ -26,15 +26,28 @@ import '../l10n/gen_l10n/app_localizations.dart';
 import '../design_system/anis_design_system.dart';
 import '../core/widgets/anis_icon.dart';
 
+/// Notifie GoRouter lorsque l'auth ou le mode démo change, sans [ref.watch] dans redirect.
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(authStateProvider, (_, __) => notifyListeners());
+    ref.listen(demoModeProvider, (_, __) => notifyListeners());
+  }
+}
+
+final _routerRefreshProvider = Provider<_RouterRefreshNotifier>(
+  (ref) => _RouterRefreshNotifier(ref),
+);
+
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  final refreshListenable = ref.watch(_routerRefreshProvider);
 
   return GoRouter(
     initialLocation: '/login',
     debugLogDiagnostics: true,
+    refreshListenable: refreshListenable,
     redirect: (context, state) {
-      final isDemo = ref.watch(demoModeProvider);
-      final isLoggedIn = isDemo || authState.valueOrNull != null;
+      final isDemo = ref.read(demoModeProvider);
+      final isLoggedIn = isDemo || ref.read(authStateProvider).valueOrNull != null;
       final isAuthScreen =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';

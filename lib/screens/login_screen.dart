@@ -174,7 +174,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 OutlinedButton.icon(
                   onPressed: () {
                     ref.read(demoModeProvider.notifier).state = true;
-                    context.go('/');
                   },
                   icon: const Icon(Icons.play_circle_outline),
                   label: const Text('Mode démo (tester sans connexion)'),
