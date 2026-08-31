@@ -310,12 +310,18 @@
 
       <h3>3.5 Données de diagnostic</h3>
       <p>
-        À ce jour, ANIS Khatamat <strong>ne collecte pas</strong> de rapports de plantage
-        ni de données de diagnostic via un service tiers (par ex. Firebase Crashlytics).
+        ANIS Khatamat utilise <strong>Firebase Crashlytics</strong> pour collecter des
+        rapports techniques de plantage (stack traces, type d'exception, informations
+        d'appareil et version de l'Application) afin d'améliorer la stabilité.
       </p>
       <p>
-        Si un service de diagnostic venait à être activé ultérieurement, la présente
-        politique serait mise à jour avant toute collecte correspondante.
+        Crashlytics n'est <strong>pas</strong> utilisé pour identifier un utilisateur.
+        L'Application n'associe pas d'adresse e-mail, d'identifiant de compte, de
+        localisation ni de contenu de Khatma aux rapports de diagnostic.
+      </p>
+      <p>
+        Firebase Crashlytics n'est pas chargé sur le web, ni lorsque l'Application
+        fonctionne sans configuration Firebase (mode démonstration).
       </p>
 
       <div class="notice" role="note">
@@ -344,7 +350,7 @@
       <ul>
         <li><strong>L'exécution du contrat</strong>&nbsp;: fourniture des services de l'Application</li>
         <li><strong>Votre consentement</strong>&nbsp;: accès à la localisation, notifications le cas échéant</li>
-        <li><strong>L'intérêt légitime</strong>&nbsp;: sécurité et prévention des abus</li>
+        <li><strong>L'intérêt légitime</strong>&nbsp;: sécurité, prévention des abus et diagnostic technique des plantages</li>
         <li><strong>Les obligations légales</strong>&nbsp;: lorsque la loi l'exige</li>
       </ul>
     </section>
@@ -358,6 +364,7 @@
       <ul>
         <li>Firebase Authentication</li>
         <li>Cloud Firestore</li>
+        <li>Firebase Crashlytics (rapports techniques de plantage)</li>
       </ul>
       <p>
         Google agit en qualité de sous-traitant au sens du RGPD. Nous ne vendons pas vos
@@ -371,6 +378,7 @@
         <li><strong>Compte</strong>&nbsp;: conservé tant que votre compte est actif, puis supprimé ou anonymisé dans un délai raisonnable après votre demande de suppression</li>
         <li><strong>Données de Khatma</strong>&nbsp;: conservées selon la durée de vie de la Khatma et les besoins de la communauté participante</li>
         <li><strong>Données locales</strong>&nbsp;: conservées sur votre appareil jusqu'à désinstallation ou effacement des données de l'Application</li>
+        <li><strong>Rapports de plantage</strong>&nbsp;: conservés par Firebase Crashlytics selon la politique de conservation de Google (typiquement 90&nbsp;jours)</li>
       </ul>
     </section>
 
