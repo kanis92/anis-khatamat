@@ -96,6 +96,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/branding/
 
 dependency_overrides:
   flutter_quran:
