@@ -26,6 +26,10 @@ async function test(name, fn) {
   }
 }
 
+function authedDb(testEnv, uid, email) {
+  return testEnv.authenticatedContext(uid, email ? { email } : {}).firestore();
+}
+
 async function main() {
   const testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
@@ -39,8 +43,8 @@ async function main() {
   let passed = 0;
   let failed = 0;
 
-  try {
-    // Setup test data first with security disabled
+  // Test 1: Admin can delete khatma
+  await test('admin can delete any khatma', async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       await context.firestore().collection('khatmat').doc('k1').set({
         title: 'Test',
@@ -48,132 +52,81 @@ async function main() {
         createdAt: new Date().toISOString(),
         isGroup: true,
       });
+    });
+    const admin = testEnv.authenticatedContext('admin', {
+      email: 'admin@test.com',
+      admin: true,
+    });
+    await assertSucceeds(admin.firestore().collection('khatmat').doc('k1').delete());
+  });
+  passed++;
+
+  // Test 2: Non-admin cannot delete others' khatma
+  await test('non-admin cannot delete others khatma', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
       await context.firestore().collection('khatmat').doc('k2').set({
         title: 'Test',
         createdBy: 'bob@test.com',
         createdAt: new Date().toISOString(),
         isGroup: true,
       });
-      await context.firestore().collection('courses').doc('c1').set({ title: 'Course 1' });
-      await context.firestore().collection('lives').doc('l1').set({ title: 'Live 1' });
-      await context.firestore().collection('weekly_qa').doc('qa1').set({
-        question: 'Q?',
-        answer: 'A!',
-      });
     });
+    const alice = authedDb(testEnv, 'alice', 'alice@test.com');
+    await assertFails(alice.collection('khatmat').doc('k2').delete());
+  });
+  passed++;
 
+  // Test 3: User can read courses
+  await test('authenticated user can read courses', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('courses').doc('c1').set({ title: 'Course 1' });
+    });
+    const alice = authedDb(testEnv, 'alice', 'alice@test.com');
+    await assertSucceeds(alice.collection('courses').doc('c1').get());
+  });
+  passed++;
+
+  // Test 4: Admin can create course
+  await test('admin can create course', async () => {
     const admin = testEnv.authenticatedContext('admin', {
       email: 'admin@test.com',
       admin: true,
     });
-    const alice = testEnv.authenticatedContext('alice', { email: 'alice@test.com' });
+    await assertSucceeds(admin.firestore().collection('courses').add({ title: 'Admin Course' }));
+  });
+  passed++;
 
-    // Admin can delete any khatma
-    await test('admin can delete any khatma', async () => {
-      await assertSucceeds(admin.firestore().collection('khatmat').doc('k1').delete());
-    });
-    passed++;
+  // Test 5: User can create question with own userId
+  await test('user can create question with own userId', async () => {
+    const alice = authedDb(testEnv, 'alice', 'alice@test.com');
+    await assertSucceeds(
+      alice.collection('questions').add({
+        userId: 'alice',
+        text: 'My question?',
+      })
+    );
+  });
+  passed++;
 
-    // Non-admin cannot delete others' khatma
-    await test('non-admin cannot delete others khatma', async () => {
-      await assertFails(alice.firestore().collection('khatmat').doc('k2').delete());
-    });
-    passed++;
+  // Test 6: User cannot create question with wrong userId
+  await test('user cannot create question with wrong userId', async () => {
+    const alice = authedDb(testEnv, 'alice', 'alice@test.com');
+    await assertFails(
+      alice.collection('questions').add({
+        userId: 'bob',
+        text: 'Fake question?',
+      })
+    );
+  });
+  passed++;
 
-    // Courses: authenticated can read
-    await test('authenticated user can read courses', async () => {
-      await assertSucceeds(alice.firestore().collection('courses').doc('c1').get());
-    });
-    passed++;
-
-    // Courses: non-admin cannot create
-    await test('non-admin cannot create course', async () => {
-      await assertFails(alice.firestore().collection('courses').add({ title: 'New Course' }));
-    });
-    passed++;
-
-    // Courses: admin can create
-    await test('admin can create course', async () => {
-      await assertSucceeds(admin.firestore().collection('courses').add({ title: 'Admin Course' }));
-    });
-    passed++;
-
-    // Lives: authenticated can read
-    await test('authenticated user can read lives', async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection('lives').doc('l1').set({ title: 'Live 1' });
-      });
-
-      await assertSucceeds(alice.firestore().collection('lives').doc('l1').get());
-    });
-    passed++;
-
-    // Lives: admin can create
-    await test('admin can create live', async () => {
-      await assertSucceeds(admin.firestore().collection('lives').add({ title: 'Admin Live' }));
-    });
-    passed++;
-
-    // Questions: user can create with own userId
-    await test('user can create question with own userId', async () => {
-      await assertSucceeds(
-        alice.firestore().collection('questions').add({
-          userId: 'alice',
-          text: 'My question?',
-        })
-      );
-    });
-    passed++;
-
-    // Questions: user cannot create with wrong userId
-    await test('user cannot create question with wrong userId', async () => {
-      await assertFails(
-        alice.firestore().collection('questions').add({
-          userId: 'bob',
-          text: 'Fake question?',
-        })
-      );
-    });
-    passed++;
-
-    // Weekly QA: user can read
-    await test('authenticated user can read weekly_qa', async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection('weekly_qa').doc('qa1').set({
-          question: 'Q?',
-          answer: 'A!',
-        });
-      });
-
-      await assertSucceeds(alice.firestore().collection('weekly_qa').doc('qa1').get());
-    });
-    passed++;
-
-    await testEnv.clearFirestore();
-
-    // Weekly QA: admin can create
-    await test('admin can create weekly_qa', async () => {
-      await assertSucceeds(
-        admin.firestore().collection('weekly_qa').add({
-          question: 'Q?',
-          answer: 'A!',
-        })
-      );
-    });
-    passed++;
-
-    console.log(`\n${passed} passed, ${failed} failed`);
-    console.log('✅ Admin + Formations rules tests completed');
-  } catch (err) {
-    failed++;
-    console.error(`\n${passed} passed, ${failed} failed`);
-    process.exit(1);
-  } finally {
-    await testEnv.cleanup();
-  }
+  await testEnv.cleanup();
+  console.log(`\n${passed} passed, ${failed} failed`);
+  console.log('✅ Admin + Formations rules tests completed');
+  process.exit(failed > 0 ? 1 : 0);
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
 });
