@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Politique de confidentialité de ANIS Khatamat — lecture du Coran et gestion des Khatmat.">
+  <title>Politique de confidentialité — ANIS Khatamat</title>
+  <style>
+    :root {
+      --ivory: #FAF8F5;
+      --ivory-deep: #F3EFE9;
+      --white: #FFFFFF;
+      --green-900: #0A3327;
+      --green-800: #0B4535;
+      --green-700: #0E5E46;
+      --green-600: #16745A;
+      --green-100: #DCEFE6;
+      --gold-500: #D4AF37;
+      --gold-900: #6E5518;
+      --ink-900: #16281F;
+      --ink-600: #55665E;
+      --ink-400: #7C8C84;
+      --line-200: #E7EDE9;
+      --line-300: #D6E0DB;
+      --max-width: 720px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--ink-900);
+      background: var(--ivory);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, var(--green-800) 0%, var(--green-700) 55%, var(--green-600) 100%);
+      color: var(--white);
+      padding: 2.5rem 1.25rem 2.75rem;
+      border-bottom: 3px solid var(--gold-500);
+    }
+
+    .hero-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      opacity: 0.92;
+    }
+
+    .brand-mark {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 2px solid var(--gold-500);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--gold-500);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.65rem, 4vw, 2.15rem);
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .hero-meta {
+      margin: 0;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .hero-meta strong {
+      color: var(--white);
+    }
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3.5rem;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line-200);
+      border-radius: 14px;
+      padding: 1.35rem 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(10, 51, 39, 0.05);
+    }
+
+    h2 {
+      margin: 0 0 0.85rem;
+      font-size: 1.15rem;
+      color: var(--green-800);
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 1.1rem 0 0.45rem;
+      font-size: 0.98rem;
+      color: var(--green-700);
+    }
+
+    p, li {
+      color: var(--ink-600);
+    }
+
+    p {
+      margin: 0 0 0.85rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    ul {
+      margin: 0.35rem 0 0.85rem;
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    li strong {
+      color: var(--ink-900);
+    }
+
+    .notice {
+      background: #FCF7EA;
+      border: 1px solid #F6EDD6;
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      margin: 0.85rem 0 0;
+      font-size: 0.93rem;
+      color: var(--gold-900);
+    }
+
+    .contact-box {
+      background: var(--green-100);
+      border: 1px solid var(--line-300);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+
+    .contact-box a {
+      color: var(--green-800);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid var(--green-600);
+    }
+
+    .contact-box a:hover,
+    .contact-box a:focus {
+      color: var(--green-700);
+    }
+
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1.25rem 2.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--ink-400);
+    }
+
+    footer a {
+      color: var(--green-700);
+      text-decoration: none;
+    }
+
+    footer a:hover,
+    footer a:focus {
+      text-decoration: underline;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        padding: 3rem 2rem 3.25rem;
+      }
+
+      main {
+        padding: 2.5rem 2rem 4rem;
+      }
+
+      .card {
+        padding: 1.6rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        ANIS Khatamat
+      </div>
+      <h1>Politique de confidentialité</h1>
+      <p class="hero-meta">
+        Application de lecture du Coran et de gestion des Khatmat.<br>
+        <strong>Dernière mise à jour&nbsp;:</strong> 31&nbsp;août&nbsp;2026
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="intro">
+      <h2 id="intro">1. Introduction</h2>
+      <p>
+        La présente politique de confidentialité décrit comment l'application mobile et web
+        <strong>ANIS Khatamat</strong> (ci-après «&nbsp;l'Application&nbsp;») traite vos
+        données personnelles lorsque vous créez un compte, participez à une Khatma, utilisez
+        les fonctionnalités de lecture ou consultez les horaires de prière.
+      </p>
+      <p>
+        En utilisant l'Application, vous reconnaissez avoir pris connaissance de cette
+        politique. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser
+        l'Application.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="responsable">
+      <h2 id="responsable">2. Responsable du traitement</h2>
+      <p>
+        Le responsable du traitement des données est l'équipe éditoriale d'ANIS Khatamat.
+        Pour toute question relative à vos données, consultez la section
+        <a href="#contact">Contact</a> ci-dessous.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="donnees">
+      <h2 id="donnees">3. Données que nous traitons</h2>
+      <p>
+        Nous collectons et traitons uniquement les données nécessaires au fonctionnement
+        de l'Application. Selon les fonctionnalités que vous utilisez, les catégories
+        suivantes peuvent être concernées&nbsp;:
+      </p>
+
+      <h3>3.1 Données de compte (Firebase Authentication)</h3>
+      <ul>
+        <li><strong>Identifiant utilisateur</strong> (UID Firebase)</li>
+        <li><strong>Adresse e-mail</strong> et informations associées à l'authentification par e-mail/mot de passe</li>
+        <li><strong>État de connexion</strong> (session authentifiée ou mode invité/démo lorsque Firebase n'est pas disponible)</li>
+      </ul>
+
+      <h3>3.2 Données applicatives (Cloud Firestore)</h3>
+      <p>
+        Lorsque vous utilisez les fonctionnalités collaboratives, des données sont stockées
+        dans Firebase Cloud Firestore, notamment&nbsp;:
+      </p>
+      <ul>
+        <li><strong>Khatmat</strong>&nbsp;: titre, visibilité, créateur, participants, progression</li>
+        <li><strong>Réservations de Hizb</strong>&nbsp;: numéro de Hizb, statut, identité du participant, horodatages</li>
+        <li><strong>Progression de lecture</strong>&nbsp;: marque-pages, historique et complétion de Hizb</li>
+        <li><strong>Ateliers et formations</strong>&nbsp;: inscriptions, questions et contenus associés le cas échéant</li>
+      </ul>
+
+      <h3>3.3 Localisation (optionnelle)</h3>
+      <p>
+        L'accès à votre position n'est demandé que si vous activez ou utilisez certaines
+        fonctionnalités&nbsp;:
+      </p>
+      <ul>
+        <li><strong>Horaires de prière</strong>&nbsp;: calcul local basé sur vos coordonnées GPS</li>
+        <li><strong>Direction de la Qibla</strong>&nbsp;: orientation calculée à partir de votre position</li>
+        <li><strong>Recherche de mosquées à proximité</strong>&nbsp;: lorsque cette option est utilisée</li>
+      </ul>
+      <p>
+        Vous pouvez refuser l'autorisation de localisation&nbsp;; les fonctionnalités
+        concernées ne pourront alors pas fonctionner correctement, sans impact sur le reste
+        de l'Application.
+      </p>
+
+      <h3>3.4 Préférences et données locales sur l'appareil</h3>
+      <ul>
+        <li><strong>Préférences d'affichage</strong>&nbsp;: langue, accessibilité, paramètres de lecture</li>
+        <li><strong>Préférences religieuses</strong>&nbsp;: méthode de calcul des horaires de prière</li>
+        <li><strong>Progression locale</strong>&nbsp;: séries de lecture, favoris et préférences du Mushaf</li>
+      </ul>
+      <p>
+        Ces données restent en principe sur votre appareil et ne sont pas transmises à des
+        fins publicitaires.
+      </p>
+
+      <h3>3.5 Données de diagnostic</h3>
+      <p>
+        À ce jour, ANIS Khatamat <strong>ne collecte pas</strong> de rapports de plantage
+        ni de données de diagnostic via un service tiers (par ex. Firebase Crashlytics).
+      </p>
+      <p>
+        Si un service de diagnostic venait à être activé ultérieurement, la présente
+        politique serait mise à jour avant toute collecte correspondante.
+      </p>
+
+      <div class="notice" role="note">
+        <strong>Firebase Analytics n'est pas activé.</strong> ANIS Khatamat n'utilise pas
+        Firebase Analytics pour le suivi comportemental ou la mesure d'audience. Aucune
+        donnée n'est collectée à des fins de profilage publicitaire via Google Analytics.
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="finalites">
+      <h2 id="finalites">4. Finalités du traitement</h2>
+      <ul>
+        <li>Créer et gérer votre compte utilisateur</li>
+        <li>Permettre la création, la participation et le suivi des Khatmat</li>
+        <li>Gérer les réservations collaboratives de Hizb</li>
+        <li>Afficher votre progression de lecture et vos préférences</li>
+        <li>Calculer les horaires de prière et la direction de la Qibla lorsque vous y consentez</li>
+        <li>Assurer la sécurité, la stabilité et la maintenance de l'Application</li>
+        <li>Répondre à vos demandes de support</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="base-legale">
+      <h2 id="base-legale">5. Bases légales (RGPD)</h2>
+      <p>Selon le contexte, le traitement repose notamment sur&nbsp;:</p>
+      <ul>
+        <li><strong>L'exécution du contrat</strong>&nbsp;: fourniture des services de l'Application</li>
+        <li><strong>Votre consentement</strong>&nbsp;: accès à la localisation, notifications le cas échéant</li>
+        <li><strong>L'intérêt légitime</strong>&nbsp;: sécurité et prévention des abus</li>
+        <li><strong>Les obligations légales</strong>&nbsp;: lorsque la loi l'exige</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="destinataires">
+      <h2 id="destinataires">6. Sous-traitants et hébergement</h2>
+      <p>
+        Les données sont hébergées et traitées via l'infrastructure <strong>Google Firebase</strong>
+        (Google Cloud), notamment&nbsp;:
+      </p>
+      <ul>
+        <li>Firebase Authentication</li>
+        <li>Cloud Firestore</li>
+      </ul>
+      <p>
+        Google agit en qualité de sous-traitant au sens du RGPD. Nous ne vendons pas vos
+        données personnelles à des tiers.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="conservation">
+      <h2 id="conservation">7. Durée de conservation</h2>
+      <ul>
+        <li><strong>Compte</strong>&nbsp;: conservé tant que votre compte est actif, puis supprimé ou anonymisé dans un délai raisonnable après votre demande de suppression</li>
+        <li><strong>Données de Khatma</strong>&nbsp;: conservées selon la durée de vie de la Khatma et les besoins de la communauté participante</li>
+        <li><strong>Données locales</strong>&nbsp;: conservées sur votre appareil jusqu'à désinstallation ou effacement des données de l'Application</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="securite">
+      <h2 id="securite">8. Sécurité</h2>
+      <p>
+        Nous mettons en œuvre des mesures techniques et organisationnelles appropriées,
+        notamment l'authentification sécurisée, des règles d'accès Firestore et le chiffrement
+        des communications (HTTPS/TLS). Aucune méthode de transmission ou de stockage n'étant
+        totalement infaillible, nous ne pouvons garantir une sécurité absolue.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="droits">
+      <h2 id="droits">9. Vos droits</h2>
+      <p>
+        Conformément au Règlement général sur la protection des données (RGPD), vous disposez
+        des droits suivants, dans les limites prévues par la loi&nbsp;:
+      </p>
+      <ul>
+        <li>Droit d'accès à vos données</li>
+        <li>Droit de rectification</li>
+        <li>Droit à l'effacement («&nbsp;droit à l'oubli&nbsp;»)</li>
+        <li>Droit à la limitation du traitement</li>
+        <li>Droit d'opposition</li>
+        <li>Droit à la portabilité des données</li>
+        <li>Droit de retirer votre consentement (notamment pour la localisation)</li>
+      </ul>
+      <p>
+        Pour exercer vos droits, contactez-nous via la section ci-dessous. Vous pouvez
+        également introduire une réclamation auprès de la CNIL (<a href="https://www.cnil.fr" rel="noopener noreferrer" target="_blank">www.cnil.fr</a>).
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="mineurs">
+      <h2 id="mineurs">10. Mineurs</h2>
+      <p>
+        L'Application n'est pas destinée aux enfants de moins de 15&nbsp;ans sans le
+        consentement d'un représentant légal. Si vous pensez qu'un mineur nous a transmis
+        des données sans autorisation, contactez-nous afin que nous puissions prendre
+        les mesures appropriées.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="modifications">
+      <h2 id="modifications">11. Modifications de cette politique</h2>
+      <p>
+        Nous pouvons mettre à jour cette politique pour refléter l'évolution de l'Application
+        ou des exigences légales. La date de dernière mise à jour figure en haut de cette
+        page. Nous vous invitons à la consulter régulièrement.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="contact">
+      <h2 id="contact">12. Contact</h2>
+      <p>
+        Pour toute question relative à cette politique de confidentialité ou à vos données
+        personnelles&nbsp;:
+      </p>
+      <div class="contact-box">
+        <p><strong>ANIS Khatamat — Protection des données</strong></p>
+        <p>
+          E-mail&nbsp;:
+          <a href="mailto:jaouadk@gmail.com">jaouadk@gmail.com</a>
+        </p>
+        <p>
+          Site web&nbsp;:
+          <a href="https://anis-khatamat.com">https://anis-khatamat.com</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ANIS Khatamat — Tous droits réservés.</p>
+    <p><a href="https://anis-khatamat.com">Retour à l'accueil</a></p>
+  </footer>
+</body>
+</html>

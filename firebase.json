@@ -1,16 +1,1 @@
-{
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
+{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"emulators":{"auth":{"port":9099},"firestore":{"port":8080},"ui":{"enabled":true,"port":4000}},"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"/privacy","destination":"/privacy/index.html"},{"source":"/privacy/**","destination":"/privacy/index.html"},{"source":"**","destination":"/index.html"}]},"flutter":{"platforms":{"android":{"default":{"projectId":"anis-437c3","appId":"1:409015429474:android:4661d9c3048e38b6c6a43b","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"anis-437c3","appId":"1:409015429474:ios:775849ba6e69aafcc6a43b","uploadDebugSymbols":true,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"anis-437c3","configurations":{"android":"1:409015429474:android:4661d9c3048e38b6c6a43b","ios":"1:409015429474:ios:775849ba6e69aafcc6a43b","web":"1:409015429474:web:61da24c91de05116c6a43b"}}}}}}
