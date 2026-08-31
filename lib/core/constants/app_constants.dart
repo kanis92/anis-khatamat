@@ -10,7 +10,7 @@ class AppConstants {
 
   /// Mettez ici l'URL de votre politique de confidentialité (obligatoire pour l'App Store)
   static const String privacyPolicyUrl =
-      'https://example.com/privacy-policy';
+      'https://anis-khatamat.com/privacy';
 
   /// URL de l'app pour le parrainage / Inviter un ami
   static const String appWebUrl = 'https://anis-437c3.web.app';
