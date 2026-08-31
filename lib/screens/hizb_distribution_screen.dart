@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
+import '../core/constants/hizb_definitions.dart';
 import '../core/models/khatma.dart';
 import '../core/data/quran_hizb_data.dart';
 import '../core/providers/auth_provider.dart';
@@ -129,10 +130,28 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
       hizbAssignments: Map.from(_assignments),
       createdBy: userId,
       createdAt: DateTime.now(),
+      participantIds: [userId],
+      hizbDefinitionId: HizbDefinitions.quranFoundationHafsV1,
     );
-    await ref.read(readingServiceProvider).saveKhatma(khatma);
+
+    Khatma saved;
+    try {
+      saved = await ref.read(readingServiceProvider).saveKhatma(khatma);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Impossible de créer la Khatma : $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
     ref.invalidate(khatmatProvider);
     ref.invalidate(totalCompletedHizbProvider);
+    ref.invalidate(khatmaLoadProvider(saved.id));
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -142,6 +161,7 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
         ),
       );
       context.pop();
+      context.push('/khatma/${saved.id}', extra: {'khatma': saved});
     }
   }
 
