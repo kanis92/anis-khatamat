@@ -2,44 +2,64 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hijri_date_time/hijri_date_time.dart';
 import 'package:intl/intl.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/models/home_dashboard_state.dart';
 import '../core/models/khatma_with_status.dart';
+import '../core/utils/auth_diag.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/home_dashboard_provider.dart';
+import '../core/providers/prayer_times_provider.dart';
 import '../core/providers/reading_goal_provider.dart';
 import '../core/providers/reading_provider.dart';
 import '../core/services/khatma_link_service.dart';
-import '../core/utils/auth_diag.dart';
 import '../core/widgets/anis_icon.dart';
 import '../core/widgets/connectivity_banner.dart' show connectivityProvider;
 import '../core/widgets/mushaf_hizb_indicator.dart' show mushafNumber;
 import '../design_system/anis_design_system.dart';
 
-/// Accueil ANIS — premier écran migré sur le design system V1.
+const _heroAsset = 'assets/images/anis_header.png';
+
+/// Accueil ANIS — présentation premium (hero immersif + progression + actions).
 ///
-/// Aucune donnée n'est fabriquée : chaque bloc n'apparaît que si sa source
-/// existe réellement. Les blocs conditionnels sont l'objectif de lecture
-/// (invisible tant qu'aucun objectif n'est défini), la prochaine prière
-/// (invisible sans position), la formation en cours et la bannière hors ligne.
+/// Aucune donnée n'est fabriquée : chaque bloc s'appuie sur les providers et
+/// modèles existants. Les routes des actions rapides pointent uniquement vers
+/// des destinations réellement enregistrées dans le routeur.
 class AnisHomePage extends ConsumerWidget {
   const AnisHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardAsync = ref.watch(homeDashboardProvider);
-    final header = _HomeHeader(identity: _resolveIdentity(ref));
+    final identity = _resolveIdentity(ref);
 
     return dashboardAsync.when(
-      loading: () => _HomeLoading(header: header),
-      error: (_, _) => _HomeError(header: header),
+      loading:
+          () => _HomeShell(identity: identity, child: const _HomeLoadingBody()),
+      error:
+          (_, _) => _HomeShell(
+            identity: identity,
+            child: _HomeErrorBody(
+              onRetry: () => ref.invalidate(homeDashboardProvider),
+            ),
+          ),
       data:
-          (dashboard) =>
-              dashboard.isEmpty
-                  ? _HomeEmpty(header: header)
-                  : _HomeDashboard(header: header, dashboard: dashboard),
+          (dashboard) => _HomeShell(
+            identity: identity,
+            onRefresh: () async {
+              ref.invalidate(homeDashboardProvider);
+              ref.invalidate(khatmatWithStatusProvider);
+              ref.invalidate(totalCompletedHizbProvider);
+              await ref.read(homeDashboardProvider.future);
+            },
+            child:
+                dashboard.isEmpty
+                    ? _HomeEmptyBody()
+                    : _HomeDashboardBody(dashboard: dashboard),
+          ),
     );
   }
 
@@ -49,220 +69,762 @@ class AnisHomePage extends ConsumerWidget {
       );
 }
 
-/// En-tête commun à tous les états de la Home.
-///
-/// Le nom affiché vient de l'identité Firebase résolue au runtime. Sans
-/// identité, l'en-tête annonce « Invité » : jamais de nom de repli inventé.
-class _HomeHeader extends ConsumerWidget {
-  const _HomeHeader({required this.identity});
+/// Coque scrollable commune (hero + corps).
+class _HomeShell extends ConsumerWidget {
+  const _HomeShell({
+    required this.identity,
+    required this.child,
+    this.onRefresh,
+  });
+
+  final ParticipantIdentity? identity;
+  final Widget child;
+  final Future<void> Function()? onRefresh;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.anisColors;
+    final bottomInset = AnisResponsiveLayout.shellBodyBottomInset(context);
+
+    Widget body = CustomScrollView(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      slivers: [
+        SliverToBoxAdapter(child: _HomeHero(identity: identity)),
+        SliverPadding(
+          padding: EdgeInsetsDirectional.fromSTEB(
+            AnisSpacing.page,
+            AnisSpacing.lg,
+            AnisSpacing.page,
+            bottomInset,
+          ),
+          sliver: SliverToBoxAdapter(child: child),
+        ),
+      ],
+    );
+
+    if (onRefresh != null) {
+      body = RefreshIndicator(
+        onRefresh: onRefresh!,
+        color: colors.actionPrimary,
+        backgroundColor: colors.surfaceElevated,
+        child: body,
+      );
+    }
+
+    return ColoredBox(color: colors.surfaceBase, child: body);
+  }
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────────
+
+class _HomeHero extends StatelessWidget {
+  const _HomeHero({required this.identity});
 
   final ParticipantIdentity? identity;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final prayer = ref.watch(nextPrayerProvider);
+    final text = context.anisText;
+    final hijri = formatHijriDate();
+    final time = DateFormat.Hm().format(DateTime.now());
     final name = identity?.displayLabel ?? l10n.guestBadge;
     final initial = identity?.displayInitial ?? '?';
 
-    // Le badge n'apparaît que lorsqu'il ajoute une information : inutile de
-    // répéter « Invité » sous un titre qui dit déjà « Invité ».
-    final showGuestBadge =
-        !(identity?.isMemberEmail ?? false) && name != l10n.guestBadge;
-
-    final chips = <Widget>[
-      if (showGuestBadge)
-        AnisBadge(
-          label: l10n.guestBadge,
-          tone: AnisBadgeTone.notice,
-          anisIcon: AnisIconType.user,
-        ),
-      if (prayer != null)
-        AnisBadge(
-          label: '${prayer.name} · ${prayer.inStr}',
-          tone: AnisBadgeTone.active,
-          anisIcon: AnisIconType.mihrab,
-          semanticLabel: '${l10n.nextPrayer} : ${prayer.name} ${prayer.inStr}',
-        ),
-    ];
-
-    return AnisPageHeader(
-      eyebrow: l10n.welcomeGreeting,
-      title: name,
-      showSignature: false,
-      leading: AnisAvatar(initial: initial, semanticLabel: name),
-      actions: [
-        AnisIconAction.anis(
-          anisIcon: AnisIconType.bell,
-          tooltip: l10n.notifications,
-          onPressed: () => context.push('/notifications'),
-        ),
-      ],
-      bottom:
-          chips.isEmpty
-              ? null
-              : Wrap(
-                spacing: AnisSpacing.sm,
-                runSpacing: AnisSpacing.sm,
-                children: chips,
-              ),
+    final heroHeight = (MediaQuery.sizeOf(context).height * 0.34).clamp(
+      228.0,
+      320.0,
     );
-  }
-}
 
-class _HomeLoading extends StatelessWidget {
-  const _HomeLoading({required this.header});
-
-  final Widget header;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnisScaffold(
-      header: header,
-      body: const AnisSkeletonGroup(
-        child: Column(
-          children: [
-            AnisSkeleton(height: 168, radius: AnisRadius.xl),
-            SizedBox(height: AnisSpacing.blockGap),
-            AnisSkeleton(height: 84, radius: AnisRadius.md),
-            SizedBox(height: AnisSpacing.blockGap),
-            AnisSkeleton(height: 96, radius: AnisRadius.md),
-            SizedBox(height: AnisSpacing.blockGap),
-            AnisSkeleton(height: 140, radius: AnisRadius.md),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeError extends ConsumerWidget {
-  const _HomeError({required this.header});
-
-  final Widget header;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    return AnisScaffold(
-      header: header,
-      body: AnisEmptyState(
-        glyph: const AnisGlyph.material(
-          Icons.cloud_off_rounded,
-          size: AnisIconSize.xl,
-        ),
-        title: l10n.homeLoadError,
-        message: l10n.homeLoadErrorHint,
-        primaryActionLabel: l10n.retry,
-        onPrimaryAction: () => ref.invalidate(homeDashboardProvider),
-      ),
-    );
-  }
-}
-
-class _HomeEmpty extends StatelessWidget {
-  const _HomeEmpty({required this.header});
-
-  final Widget header;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AnisScaffold(
-      header: header,
-      body: AnisEmptyState(
-        showSignature: true,
-        title: l10n.homeEmptyTitle,
-        message: l10n.homeEmptyHint,
-        primaryActionLabel: l10n.createKhatma,
-        onPrimaryAction: () => context.go('/khatma?create=1'),
-        secondaryActionLabel: l10n.joinCollectiveKhatma,
-        onSecondaryAction: () => context.go('/khatma'),
-      ),
-    );
-  }
-}
-
-class _HomeDashboard extends ConsumerWidget {
-  const _HomeDashboard({required this.header, required this.dashboard});
-
-  final Widget header;
-  final HomeDashboardState dashboard;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final primary = dashboard.primary;
-    final goal = ref.watch(readingGoalProgressProvider).valueOrNull;
-    final formation = ref.watch(formationProgressProvider).valueOrNull;
-    final others =
-        dashboard.activeKhatmas
-            .where((s) => s.khatma.id != primary?.status.khatma.id)
-            .take(3)
-            .toList();
-
-    return AnisScaffold(
-      header: header,
-      onRefresh: () async {
-        ref.invalidate(homeDashboardProvider);
-        ref.invalidate(khatmatWithStatusProvider);
-        await ref.read(homeDashboardProvider.future);
-      },
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return SizedBox(
+      height: heroHeight,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          const _OfflineNotice(),
-          if (primary != null) ...[
-            _PrimaryKhatmaCard(highlight: primary),
-            const SizedBox(height: AnisSpacing.blockGap),
-          ],
-          if (goal != null && goal.target > 0) ...[
-            _ReadingGoalCard(goal: goal),
-            const SizedBox(height: AnisSpacing.blockGap),
-          ],
-          _SummaryRow(summary: dashboard.summary),
-          if (dashboard.lastActivity != null) ...[
-            const SizedBox(height: AnisSpacing.blockGap),
-            _LastActivityTile(activity: dashboard.lastActivity!),
-          ],
-          if (formation != null) ...[
-            const SizedBox(height: AnisSpacing.blockGap),
-            AnisListTile(
-              title: formation.courseTitle,
-              subtitle: formation.lessonTitle,
-              leading: _homeListLeadingAnis(context, AnisIconType.training),
-              onTap: () => context.go('/training'),
-              semanticLabel:
-                  '${l10n.myTraining} : ${formation.courseTitle}. ${formation.lessonTitle}',
+          Image.asset(
+            _heroAsset,
+            fit: BoxFit.cover,
+            alignment: const Alignment(0, -0.15),
+            semanticLabel: l10n.home,
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.18),
+                  Colors.black.withValues(alpha: 0.08),
+                  Colors.black.withValues(alpha: 0.52),
+                ],
+                stops: const [0.0, 0.45, 1.0],
+              ),
             ),
-          ],
-          const SizedBox(height: AnisSpacing.sectionGap),
-          AnisSectionHeader(title: l10n.quickActions),
-          const _QuickAccessRow(),
-          if (others.isNotEmpty) ...[
-            const SizedBox(height: AnisSpacing.sectionGap),
-            AnisSectionHeader(
-              title: l10n.myKhatmat,
-              actionLabel: l10n.seeAll,
-              onAction: () => context.go('/khatma'),
-              actionIcon: Icons.arrow_forward_rounded,
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AnisSpacing.page,
+                AnisSpacing.sm,
+                AnisSpacing.page,
+                AnisSpacing.lg,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      IconButton(
+                        tooltip: l10n.notifications,
+                        onPressed: () => context.go('/notifications'),
+                        icon: AnisIcon(
+                          type: AnisIconType.bell,
+                          size: AnisIconSize.lg,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: AnisSpacing.sm),
+                      Semantics(
+                        label: name,
+                        button: true,
+                        child: InkWell(
+                          onTap: () => context.go('/settings'),
+                          customBorder: const CircleBorder(),
+                          child: AnisAvatar(
+                            initial: initial,
+                            semanticLabel: name,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    l10n.welcomeGreeting,
+                    style: text.titleLarge.copyWith(
+                      color: Colors.white,
+                      shadows: const [
+                        Shadow(
+                          color: Color(0x66000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AnisSpacing.xs),
+                  Text(
+                    '$hijri  •  $time',
+                    style: text.bodySecondary.copyWith(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      shadows: const [
+                        Shadow(color: Color(0x55000000), blurRadius: 6),
+                      ],
+                    ),
+                  ),
+                  const _HeroPrayerChip(),
+                ],
+              ),
             ),
-            for (var i = 0; i < others.length; i++) ...[
-              if (i > 0) const SizedBox(height: AnisSpacing.sm),
-              _KhatmaRow(status: others[i]),
-            ],
-          ],
+          ),
         ],
       ),
     );
   }
 }
 
-/// Carte de la Khatma à reprendre — bloc dominant de l'écran.
-///
-/// L'anneau porte la progression, le badge porte le Hizb réservé, le bouton
-/// porte l'action. Le libellé du bouton distingue « Reprendre » d'une lecture
-/// déjà entamée de « Continuer » sur une Khatma sans réservation en cours.
+class _HeroPrayerChip extends ConsumerWidget {
+  const _HeroPrayerChip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prayer = ref.watch(nextPrayerProvider);
+    if (prayer == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(top: AnisSpacing.sm),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: AnisBadge(
+          label: '${prayer.name} · ${prayer.inStr}',
+          tone: AnisBadgeTone.active,
+          anisIcon: AnisIconType.mihrab,
+          semanticLabel:
+              '${context.l10n.nextPrayer} : ${prayer.name} ${prayer.inStr}',
+        ),
+      ),
+    );
+  }
+}
+
+// ── Ramadan ──────────────────────────────────────────────────────────────────
+
+class _RamadanSummaryCard extends StatelessWidget {
+  const _RamadanSummaryCard({required this.day});
+
+  final int day;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.anisColors;
+    final text = context.anisText;
+    final locale = Localizations.localeOf(context).toString();
+    final gregorian = formatGregorianDate(locale);
+    final progress = (day / 30).clamp(0.0, 1.0);
+    final label = _ramadanDayLabel(context, day);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(bottom: AnisSpacing.blockGap),
+      child: AnisSurface(
+        level: AnisSurfaceLevel.raised,
+        radius: AnisRadius.lg,
+        semanticLabel: label,
+        child: Row(
+          children: [
+            AnisGlyph.anis(
+              AnisIconType.calendar,
+              size: AnisIconSize.lg,
+              color: colors.accentGoldText,
+            ),
+            const SizedBox(width: AnisSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: text.sectionTitle),
+                  const SizedBox(height: AnisSpacing.xxs),
+                  Text(gregorian, style: text.bodySecondary),
+                  const SizedBox(height: AnisSpacing.sm),
+                  ClipRRect(
+                    borderRadius: AnisRadius.pillAll,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 4,
+                      backgroundColor: colors.progressTrack,
+                      valueColor: AlwaysStoppedAnimation(
+                        colors.accentGoldStrong,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AnisSpacing.sm),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: colors.textTertiary,
+              semanticLabel: '',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _ramadanDayLabel(BuildContext context, int day) {
+    return switch (Localizations.localeOf(context).languageCode) {
+      'ar' => 'رمضان · اليوم $day من 30',
+      'en' => 'Ramadan · Day $day of 30',
+      _ => 'Ramadan · Jour $day sur 30',
+    };
+  }
+}
+
+bool _isRamadanMonth() => HijriDateTime.now().month == 9;
+
+// ── Progression Coran ────────────────────────────────────────────────────────
+
+class _QuranProgressCard extends ConsumerWidget {
+  const _QuranProgressCard({required this.dashboard});
+
+  final HomeDashboardState dashboard;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goal = ref.watch(readingGoalProgressProvider).valueOrNull;
+    final primary = dashboard.primary;
+    final l10n = context.l10n;
+    final text = context.anisText;
+    final colors = context.anisColors;
+    final completed =
+        ref.watch(totalCompletedHizbProvider).valueOrNull ??
+        dashboard.summary.userCompletedHizb;
+    final total = AppConstants.totalHizb;
+    final fraction = total > 0 ? completed / total : 0.0;
+    final percent = (fraction * 100).round();
+
+    final reservation = primary?.userReservation;
+    final mushafLabel =
+        reservation?.inProgress == true ? l10n.resume : l10n.openMushaf;
+
+    void openMushaf() {
+      if (reservation?.inProgress == true && primary != null) {
+        context.push(
+          KhatmaLinkService.detailPath(primary.status.khatma.id),
+          extra: {'khatma': primary.status.khatma},
+        );
+        return;
+      }
+      context.push('/mushaf');
+    }
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(bottom: AnisSpacing.blockGap),
+      child: AnisSurface(
+        tone: AnisSurfaceTone.inverse,
+        level: AnisSurfaceLevel.raised,
+        radius: AnisRadius.xl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.homePersonalProgress,
+              style: text.sectionTitle.copyWith(color: colors.textOnInverse),
+            ),
+            const SizedBox(height: AnisSpacing.lg),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnisProgressRing(
+                  value: fraction,
+                  tone: AnisProgressRingTone.onInverse,
+                  centerLabel: l10n.completionProgressFraction(
+                    completed,
+                    total,
+                  ),
+                  semanticLabel: l10n.homePersonalProgress,
+                ),
+                const SizedBox(width: AnisSpacing.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$percent %',
+                        style: text.numberLarge.copyWith(
+                          color: colors.textOnInverse,
+                        ),
+                      ),
+                      const SizedBox(height: AnisSpacing.xxs),
+                      Text(
+                        l10n.hizbCompleted,
+                        style: text.bodySecondary.copyWith(
+                          color: colors.textOnInverse.withValues(alpha: 0.82),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (goal != null && goal.target > 0) ...[
+              const SizedBox(height: AnisSpacing.lg),
+              AnisProgressBar(
+                value: goal.target == 0 ? 0 : goal.completed / goal.target,
+                label: l10n.homeGoalToday,
+                valueLabel: l10n.readingGoalProgress(
+                  goal.completed,
+                  goal.target,
+                ),
+                semanticLabel: l10n.homeGoalToday,
+              ),
+            ],
+            const SizedBox(height: AnisSpacing.xl),
+            _IvoryCta(label: mushafLabel, onPressed: openMushaf),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IvoryCta extends StatelessWidget {
+  const _IvoryCta({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.anisColors;
+    final text = context.anisText;
+
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: AnisPalette.ivory,
+        borderRadius: AnisRadius.mdAll,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: AnisRadius.mdAll,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: AnisIconSize.minTapTarget,
+            ),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: AnisSpacing.lg,
+                vertical: AnisSpacing.md,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnisIcon(
+                    type: AnisIconType.bookOpen,
+                    size: AnisIconSize.md,
+                    color: colors.surfaceInverse,
+                  ),
+                  const SizedBox(width: AnisSpacing.sm),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: text.label.copyWith(color: colors.surfaceInverse),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Actions rapides ──────────────────────────────────────────────────────────
+
+class _QuickActionsGrid extends StatelessWidget {
+  const _QuickActionsGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnisSectionHeader(title: l10n.quickActions),
+        const SizedBox(height: AnisSpacing.md),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const gap = AnisSpacing.sm;
+            final tileWidth = (constraints.maxWidth - gap) / 2;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                SizedBox(
+                  width: tileWidth,
+                  child: _QuickActionTile(
+                    icon: AnisIconType.bookOpen,
+                    title: l10n.mushaf,
+                    subtitle: l10n.mushafHafsDesc,
+                    onTap: () => context.push('/mushaf'),
+                  ),
+                ),
+                SizedBox(
+                  width: tileWidth,
+                  child: _QuickActionTile(
+                    icon: AnisIconType.khatma,
+                    title: l10n.khatma,
+                    subtitle: l10n.myKhatmat,
+                    onTap: () => context.go('/khatma'),
+                  ),
+                ),
+                SizedBox(
+                  width: tileWidth,
+                  child: _QuickActionTile(
+                    icon: AnisIconType.training,
+                    title: l10n.myTraining,
+                    subtitle: l10n.training,
+                    onTap: () => context.go('/training'),
+                  ),
+                ),
+                SizedBox(
+                  width: tileWidth,
+                  child: _QuickActionTile(
+                    icon: AnisIconType.bell,
+                    title: l10n.notifications,
+                    subtitle: l10n.manageNotifications,
+                    onTap: () => context.go('/notifications'),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
+  const _QuickActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final AnisIconType icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.anisColors;
+    final text = context.anisText;
+
+    return AnisSurface(
+      level: AnisSurfaceLevel.subtle,
+      radius: AnisRadius.lg,
+      onTap: onTap,
+      semanticLabel: '$title. $subtitle',
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: AnisIconSize.minTapTarget + 36,
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(AnisSpacing.md),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: colors.actionPrimary.withValues(
+                    alpha: AnisOpacity.subtleFill,
+                  ),
+                  borderRadius: AnisRadius.smAll,
+                ),
+                alignment: Alignment.center,
+                child: AnisGlyph.anis(
+                  icon,
+                  size: AnisIconSize.md,
+                  color: colors.actionPrimary,
+                ),
+              ),
+              const SizedBox(width: AnisSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: text.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: AnisSpacing.xxs),
+                    Text(
+                      subtitle,
+                      style: text.caption,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: colors.textTertiary,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── États & dashboard ────────────────────────────────────────────────────────
+
+class _HomeLoadingBody extends StatelessWidget {
+  const _HomeLoadingBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return const AnisSkeletonGroup(
+      child: Column(
+        children: [
+          AnisSkeleton(height: 88, radius: AnisRadius.lg),
+          SizedBox(height: AnisSpacing.blockGap),
+          AnisSkeleton(height: 196, radius: AnisRadius.xl),
+          SizedBox(height: AnisSpacing.blockGap),
+          AnisSkeleton(height: 120, radius: AnisRadius.lg),
+          SizedBox(height: AnisSpacing.blockGap),
+          AnisSkeleton(height: 120, radius: AnisRadius.lg),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeErrorBody extends StatelessWidget {
+  const _HomeErrorBody({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AnisEmptyState(
+      glyph: const AnisGlyph.material(
+        Icons.cloud_off_rounded,
+        size: AnisIconSize.xl,
+      ),
+      title: l10n.homeLoadError,
+      message: l10n.homeLoadErrorHint,
+      primaryActionLabel: l10n.retry,
+      onPrimaryAction: onRetry,
+    );
+  }
+}
+
+class _HomeEmptyBody extends ConsumerWidget {
+  const _HomeEmptyBody();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (_isRamadanMonth())
+          _RamadanSummaryCard(day: HijriDateTime.now().day),
+        const _QuranProgressCard(dashboard: HomeDashboardState.empty),
+        const _QuickActionsGrid(),
+        const SizedBox(height: AnisSpacing.sectionGap),
+        AnisEmptyState(
+          showSignature: true,
+          title: l10n.homeEmptyTitle,
+          message: l10n.homeEmptyHint,
+          primaryActionLabel: l10n.createKhatma,
+          onPrimaryAction: () => context.go('/khatma?create=1'),
+          secondaryActionLabel: l10n.joinCollectiveKhatma,
+          onSecondaryAction: () => context.go('/khatma'),
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeDashboardBody extends ConsumerWidget {
+  const _HomeDashboardBody({required this.dashboard});
+
+  final HomeDashboardState dashboard;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final formation = ref.watch(formationProgressProvider).valueOrNull;
+    final others =
+        dashboard.activeKhatmas
+            .where((s) => s.khatma.id != dashboard.primary?.status.khatma.id)
+            .take(3)
+            .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _OfflineNotice(),
+        if (_isRamadanMonth())
+          _RamadanSummaryCard(day: HijriDateTime.now().day),
+        _QuranProgressCard(dashboard: dashboard),
+        const _QuickActionsGrid(),
+        if (!dashboard.isEmpty) ...[
+          const SizedBox(height: AnisSpacing.blockGap),
+          _SummaryRow(summary: dashboard.summary),
+        ],
+        if (dashboard.primary != null) ...[
+          const SizedBox(height: AnisSpacing.sectionGap),
+          AnisSectionHeader(title: l10n.khatmaInProgress),
+          const SizedBox(height: AnisSpacing.md),
+          _PrimaryKhatmaCard(highlight: dashboard.primary!),
+        ],
+        if (dashboard.lastActivity != null) ...[
+          const SizedBox(height: AnisSpacing.blockGap),
+          _LastActivityTile(activity: dashboard.lastActivity!),
+        ],
+        if (formation != null) ...[
+          const SizedBox(height: AnisSpacing.blockGap),
+          AnisListTile(
+            title: formation.courseTitle,
+            subtitle: formation.lessonTitle,
+            leading: _homeListLeadingAnis(context, AnisIconType.training),
+            onTap: () => context.go('/training'),
+            semanticLabel:
+                '${l10n.myTraining} : ${formation.courseTitle}. ${formation.lessonTitle}',
+          ),
+        ],
+        if (others.isNotEmpty) ...[
+          const SizedBox(height: AnisSpacing.sectionGap),
+          AnisSectionHeader(
+            title: l10n.myKhatmat,
+            actionLabel: l10n.seeAll,
+            onAction: () => context.go('/khatma'),
+            actionIcon: Icons.arrow_forward_rounded,
+          ),
+          for (var i = 0; i < others.length; i++) ...[
+            if (i > 0) const SizedBox(height: AnisSpacing.sm),
+            _KhatmaRow(status: others[i]),
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({required this.summary});
+
+  final HomeDashboardSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: AnisMetricTile(
+              value: '${summary.activeCount}',
+              label: l10n.inProgress,
+              emphasize: true,
+            ),
+          ),
+          const SizedBox(width: AnisSpacing.sm),
+          Expanded(
+            child: AnisMetricTile(
+              value: '${summary.completedCount}',
+              label: l10n.completed,
+            ),
+          ),
+          const SizedBox(width: AnisSpacing.sm),
+          Expanded(
+            child: AnisMetricTile(
+              value: '${summary.userCompletedHizb}',
+              label: l10n.hizbCompleted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _PrimaryKhatmaCard extends StatelessWidget {
   const _PrimaryKhatmaCard({required this.highlight});
 
@@ -302,13 +864,6 @@ class _PrimaryKhatmaCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.khatmaInProgress,
-                      style: text.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AnisSpacing.xxs),
                     Text(
                       khatma.title,
                       style: text.title,
@@ -374,104 +929,6 @@ class _PrimaryKhatmaCard extends StatelessWidget {
   }
 }
 
-/// Objectif de lecture.
-///
-/// N'est construit que lorsqu'un objectif existe réellement en préférences.
-/// Aucune UI de l'application ne permet aujourd'hui d'en définir un : ce bloc
-/// est donc en pratique invisible, et le restera jusqu'à ce que cette
-/// fonctionnalité soit ouverte côté produit.
-class _ReadingGoalCard extends StatelessWidget {
-  const _ReadingGoalCard({required this.goal});
-
-  final GoalProgress goal;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final text = context.anisText;
-    final colors = context.anisColors;
-
-    return AnisSurface(
-      tone: AnisSurfaceTone.soft,
-      level: AnisSurfaceLevel.flat,
-      radius: AnisRadius.lg,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(l10n.homeGoalToday, style: text.sectionTitle),
-              ),
-              if (goal.isAchieved)
-                AnisBadge(
-                  label: l10n.readingGoalAchieved,
-                  tone: AnisBadgeTone.accent,
-                  icon: Icons.check_rounded,
-                ),
-            ],
-          ),
-          const SizedBox(height: AnisSpacing.md),
-          AnisProgressBar(
-            value: goal.target == 0 ? 0 : goal.completed / goal.target,
-            label: l10n.readingGoal,
-            valueLabel: l10n.readingGoalProgress(goal.completed, goal.target),
-            semanticLabel: l10n.homeGoalToday,
-          ),
-          if (goal.isAchieved) ...[
-            const SizedBox(height: AnisSpacing.sm),
-            Text(
-              l10n.readingGoalAchieved,
-              style: text.bodySecondary.copyWith(color: colors.accentGoldText),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.summary});
-
-  final HomeDashboardSummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    // Hauteur commune aux trois tuiles sans contrainte verticale infinie : la
-    // rangée est dans une zone de défilement.
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.activeCount}',
-              label: l10n.inProgress,
-              emphasize: true,
-            ),
-          ),
-          const SizedBox(width: AnisSpacing.sm),
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.completedCount}',
-              label: l10n.completed,
-            ),
-          ),
-          const SizedBox(width: AnisSpacing.sm),
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.userCompletedHizb}',
-              label: l10n.hizbCompleted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _LastActivityTile extends StatelessWidget {
   const _LastActivityTile({required this.activity});
 
@@ -491,10 +948,6 @@ class _LastActivityTile extends StatelessWidget {
   }
 }
 
-/// Date courte dans la locale active.
-///
-/// Le repli protège les locales dont les symboles de date ne seraient pas
-/// chargés : une date au format par défaut vaut mieux qu'un écran en erreur.
 String _formatShortDate(BuildContext context, DateTime at) {
   final locale = Localizations.localeOf(context).toString();
   try {
@@ -531,68 +984,6 @@ class _KhatmaRow extends StatelessWidget {
   }
 }
 
-/// Accès rapides.
-///
-/// Les quatre destinations reprennent celles de la section d'accès rapides déjà
-/// écrite mais jamais montée. Trois d'entre elles (`/bookmarks`, `/prayer-times`,
-/// `/statistics`) sont des routes enregistrées qui n'avaient aucun point
-/// d'entrée dans l'interface : leur exposition ici est un choix produit à
-/// confirmer, pas une fonctionnalité nouvelle.
-class _QuickAccessRow extends StatelessWidget {
-  const _QuickAccessRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colors = context.anisColors;
-
-    return AnisQuickActionRow(
-      actions: [
-        AnisQuickAction(
-          glyph: AnisGlyph.anis(
-            AnisIconType.bookOpen,
-            size: AnisIconSize.lg,
-            color: colors.actionPrimary,
-          ),
-          label: l10n.mushaf,
-          onTap: () => context.push('/mushaf'),
-        ),
-        AnisQuickAction(
-          glyph: AnisGlyph.anis(
-            AnisIconType.bookmark,
-            size: AnisIconSize.lg,
-            color: colors.actionPrimary,
-          ),
-          label: l10n.bookmarks,
-          onTap: () => context.push('/bookmarks'),
-        ),
-        AnisQuickAction(
-          glyph: AnisGlyph.anis(
-            AnisIconType.mihrab,
-            size: AnisIconSize.lg,
-            color: colors.actionPrimary,
-          ),
-          label: l10n.prayerTimes,
-          onTap: () => context.push('/prayer-times'),
-        ),
-        AnisQuickAction(
-          glyph: AnisGlyph.anis(
-            AnisIconType.chart,
-            size: AnisIconSize.lg,
-            color: colors.actionPrimary,
-          ),
-          label: l10n.statistics,
-          onTap: () => context.push('/statistics'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Bandeau hors ligne.
-///
-/// S'appuie sur le `connectivityProvider` existant. Reste invisible tant que la
-/// connectivité est inconnue ou présente : jamais de faux signal.
 class _OfflineNotice extends ConsumerWidget {
   const _OfflineNotice();
 
@@ -618,7 +1009,6 @@ class _OfflineNotice extends ConsumerWidget {
   }
 }
 
-/// Bloc d'icône ANIS pour [AnisListTile.leading].
 Widget _homeListLeadingAnis(BuildContext context, AnisIconType type) {
   final colors = context.anisColors;
   return Container(

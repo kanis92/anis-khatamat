@@ -34,7 +34,7 @@ void main() {
 
     expect(router.state.uri.path, '/');
 
-    await tester.tap(find.text('Khatma'));
+    await tester.tap(find.text('Khatma').first);
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/khatma');
