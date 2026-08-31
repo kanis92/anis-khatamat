@@ -9,27 +9,42 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('F1 — bootstrap sans config Firebase', () {
-    test('resolveFirebaseOptionsFromEnvironment retourne null sans dart-define', () {
-      expect(resolveFirebaseOptionsFromEnvironment(), isNull);
-      expect(hasFirebaseBuildConfig, isFalse);
-    });
+    test(
+      'resolveFirebaseOptionsFromEnvironment retourne null sans dart-define',
+      () {
+        expect(resolveFirebaseOptionsFromEnvironment(), isNull);
+        expect(hasFirebaseBuildConfig, isFalse);
+      },
+    );
 
     test('bootstrapFirebase atteint unavailable sans crash', () async {
       final result = await bootstrapFirebase();
       expect(result.state, FirebaseRuntimeState.unavailable);
       expect(result.isConfigured, isFalse);
-      expect(result.resolveAppMode(demoModeActive: false), AnisRuntimeMode.configMissing);
+      expect(
+        result.resolveAppMode(demoModeActive: false),
+        AnisRuntimeMode.configMissing,
+      );
+    });
+
+    test('installCrashlyticsHandlers est un no-op sans Firebase', () async {
+      expect(tryFirebaseAuth(), isNull);
+      await expectLater(installCrashlyticsHandlers(), completes);
     });
 
     test('auto-demo via resolveAppMode quand demoModeActive', () {
-      const result = FirebaseBootstrapResult(state: FirebaseRuntimeState.unavailable);
+      const result = FirebaseBootstrapResult(
+        state: FirebaseRuntimeState.unavailable,
+      );
       expect(result.resolveAppMode(demoModeActive: true), AnisRuntimeMode.demo);
     });
   });
 
   group('F2 — auth provider sans accès eager FirebaseAuth', () {
     test('authStateProvider émet null quand Firebase non initialisé', () async {
-      const bootstrap = FirebaseBootstrapResult(state: FirebaseRuntimeState.unavailable);
+      const bootstrap = FirebaseBootstrapResult(
+        state: FirebaseRuntimeState.unavailable,
+      );
       final container = ProviderContainer(
         overrides: [
           firebaseBootstrapProvider.overrideWithValue(bootstrap),
@@ -50,7 +65,9 @@ void main() {
     });
 
     test('initializationFailed distinct de configMissing', () {
-      const failed = FirebaseBootstrapResult(state: FirebaseRuntimeState.failed);
+      const failed = FirebaseBootstrapResult(
+        state: FirebaseRuntimeState.failed,
+      );
       expect(
         failed.resolveAppMode(demoModeActive: false),
         AnisRuntimeMode.initializationFailed,

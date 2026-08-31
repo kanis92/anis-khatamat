@@ -66,4 +66,5 @@ flutter {
 // Appliqué uniquement si la config Firebase privée est présente (B8 policy).
 if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
