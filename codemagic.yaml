@@ -7,6 +7,57 @@
 # - Puis décommenter "integrations" et "publishing" ci-dessous
 
 workflows:
+  quality-checks:
+    name: Quality Gates (analyze, tests, builds)
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+      node: 18
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+          if [ $? -ne 0 ]; then
+            echo "❌ Flutter analyze failed"
+            exit 1
+          fi
+      - name: Flutter tests
+        script: |
+          flutter test --no-pub
+          if [ $? -ne 0 ]; then
+            echo "❌ Flutter tests failed"
+            exit 1
+          fi
+      - name: Firestore rules tests (optional)
+        script: |
+          if command -v firebase >/dev/null 2>&1; then
+            cd test/firestore_rules
+            npm install
+            npm test
+            cd ../..
+          else
+            echo "⚠️  Firebase CLI not available, skipping Firestore rules tests"
+          fi
+      - name: Build web (release)
+        script: |
+          flutter build web --release
+          if [ $? -ne 0 ]; then
+            echo "❌ Web build failed"
+            exit 1
+          fi
+      - name: Build Android APK (release)
+        script: |
+          flutter build apk --release
+          if [ $? -ne 0 ]; then
+            echo "❌ Android build failed"
+            exit 1
+          fi
+    artifacts:
+      - build/web/**
+      - build/app/outputs/flutter-apk/*.apk
   ios-workflow:
     name: iOS Build
     max_build_duration: 90
