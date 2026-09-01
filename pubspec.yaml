@@ -68,7 +68,16 @@ dependencies:
   geolocator: ^14.0.2
   hijri_date_time: ^1.1.0
 
-  # Mushaf - Lecture du Coran
+  # PDF - Sourates & Versets Fadila (PDFium, meilleure compatibilité)
+  pdfrx: ^2.2.24
+  file_picker: ^8.1.6
+  open_file: ^3.5.11
+
+  # Calendrier
+  table_calendar: ^3.1.2
+  add_2_calendar: 3.0.1
+
+  # Mushaf - Lecture du Coran (copie locale pour séparateur de verset en rouge)
   flutter_quran: ^0.0.2
   http: ^1.2.2
 
