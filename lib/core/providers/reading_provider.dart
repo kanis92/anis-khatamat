@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/khatma.dart';
 import '../models/reading_progress.dart';
 import '../services/reading_service.dart';
+import '../services/reading_history_service.dart';
 
 import '../models/khatma_load_result.dart';
 import '../services/reservation_service.dart';
@@ -143,4 +144,24 @@ final totalCompletedHizbProvider = FutureProvider<int>((ref) async {
   final user = ref.watch(currentUserProvider);
   final userId = user?.email ?? 'demo';
   return service.getTotalCompletedHizb(userId);
+});
+
+/// Prédiction de fin pour une Khatma (date estimée)
+final khatmaEstimatedCompletionProvider =
+    FutureProvider.family<DateTime?, String>((ref, khatmaId) async {
+  final service = ReadingHistoryService();
+  final user = ref.watch(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  if (userId.isEmpty) return null;
+  final khatma = await ref.read(khatmaByIdProvider(khatmaId).future);
+  if (khatma == null) return null;
+  final progress = await ref.read(khatmaProgressProvider(khatmaId).future);
+  final completed = khatma.reservationMode
+      ? khatma.completedReservationCount
+      : (progress?.completedCount ?? 0);
+  return service.estimateCompletionDate(
+    userId,
+    completedCount: completed,
+    totalHizb: 60,
+  );
 });
