@@ -10,6 +10,7 @@
   "khatma": "Khatma",
   "notifications": "Notifications",
   "training": "Formation",
+  "wird": "Wird",
   "achievements": "Accomplissements",
   "createKhatma": "Créer une Khatma",
   "createAccount": "Créer un compte",
@@ -290,5 +291,7 @@
   "khatmaRouteLoading": "Chargement de la Khatma...",
   "myKhatmas": "Mes Khatmas",
   "joinWithCode": "Rejoindre avec un code",
-  "back": "Retour"
+  "back": "Retour",
+  "wirdCompleteFinalPage": "Terminer le Coran",
+  "wirdFinalPageCompleted": "Alhamdulillah ! Vous avez terminé le Coran."
 }

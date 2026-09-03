@@ -7,6 +7,7 @@ import '../core/constants/hizb_definitions.dart';
 import '../core/models/bookmark.dart' as app_models;
 import '../core/providers/auth_provider.dart';
 import '../core/providers/bookmark_provider.dart';
+import '../core/providers/wird_provider.dart';
 import '../core/services/hizb_navigation_service.dart';
 import '../core/widgets/mushaf_hizb_indicator.dart';
 import '../core/widgets/mushaf_navigation_sheet.dart';
@@ -47,6 +48,7 @@ class MushafHafsScreen extends ConsumerStatefulWidget {
 
 class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
   int _currentPage = 1;
+  int? _previousPage;
 
   String get _effectiveDefinitionId =>
       widget.hizbDefinitionId ?? HizbDefinitions.quranFoundationHafsV1;
@@ -205,10 +207,63 @@ class _MushafHafsScreenState extends ConsumerState<MushafHafsScreen> {
             ),
           ],
         ),
-        onPageChanged: (index) {
-          setState(() => _currentPage = index + 1);
+        onPageChanged: (index) async {
+          final newPage = index + 1;
+          final oldPage = _previousPage;
+          
+          setState(() {
+            _currentPage = newPage;
+            _previousPage = newPage;
+          });
+
+          // Wird V2: tracking canonique Rub' avec détection séquentielle
+          final isSequential = oldPage != null && newPage == oldPage + 1;
+
+          if (isSequential) {
+            // Tour de page avant séquentiel : le lecteur a TERMINÉ oldPage
+            // On utilise donc le dernier ayat de oldPage, pas de newPage
+            final lastAyah = FlutterQuran().getLastAyahOnPage(oldPage);
+            if (lastAyah != null) {
+              await recordWirdSequentialPageTurn(
+                ref,
+                'hafs',
+                oldPage,
+                newPage,
+                lastAyah.surahNumber,
+                lastAyah.ayahNumber,
+              );
+            } else {
+              // Fallback si getLastAyahOnPage échoue : position seulement
+              await saveWirdPositionOnly(ref, 'hafs', newPage);
+            }
+          } else {
+            // Navigation non-séquentielle : position seulement (pas de complétion)
+            await saveWirdPositionOnly(ref, 'hafs', newPage);
+          }
         },
       ),
+      floatingActionButton: _currentPage == 604
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                await recordWirdFinalPageCompletion(ref, 'hafs');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        l10n.wirdFinalPageCompleted,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: AppTheme.primaryGreen,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(l10n.wirdCompleteFinalPage),
+              backgroundColor: AppTheme.primaryGreen,
+            )
+          : null,
     );
   }
 

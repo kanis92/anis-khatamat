@@ -10,6 +10,7 @@
   "khatma": "الختمة",
   "notifications": "الإشعارات",
   "training": "التدريب",
+  "wird": "ورد",
   "achievements": "الإنجازات",
   "createKhatma": "إنشاء ختمة",
   "createAccount": "إنشاء حساب",
@@ -259,5 +260,7 @@
   "khatmaRouteLoading": "جارٍ تحميل الختمة...",
   "myKhatmas": "ختماتي",
   "joinWithCode": "الانضمام برمز",
-  "back": "رجوع"
+  "back": "رجوع",
+  "wirdCompleteFinalPage": "إتمام القرآن",
+  "wirdFinalPageCompleted": "الحمد لله! لقد أتممت القرآن الكريم."
 }

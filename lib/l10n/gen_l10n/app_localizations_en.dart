@@ -39,6 +39,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get training => 'Training';
 
   @override
+  String get wird => 'Wird';
+
+  @override
   String get achievements => 'Achievements';
 
   @override
@@ -511,4 +514,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get back => 'Back';
+
+  @override
+  String get wirdCompleteFinalPage => 'Complete the Quran';
+
+  @override
+  String get wirdFinalPageCompleted =>
+      'Alhamdulillah! You have completed the Quran.';
 }

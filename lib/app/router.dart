@@ -17,6 +17,7 @@ import '../screens/mushaf_hafs_screen.dart';
 import '../screens/mushaf_warsh_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../screens/training_screen.dart';
+import '../screens/wird_screen.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/services/khatma_link_service.dart';
@@ -241,6 +242,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: NotificationsScreen()),
           ),
           GoRoute(
+            path: '/wird',
+            pageBuilder:
+                (context, state) =>
+                    const NoTransitionPage(child: WirdScreen()),
+          ),
+          GoRoute(
             path: '/training',
             pageBuilder:
                 (context, state) =>
@@ -302,7 +309,7 @@ class _MainShell extends StatelessWidget {
     AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
     AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
     AnisNavigationItem(label: l10n.notifications, icon: AnisIconType.bell),
-    AnisNavigationItem(label: l10n.training, icon: AnisIconType.training),
+    AnisNavigationItem(label: l10n.wird, icon: AnisIconType.bookOpen),
     AnisNavigationItem(
       label: l10n.settings,
       materialIcon: Icons.settings_outlined,
@@ -312,7 +319,7 @@ class _MainShell extends StatelessWidget {
   int _calculateSelectedIndex(String location) {
     if (location.startsWith('/khatma')) return 1;
     if (location.startsWith('/notifications')) return 2;
-    if (location.startsWith('/training')) return 3;
+    if (location.startsWith('/wird')) return 3;
     if (location.startsWith('/settings')) return 4;
     return 0;
   }
@@ -329,7 +336,7 @@ class _MainShell extends StatelessWidget {
         context.go('/notifications');
         break;
       case 3:
-        context.go('/training');
+        context.go('/wird');
         break;
       case 4:
         context.go('/settings');

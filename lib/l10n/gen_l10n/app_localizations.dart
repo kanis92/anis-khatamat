@@ -160,6 +160,12 @@ abstract class AppLocalizations {
   /// **'Formation'**
   String get training;
 
+  /// No description provided for @wird.
+  ///
+  /// In fr, this message translates to:
+  /// **'Wird'**
+  String get wird;
+
   /// No description provided for @achievements.
   ///
   /// In fr, this message translates to:
@@ -1017,6 +1023,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retour'**
   String get back;
+
+  /// No description provided for @wirdCompleteFinalPage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer le Coran'**
+  String get wirdCompleteFinalPage;
+
+  /// No description provided for @wirdFinalPageCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alhamdulillah ! Vous avez terminé le Coran.'**
+  String get wirdFinalPageCompleted;
 }
 
 class _AppLocalizationsDelegate

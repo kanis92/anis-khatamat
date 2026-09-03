@@ -7,6 +7,7 @@ import '../core/constants/hizb_definitions.dart';
 import '../core/models/bookmark.dart' as app_models;
 import '../core/providers/auth_provider.dart';
 import '../core/providers/bookmark_provider.dart';
+import '../core/providers/wird_provider.dart';
 import '../core/services/hizb_navigation_service.dart';
 import '../core/widgets/mushaf_hizb_indicator.dart';
 import '../core/widgets/mushaf_navigation_sheet.dart';
@@ -47,6 +48,7 @@ class MushafWomenScreen extends ConsumerStatefulWidget {
 
 class _MushafWomenScreenState extends ConsumerState<MushafWomenScreen> {
   int _currentPage = 1;
+  int? _previousPage;
 
   String get _effectiveDefinitionId =>
       widget.hizbDefinitionId ?? HizbDefinitions.quranFoundationHafsV1;
@@ -212,10 +214,63 @@ class _MushafWomenScreenState extends ConsumerState<MushafWomenScreen> {
             ),
           ],
         ),
-        onPageChanged: (index) {
-          setState(() => _currentPage = index + 1);
+        onPageChanged: (index) async {
+          final newPage = index + 1;
+          final oldPage = _previousPage;
+          
+          setState(() {
+            _currentPage = newPage;
+            _previousPage = newPage;
+          });
+
+          // Wird V2: tracking canonique Rub' avec détection séquentielle
+          final isSequential = oldPage != null && newPage == oldPage + 1;
+
+          if (isSequential) {
+            // Tour de page avant séquentiel : évaluer frontières Rub' franchies
+            final lastAyah = FlutterQuran().getLastAyahOnPage(oldPage);
+            if (lastAyah != null) {
+              await recordWirdSequentialPageTurn(
+                ref,
+                'women',
+                oldPage,
+                newPage,
+                lastAyah.surahNumber,
+                lastAyah.ayahNumber,
+              );
+            } else {
+              // Fallback si getLastAyahOnPage échoue : position seulement
+              await saveWirdPositionOnly(ref, 'women', newPage);
+            }
+
+          } else {
+            // Navigation non-séquentielle : position seulement (pas de complétion)
+            await saveWirdPositionOnly(ref, 'women', newPage);
+          }
         },
       ),
+      floatingActionButton: _currentPage == 604
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                await recordWirdFinalPageCompletion(ref, 'women');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        l10n.wirdFinalPageCompleted,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: AppTheme.primaryGreen,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(l10n.wirdCompleteFinalPage),
+              backgroundColor: AppTheme.primaryGreen,
+            )
+          : null,
     );
   }
 

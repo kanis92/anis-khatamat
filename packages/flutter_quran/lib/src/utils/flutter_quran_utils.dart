@@ -77,6 +77,28 @@ class FlutterQuran {
     return null;
   }
 
+  /// Retourne la dernière ayah de la page (pour tracking Wird Rub' canonique).
+  /// 
+  /// Le dernier verset d'une page détermine quelle frontière Rub' a été
+  /// franchie lors d'un tour de page séquentiel. Utilise le même ordre de
+  /// recherche que getFirstAyahOnPage pour cohérence.
+  Ayah? getLastAyahOnPage(int page) {
+    if (page < 1 || page > 604) return null;
+    final allAyahs = AppBloc.quranCubit.ayahs;
+    if (allAyahs.isNotEmpty) {
+      try {
+        return allAyahs.lastWhere((a) => a.page == page);
+      } catch (_) {}
+    }
+    // Fallback : staticPages
+    final pages = AppBloc.quranCubit.staticPages;
+    if (pages.isNotEmpty && page <= pages.length) {
+      final pageAyahs = pages[page - 1].ayahs;
+      if (pageAyahs.isNotEmpty) return pageAyahs.last;
+    }
+    return null;
+  }
+
   /// [navigateToHizb] navigue vers le premier verset du Hizb décrit par
   /// [startRange] (format 'surah:ayah - surah:ayah').
   /// Retourne le numéro de page atteint, ou null si la cible est introuvable.
