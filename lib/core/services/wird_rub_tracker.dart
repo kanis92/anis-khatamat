@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/quran_subdivision_data.dart';
+import '../abstractions/subdivision_definition.dart';
+import '../data/subdivision_definitions/hafs_quran_foundation_rub_240_v1.dart';
+import '../models/subdivision_marker.dart';
 
 /// Tracking canonique Wird basé sur les 240 Rub' du Coran.
 /// 
@@ -14,6 +16,13 @@ import '../data/quran_subdivision_data.dart';
 /// Important : Ne marque QUE les frontières franchies entre la position
 /// précédente et la nouvelle, pas tous les Rub' avant le curseur actuel.
 class WirdRubTracker {
+  final SubdivisionDefinition _definition;
+
+  /// Crée un tracker avec une définition de subdivision.
+  /// 
+  /// Par défaut, utilise la définition Hafs 240 Rub' validée en production.
+  WirdRubTracker({SubdivisionDefinition? definition})
+      : _definition = definition ?? HafsQuranFoundationRub240V1Definition();
   static const _rubsCompletedKey = 'anis_wird_rubs_completed';
   static const _lastPositionKey = 'anis_wird_last_position';
   static const _lastSequentialPageKey = 'anis_wird_last_sequential_page';
@@ -64,15 +73,17 @@ class WirdRubTracker {
     final completed = existing.map((s) => int.parse(s)).toSet();
     final initialCount = completed.length;
 
-    // Trouver les marqueurs franchis par la position actuelle et la position précédente
-    final currentCrossed = _findCrossedRubs(lastSurah, lastAyah);
+    // Trouver les marqueurs franchis entre la position précédente et actuelle
     final previousPosition = await _getLastSequentialPosition(userId);
-    final previousCrossed = previousPosition != null
-        ? _findCrossedRubs(previousPosition.$1, previousPosition.$2)
-        : <int>{};
-
-    // Ne marquer que les marqueurs nouvellement franchis (différence entre current et previous)
-    final newlyFranchis = currentCrossed.difference(previousCrossed);
+    final (fromSurah, fromAyah) = previousPosition ?? (1, 1);
+    
+    final newlyFranchis = _definition.getMarkersCrossedBetween(
+      fromSurah: fromSurah,
+      fromAyah: fromAyah,
+      toSurah: lastSurah,
+      toAyah: lastAyah,
+      granularity: SubdivisionGranularity.rub,
+    );
     
     // SEMANTIC FIX: Le marqueur 0 (1:1) est le début absolu et ne représente AUCUN Rub' complété.
     // Seuls les marqueurs 1-239 représentent des complétions de Rub'.
@@ -181,34 +192,6 @@ class WirdRubTracker {
   Future<int?> getLastSequentialPage(String userId) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('$_lastSequentialPageKey:$userId');
-  }
-
-  /// Trouve tous les Rub' dont le marqueur de début a été franchi par (surah, ayah).
-  /// 
-  /// Un Rub' est franchi si son début est strictement avant (surah, ayah).
-  /// Ne retourne que les Rub' réellement dépassés, pas celui qui commence exactement à cette position.
-  Set<int> _findCrossedRubs(int surah, int ayah) {
-    final crossed = <int>{};
-    // getAllQuarters() retourne 240 marqueurs (60 Hizb × 4 quarts)
-    // Chaque marqueur représente un 1/4 de Hizb (Rub'), peu importe son type
-    final markers = QuranSubdivisionData.getAllQuarters();
-
-    for (var i = 0; i < markers.length; i++) {
-      final marker = markers[i];
-      // Un Rub' est franchi si on est APRÈS son début
-      if (_isAfter(surah, ayah, marker.surah, marker.ayah)) {
-        crossed.add(i); // Index 0-239
-      }
-    }
-
-    return crossed;
-  }
-
-  /// Vrai si (s1, a1) est strictement après (s2, a2) dans l'ordre du Coran.
-  bool _isAfter(int s1, int a1, int s2, int a2) {
-    if (s1 > s2) return true;
-    if (s1 == s2 && a1 > a2) return true;
-    return false;
   }
 
   Future<void> _saveLastPosition(

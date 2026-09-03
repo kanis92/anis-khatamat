@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:anis_khatamat/core/services/wird_rub_tracker.dart';
 import 'package:anis_khatamat/core/data/quran_subdivision_data.dart';
+import 'package:anis_khatamat/core/data/subdivision_definitions/hafs_quran_foundation_rub_240_v1.dart';
 
 void main() {
   late WirdRubTracker tracker;
@@ -312,6 +313,127 @@ void main() {
       await tracker.recordFinalPageCompletion(testUser, 'hafs');
       final count2 = await tracker.getUniqueRubsCompletedToday(testUser);
       expect(count2, 240, reason: 'Explicit final page completion triggers 240th Rub\'');
+    });
+  });
+
+  group('WirdRubTracker — Parité SubdivisionDefinition', () {
+    late WirdRubTracker parityTracker;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      parityTracker = WirdRubTracker();
+    });
+
+    test('PARITY 1: Exact arrival on marker does NOT complete it', () async {
+      // Arriver exactement sur le marqueur 1 (2:26) ne le complète PAS
+      await parityTracker.recordSequentialPageTurn(
+        testUser,
+        'hafs',
+        1,
+        2,
+        2,
+        26, // Exact marker position
+      );
+      
+      final count = await parityTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 0, 
+          reason: 'Arriving exactly at marker 1 (2:26) does NOT complete it');
+    });
+
+    test('PARITY 2: Going beyond marker DOES complete it', () async {
+      // Tour 1→2, dernier verset = 2:27 (APRÈS le marqueur 1 à 2:26)
+      await parityTracker.recordSequentialPageTurn(
+        testUser,
+        'hafs',
+        1,
+        2,
+        2,
+        27, // Beyond marker 1
+      );
+      
+      final count = await parityTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 1, 
+          reason: 'Going beyond marker 1 (2:26) completes Rub\' 0');
+    });
+
+    test('PARITY 3: Marker 0 is NOT completed (filtered by tracker)', () async {
+      // Tour 1→2 avec position 2:25 (après marker 0 à 1:1, avant marker 1 à 2:26)
+      await parityTracker.recordSequentialPageTurn(
+        testUser,
+        'hafs',
+        1,
+        2,
+        2,
+        25,
+      );
+      
+      final count = await parityTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 0, 
+          reason: 'Marker 0 (1:1) is filtered - not a completion');
+    });
+
+    test('PARITY 4: Multiple markers crossed in one transition', () async {
+      // Position initiale : 2:25 (avant marker 1 à 2:26)
+      await parityTracker.recordSequentialPageTurn(testUser, 'hafs', 1, 2, 2, 25);
+      expect(await parityTracker.getUniqueRubsCompletedToday(testUser), 0);
+      
+      // Grand saut séquentiel : 2→3 avec dernière position 2:100
+      // Devrait franchir markers 1 (2:26), 2 (2:44), 3 (2:60)
+      await parityTracker.recordSequentialPageTurn(testUser, 'hafs', 2, 3, 2, 100);
+      
+      final count = await parityTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, greaterThanOrEqualTo(3), 
+          reason: 'Sequential turn crossing multiple markers completes them all');
+    });
+
+    test('PARITY 5: Backward/non-sequential has no effect', () async {
+      // Compléter 1 Rub'
+      await parityTracker.recordSequentialPageTurn(testUser, 'hafs', 1, 2, 2, 27);
+      expect(await parityTracker.getUniqueRubsCompletedToday(testUser), 1);
+      
+      // Retour arrière (refusé)
+      final backward = await parityTracker.recordSequentialPageTurn(
+        testUser,
+        'hafs',
+        2,
+        1,
+        1,
+        7,
+      );
+      
+      expect(backward, false);
+      expect(await parityTracker.getUniqueRubsCompletedToday(testUser), 1,
+          reason: 'Backward movement does not affect completion');
+    });
+
+    test('PARITY 6: Final 114:6 completion yields exactly 240', () async {
+      // Complétion explicite finale
+      await parityTracker.recordFinalPageCompletion(testUser, 'hafs');
+      
+      final count = await parityTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 240, 
+          reason: 'Final completion at 114:6 yields exactly 240 Rub\'');
+    });
+
+    test('PARITY 7: Definition injection preserves behavior', () async {
+      // Créer deux trackers : un avec défaut, un avec injection explicite
+      final tracker1 = WirdRubTracker();
+      final tracker2 = WirdRubTracker(
+        definition: HafsQuranFoundationRub240V1Definition(),
+      );
+      
+      // Les deux doivent avoir le même comportement
+      SharedPreferences.setMockInitialValues({});
+      await tracker1.recordSequentialPageTurn(testUser, 'hafs', 1, 2, 2, 27);
+      final count1 = await tracker1.getUniqueRubsCompletedToday(testUser);
+      
+      SharedPreferences.setMockInitialValues({});
+      await tracker2.recordSequentialPageTurn('test2@anis.ma', 'hafs', 1, 2, 2, 27);
+      final count2 = await tracker2.getUniqueRubsCompletedToday('test2@anis.ma');
+      
+      expect(count1, count2, 
+          reason: 'Default and explicit injection produce same results');
+      expect(count1, 1);
     });
   });
 }
