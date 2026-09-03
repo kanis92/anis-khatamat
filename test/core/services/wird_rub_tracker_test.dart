@@ -4,6 +4,65 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:anis_khatamat/core/services/wird_rub_tracker.dart';
 import 'package:anis_khatamat/core/data/quran_subdivision_data.dart';
 import 'package:anis_khatamat/core/data/subdivision_definitions/hafs_quran_foundation_rub_240_v1.dart';
+import 'package:anis_khatamat/core/abstractions/subdivision_definition.dart';
+import 'package:anis_khatamat/core/models/subdivision_marker.dart';
+
+/// Mock SubdivisionDefinition pour tester l'isolation des namespaces
+class _MockWarshDefinition implements SubdivisionDefinition {
+  @override
+  String get id => 'warsh_wikisource_thumun_480_v1';
+
+  @override
+  String get riwaya => 'warsh';
+
+  @override
+  String get sourceAttribution => 'Mock Warsh';
+
+  @override
+  int get totalSegments => 480;
+
+  @override
+  SubdivisionGranularity get primaryGranularity => SubdivisionGranularity.thumun;
+
+  @override
+  SubdivisionMarker getMarker(int segmentId) => throw UnimplementedError();
+
+  @override
+  List<SubdivisionMarker> getAllMarkers() => throw UnimplementedError();
+
+  @override
+  List<SubdivisionMarker> getHizbMarkers() => throw UnimplementedError();
+
+  @override
+  List<SubdivisionMarker> getRubMarkers() => throw UnimplementedError();
+
+  @override
+  List<SubdivisionMarker> getNisfMarkers() => throw UnimplementedError();
+
+  @override
+  List<SubdivisionMarker> getThumunMarkers() => throw UnimplementedError();
+
+  @override
+  bool supportsGranularity(SubdivisionGranularity granularity) => false;
+
+  @override
+  SubdivisionMarker? getActiveMarkerAt(
+    int surah,
+    int ayah, {
+    required SubdivisionGranularity granularity,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Set<int> getMarkersCrossedBetween({
+    required int fromSurah,
+    required int fromAyah,
+    required int toSurah,
+    required int toAyah,
+    required SubdivisionGranularity granularity,
+  }) =>
+      {}; // Retourne vide pour les tests d'isolation
+}
 
 void main() {
   late WirdRubTracker tracker;
@@ -434,6 +493,185 @@ void main() {
       expect(count1, count2, 
           reason: 'Default and explicit injection produce same results');
       expect(count1, 1);
+    });
+  });
+
+  group('WirdRubTracker — Progress Namespacing & Migration', () {
+    test('MIGRATION 1: Legacy Hafs progress migrates to namespaced key once', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Simuler des données legacy (sans namespace)
+      final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
+      await prefs.setStringList(legacyKey, ['1', '2', '3']);
+      
+      // Créer tracker Hafs (devrait migrer)
+      final tracker = WirdRubTracker();
+      
+      // Premier appel: migration
+      final count1 = await tracker.getUniqueRubsCompletedToday(testUser);
+      expect(count1, 3, reason: 'Legacy data migrated');
+      
+      // Vérifier que nouvelle clé existe
+      final newKey = 'anis_wird_rubs_completed:hafs_quran_foundation_rub_240_v1:$testUser:2026-09-03';
+      expect(prefs.containsKey(newKey), true, reason: 'Namespaced key created');
+      
+      // Legacy key reste intact (non-destructive)
+      expect(prefs.containsKey(legacyKey), true, reason: 'Legacy data preserved');
+    });
+
+    test('MIGRATION 2: Repeated reads are idempotent', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
+      await prefs.setStringList(legacyKey, ['5', '10']);
+      
+      final tracker = WirdRubTracker();
+      
+      // Première lecture: migration
+      final count1 = await tracker.getUniqueRubsCompletedToday(testUser);
+      
+      // Modifier legacy (ne devrait PAS affecter nouvelle clé)
+      await prefs.setStringList(legacyKey, ['5', '10', '15']);
+      
+      // Deuxième lecture: doit utiliser nouvelle clé (pas remigrer)
+      final count2 = await tracker.getUniqueRubsCompletedToday(testUser);
+      
+      expect(count1, 2);
+      expect(count2, 2, reason: 'Migration is idempotent, legacy changes ignored');
+    });
+
+    test('MIGRATION 3: Existing namespaced key wins over legacy', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Créer à la fois legacy et nouvelle clé
+      final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
+      final newKey = 'anis_wird_rubs_completed:hafs_quran_foundation_rub_240_v1:$testUser:2026-09-03';
+      
+      await prefs.setStringList(legacyKey, ['1', '2']);
+      await prefs.setStringList(newKey, ['10', '20', '30']);
+      
+      final tracker = WirdRubTracker();
+      
+      // Doit utiliser la nouvelle clé (pas migrer)
+      final count = await tracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 3, reason: 'Existing namespaced key takes precedence');
+    });
+
+    test('MIGRATION 4: Non-Hafs definition cannot inherit Hafs legacy', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Créer legacy Hafs data
+      final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
+      await prefs.setStringList(legacyKey, ['1', '2', '3']);
+      
+      // Créer tracker avec définition Warsh (namespace différent)
+      final warshTracker = WirdRubTracker(
+        definition: _MockWarshDefinition(),
+      );
+      
+      // Warsh ne doit PAS hériter des données Hafs legacy
+      final count = await warshTracker.getUniqueRubsCompletedToday(testUser);
+      expect(count, 0, reason: 'Non-Hafs namespace must not inherit legacy Hafs data');
+      
+      // Legacy key doit rester intact
+      expect(prefs.containsKey(legacyKey), true);
+    });
+
+    test('MIGRATION 5: Sequential page migrates consistently', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Legacy sequential page
+      final legacyPageKey = 'anis_wird_last_sequential_page:$testUser';
+      await prefs.setInt(legacyPageKey, 42);
+      
+      final tracker = WirdRubTracker();
+      
+      // Lecture devrait migrer
+      final page = await tracker.getLastSequentialPage(testUser);
+      expect(page, 42, reason: 'Legacy sequential page migrated');
+      
+      // Vérifier nouvelle clé
+      final newPageKey = 'anis_wird_last_sequential_page:hafs_quran_foundation_rub_240_v1:$testUser';
+      expect(prefs.getInt(newPageKey), 42);
+      
+      // Legacy intact
+      expect(prefs.containsKey(legacyPageKey), true);
+    });
+
+    test('MIGRATION 6: Sequential Quran position migrates consistently', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Legacy position
+      final legacyPosKey = 'anis_wird_last_sequential_page_position:$testUser';
+      await prefs.setString(legacyPosKey, '{"surah":2,"ayah":100}');
+      
+      final tracker = WirdRubTracker();
+      
+      // Déclencher lecture (dans recordSequentialPageTurn)
+      await tracker.recordSequentialPageTurn(testUser, 'hafs', 1, 2, 2, 101);
+      
+      // Vérifier nouvelle clé existe
+      final newPosKey = 'anis_wird_last_sequential_page_position:hafs_quran_foundation_rub_240_v1:$testUser';
+      expect(prefs.containsKey(newPosKey), true, reason: 'Position migrated');
+      
+      // Legacy intact
+      expect(prefs.containsKey(legacyPosKey), true);
+    });
+
+    test('MIGRATION 7: No user progress is deleted', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Créer plusieurs clés legacy
+      final keys = {
+        'anis_wird_rubs_completed:$testUser:2026-09-01': ['1', '2'],
+        'anis_wird_rubs_completed:$testUser:2026-09-02': ['3', '4'],
+        'anis_wird_rubs_completed:$testUser:2026-09-03': ['5'],
+        'anis_wird_last_sequential_page:$testUser': 50,
+      };
+      
+      for (final entry in keys.entries) {
+        if (entry.value is List) {
+          await prefs.setStringList(entry.key, entry.value as List<String>);
+        } else {
+          await prefs.setInt(entry.key, entry.value as int);
+        }
+      }
+      
+      final tracker = WirdRubTracker();
+      
+      // Déclencher migrations
+      await tracker.getActiveDaysCount(testUser, 7);
+      await tracker.getLastSequentialPage(testUser);
+      
+      // Toutes les legacy keys doivent exister
+      for (final key in keys.keys) {
+        expect(prefs.containsKey(key), true, 
+            reason: 'Legacy key $key must not be deleted');
+      }
+    });
+
+    test('MIGRATION 8: Namespace isolation is enforced', () async {
+      SharedPreferences.setMockInitialValues({});
+      
+      final hafsTracker = WirdRubTracker();
+      final warshTracker = WirdRubTracker(definition: _MockWarshDefinition());
+      
+      // Écrire pour Hafs
+      await hafsTracker.recordSequentialPageTurn(testUser, 'hafs', 1, 2, 2, 27);
+      
+      // Lire pour Warsh: doit être vide
+      final warshCount = await warshTracker.getUniqueRubsCompletedToday(testUser);
+      final hafsCount = await hafsTracker.getUniqueRubsCompletedToday(testUser);
+      
+      expect(hafsCount, greaterThan(0));
+      expect(warshCount, 0, reason: 'Warsh namespace isolated from Hafs');
     });
   });
 }

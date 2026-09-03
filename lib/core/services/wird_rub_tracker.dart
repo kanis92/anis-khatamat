@@ -17,15 +17,26 @@ import '../models/subdivision_marker.dart';
 /// précédente et la nouvelle, pas tous les Rub' avant le curseur actuel.
 class WirdRubTracker {
   final SubdivisionDefinition _definition;
+  late final String _namespace;
 
   /// Crée un tracker avec une définition de subdivision.
   /// 
   /// Par défaut, utilise la définition Hafs 240 Rub' validée en production.
+  /// 
+  /// Le namespace de stockage est automatiquement dérivé de l'ID de la définition
+  /// pour garantir la cohérence entre logique et progression sauvegardée.
   WirdRubTracker({SubdivisionDefinition? definition})
-      : _definition = definition ?? HafsQuranFoundationRub240V1Definition();
+      : _definition = definition ?? HafsQuranFoundationRub240V1Definition() {
+    _namespace = _definition.id;
+  }
+
   static const _rubsCompletedKey = 'anis_wird_rubs_completed';
   static const _lastPositionKey = 'anis_wird_last_position';
   static const _lastSequentialPageKey = 'anis_wird_last_sequential_page';
+  
+  /// Identifiant legacy pour migration: tout ce qui n'a pas de namespace
+  /// explicite est considéré comme Hafs 240 V1
+  static const _legacyHafsNamespace = 'hafs_quran_foundation_rub_240_v1';
 
   /// Enregistre la complétion de la dernière page du Quran (cas spécial).
   /// 
@@ -66,7 +77,11 @@ class WirdRubTracker {
 
     final prefs = await SharedPreferences.getInstance();
     final today = _todayKey();
-    final key = '$_rubsCompletedKey:$userId:$today';
+    
+    // Migration lazy pour les données Hafs legacy
+    await _migrateLegacyRubsIfNeeded(prefs, userId, today);
+    
+    final key = _namespacedRubsKey(userId, today);
 
     // Récupérer les Rub' déjà complétés aujourd'hui
     final existing = prefs.getStringList(key) ?? [];
@@ -154,7 +169,11 @@ class WirdRubTracker {
   Future<int> getUniqueRubsCompletedToday(String userId) async {
     final prefs = await SharedPreferences.getInstance();
     final today = _todayKey();
-    final key = '$_rubsCompletedKey:$userId:$today';
+    
+    // Migration lazy pour les données Hafs legacy
+    await _migrateLegacyRubsIfNeeded(prefs, userId, today);
+    
+    final key = _namespacedRubsKey(userId, today);
     final list = prefs.getStringList(key) ?? [];
     return list.length;
   }
@@ -166,7 +185,11 @@ class WirdRubTracker {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final dateKey = _dateKey(date);
-    final key = '$_rubsCompletedKey:$userId:$dateKey';
+    
+    // Migration lazy pour les données Hafs legacy
+    await _migrateLegacyRubsIfNeeded(prefs, userId, dateKey);
+    
+    final key = _namespacedRubsKey(userId, dateKey);
     final list = prefs.getStringList(key) ?? [];
     return list.map((s) => int.parse(s)).toSet();
   }
@@ -180,7 +203,11 @@ class WirdRubTracker {
     for (var i = 0; i < lastNDays; i++) {
       final date = now.subtract(Duration(days: i));
       final dateKey = _dateKey(date);
-      final key = '$_rubsCompletedKey:$userId:$dateKey';
+      
+      // Migration lazy pour chaque jour
+      await _migrateLegacyRubsIfNeeded(prefs, userId, dateKey);
+      
+      final key = _namespacedRubsKey(userId, dateKey);
       final list = prefs.getStringList(key) ?? [];
       if (list.isNotEmpty) activeDays++;
     }
@@ -191,7 +218,12 @@ class WirdRubTracker {
   /// Dernière page séquentielle enregistrée (pour détecter les sauts).
   Future<int?> getLastSequentialPage(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('$_lastSequentialPageKey:$userId');
+    
+    // Migration lazy pour les données Hafs legacy
+    await _migrateLegacySequentialPageIfNeeded(prefs, userId);
+    
+    final key = _namespacedSequentialPageKey(userId);
+    return prefs.getInt(key);
   }
 
   Future<void> _saveLastPosition(
@@ -214,18 +246,25 @@ class WirdRubTracker {
 
   Future<void> _saveLastSequentialPage(String userId, int page) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('$_lastSequentialPageKey:$userId', page);
+    final key = _namespacedSequentialPageKey(userId);
+    await prefs.setInt(key, page);
   }
 
   Future<void> _saveLastSequentialPosition(String userId, int surah, int ayah) async {
     final prefs = await SharedPreferences.getInstance();
     final data = {'surah': surah, 'ayah': ayah};
-    await prefs.setString('${_lastSequentialPageKey}_position:$userId', jsonEncode(data));
+    final key = _namespacedSequentialPositionKey(userId);
+    await prefs.setString(key, jsonEncode(data));
   }
 
   Future<(int, int)?> _getLastSequentialPosition(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    final json = prefs.getString('${_lastSequentialPageKey}_position:$userId');
+    
+    // Migration lazy pour les données Hafs legacy
+    await _migrateLegacySequentialPositionIfNeeded(prefs, userId);
+    
+    final key = _namespacedSequentialPositionKey(userId);
+    final json = prefs.getString(key);
     if (json == null) return null;
     final map = jsonDecode(json) as Map<String, dynamic>;
     return (map['surah'] as int, map['ayah'] as int);
@@ -235,4 +274,98 @@ class WirdRubTracker {
 
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  /// Construit une clé namespacée pour les marker IDs complétés
+  String _namespacedRubsKey(String userId, String dateKey) =>
+      '$_rubsCompletedKey:$_namespace:$userId:$dateKey';
+
+  /// Construit la clé legacy (sans namespace) pour migration
+  String _legacyRubsKey(String userId, String dateKey) =>
+      '$_rubsCompletedKey:$userId:$dateKey';
+
+  /// Construit une clé namespacée pour la dernière page séquentielle
+  String _namespacedSequentialPageKey(String userId) =>
+      '$_lastSequentialPageKey:$_namespace:$userId';
+
+  /// Construit la clé legacy (sans namespace) pour la page séquentielle
+  String _legacySequentialPageKey(String userId) =>
+      '$_lastSequentialPageKey:$userId';
+
+  /// Construit une clé namespacée pour la dernière position Quran séquentielle
+  String _namespacedSequentialPositionKey(String userId) =>
+      '${_lastSequentialPageKey}_position:$_namespace:$userId';
+
+  /// Construit la clé legacy (sans namespace) pour la position séquentielle
+  String _legacySequentialPositionKey(String userId) =>
+      '${_lastSequentialPageKey}_position:$userId';
+
+  /// Migration lazy: copie legacy vers nouvelle clé Hafs si nécessaire
+  /// 
+  /// Retourne true si migration effectuée, false sinon.
+  /// Cette migration est idempotente et ne supprime jamais les données legacy.
+  Future<bool> _migrateLegacyRubsIfNeeded(
+    SharedPreferences prefs,
+    String userId,
+    String dateKey,
+  ) async {
+    // Seulement pour Hafs: si nouvelle clé absente et legacy présente, copier
+    if (_namespace != _legacyHafsNamespace) return false;
+
+    final newKey = _namespacedRubsKey(userId, dateKey);
+    final legacyKey = _legacyRubsKey(userId, dateKey);
+
+    // Si nouvelle clé existe déjà, pas de migration
+    if (prefs.containsKey(newKey)) return false;
+
+    // Si legacy key existe, copier vers nouvelle clé
+    final legacyData = prefs.getStringList(legacyKey);
+    if (legacyData != null && legacyData.isNotEmpty) {
+      await prefs.setStringList(newKey, legacyData);
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Migration lazy pour la dernière page séquentielle
+  Future<bool> _migrateLegacySequentialPageIfNeeded(
+    SharedPreferences prefs,
+    String userId,
+  ) async {
+    if (_namespace != _legacyHafsNamespace) return false;
+
+    final newKey = _namespacedSequentialPageKey(userId);
+    final legacyKey = _legacySequentialPageKey(userId);
+
+    if (prefs.containsKey(newKey)) return false;
+
+    final legacyPage = prefs.getInt(legacyKey);
+    if (legacyPage != null) {
+      await prefs.setInt(newKey, legacyPage);
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Migration lazy pour la dernière position Quran séquentielle
+  Future<bool> _migrateLegacySequentialPositionIfNeeded(
+    SharedPreferences prefs,
+    String userId,
+  ) async {
+    if (_namespace != _legacyHafsNamespace) return false;
+
+    final newKey = _namespacedSequentialPositionKey(userId);
+    final legacyKey = _legacySequentialPositionKey(userId);
+
+    if (prefs.containsKey(newKey)) return false;
+
+    final legacyJson = prefs.getString(legacyKey);
+    if (legacyJson != null) {
+      await prefs.setString(newKey, legacyJson);
+      return true;
+    }
+
+    return false;
+  }
 }
