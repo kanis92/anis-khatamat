@@ -8,6 +8,15 @@ import 'package:equatable/equatable.dart';
 /// - Objectif quotidien en Rub', pas en pages
 /// - Position de reprise reste page-based (mushafType + page)
 class Wird extends Equatable {
+  /// Identifiant de la définition de subdivision utilisée.
+  /// 
+  /// Exemple: 'hafs_quran_foundation_rub_240_v1'
+  /// 
+  /// Cette définition détermine quels marqueurs coraniques sont utilisés
+  /// pour le tracking. Les enregistrements legacy sans ce champ sont
+  /// automatiquement interprétés comme Hafs 240 Rub'.
+  final String subdivisionDefinitionId;
+
   /// Objectif quotidien en nombre de Rub' (1/4 Hizb).
   /// Exemples : 1 Rub' = 1, 1 Nisf = 2, 1 Hizb = 4, 2 Hizb = 8
   final int dailyTargetRubs;
@@ -25,6 +34,7 @@ class Wird extends Equatable {
   final DateTime createdAt;
 
   const Wird({
+    required this.subdivisionDefinitionId,
     required this.dailyTargetRubs,
     this.lastMushafType,
     this.lastPage,
@@ -33,6 +43,7 @@ class Wird extends Equatable {
   });
 
   Wird copyWith({
+    String? subdivisionDefinitionId,
     int? dailyTargetRubs,
     String? lastMushafType,
     int? lastPage,
@@ -40,6 +51,8 @@ class Wird extends Equatable {
     DateTime? createdAt,
   }) {
     return Wird(
+      subdivisionDefinitionId:
+          subdivisionDefinitionId ?? this.subdivisionDefinitionId,
       dailyTargetRubs: dailyTargetRubs ?? this.dailyTargetRubs,
       lastMushafType: lastMushafType ?? this.lastMushafType,
       lastPage: lastPage ?? this.lastPage,
@@ -50,6 +63,7 @@ class Wird extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
+      'subdivisionDefinitionId': subdivisionDefinitionId,
       'dailyTargetRubs': dailyTargetRubs,
       'lastMushafType': lastMushafType,
       'lastPage': lastPage,
@@ -60,6 +74,9 @@ class Wird extends Equatable {
 
   factory Wird.fromMap(Map<String, dynamic> map) {
     return Wird(
+      // MIGRATION: Legacy records without subdivisionDefinitionId default to Hafs 240 Rub'
+      subdivisionDefinitionId: map['subdivisionDefinitionId'] as String? ??
+          'hafs_quran_foundation_rub_240_v1',
       dailyTargetRubs: map['dailyTargetRubs'] as int? ?? 4, // défaut 1 Hizb
       lastMushafType: map['lastMushafType'] as String?,
       lastPage: map['lastPage'] as int?,
@@ -72,9 +89,10 @@ class Wird extends Equatable {
     );
   }
 
-  /// Wird par défaut : 1 Hizb par jour (4 Rub')
+  /// Wird par défaut : 1 Hizb par jour (4 Rub') avec définition Hafs 240
   static Wird defaultWird() {
     return Wird(
+      subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
       dailyTargetRubs: 4, // 1 Hizb
       createdAt: DateTime.now(),
     );
@@ -98,6 +116,7 @@ class Wird extends Equatable {
 
   @override
   List<Object?> get props => [
+        subdivisionDefinitionId,
         dailyTargetRubs,
         lastMushafType,
         lastPage,
