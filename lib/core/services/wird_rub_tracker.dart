@@ -226,6 +226,15 @@ class WirdRubTracker {
     return prefs.getInt(key);
   }
 
+  /// Dernière position séquentielle Quran (surah, ayah) enregistrée.
+  /// 
+  /// Retourne null si aucune position séquentielle n'existe.
+  /// Cette position est mise à jour uniquement lors des tours de page séquentiels,
+  /// ce qui garantit qu'elle reflète la lecture réelle de l'utilisateur.
+  Future<(int surah, int ayah)?> getLastSequentialQuranPosition(String userId) async {
+    return _getLastSequentialPosition(userId);
+  }
+
   Future<void> _saveLastPosition(
     String userId,
     String mushafType,

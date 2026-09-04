@@ -24,6 +24,14 @@ final wirdTodayProgressProvider = FutureProvider<int>((ref) async {
   return service.getTodayProgress(userId);
 });
 
+/// IDs des Rub' complétés aujourd'hui (0-240)
+final wirdTodayCompletedRubIdsProvider = FutureProvider<Set<int>>((ref) async {
+  final service = ref.watch(wirdServiceProvider);
+  final user = ref.watch(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  return service.getTodayCompletedRubIds(userId);
+});
+
 /// Continuité 7 derniers jours (jours actifs)
 final wirdContinuityProvider = FutureProvider<int>((ref) async {
   final service = ref.watch(wirdServiceProvider);

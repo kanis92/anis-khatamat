@@ -501,6 +501,9 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       
+      // Utiliser une date fixe pour rendre le test déterministe
+      final testDate = DateTime(2026, 9, 3);
+      
       // Simuler des données legacy (sans namespace)
       final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
       await prefs.setStringList(legacyKey, ['1', '2', '3']);
@@ -508,9 +511,9 @@ void main() {
       // Créer tracker Hafs (devrait migrer)
       final tracker = WirdRubTracker();
       
-      // Premier appel: migration
-      final count1 = await tracker.getUniqueRubsCompletedToday(testUser);
-      expect(count1, 3, reason: 'Legacy data migrated');
+      // Premier appel avec date fixe: migration
+      final rubIds = await tracker.getRubsCompletedForDate(testUser, testDate);
+      expect(rubIds.length, 3, reason: 'Legacy data migrated');
       
       // Vérifier que nouvelle clé existe
       final newKey = 'anis_wird_rubs_completed:hafs_quran_foundation_rub_240_v1:$testUser:2026-09-03';
@@ -524,27 +527,33 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       
+      // Utiliser une date fixe pour rendre le test déterministe
+      final testDate = DateTime(2026, 9, 3);
+      
       final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
       await prefs.setStringList(legacyKey, ['5', '10']);
       
       final tracker = WirdRubTracker();
       
-      // Première lecture: migration
-      final count1 = await tracker.getUniqueRubsCompletedToday(testUser);
+      // Première lecture avec date fixe: migration
+      final rubIds1 = await tracker.getRubsCompletedForDate(testUser, testDate);
       
       // Modifier legacy (ne devrait PAS affecter nouvelle clé)
       await prefs.setStringList(legacyKey, ['5', '10', '15']);
       
       // Deuxième lecture: doit utiliser nouvelle clé (pas remigrer)
-      final count2 = await tracker.getUniqueRubsCompletedToday(testUser);
+      final rubIds2 = await tracker.getRubsCompletedForDate(testUser, testDate);
       
-      expect(count1, 2);
-      expect(count2, 2, reason: 'Migration is idempotent, legacy changes ignored');
+      expect(rubIds1.length, 2);
+      expect(rubIds2.length, 2, reason: 'Migration is idempotent, legacy changes ignored');
     });
 
     test('MIGRATION 3: Existing namespaced key wins over legacy', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
+      
+      // Utiliser une date fixe pour rendre le test déterministe
+      final testDate = DateTime(2026, 9, 3);
       
       // Créer à la fois legacy et nouvelle clé
       final legacyKey = 'anis_wird_rubs_completed:$testUser:2026-09-03';
@@ -556,8 +565,8 @@ void main() {
       final tracker = WirdRubTracker();
       
       // Doit utiliser la nouvelle clé (pas migrer)
-      final count = await tracker.getUniqueRubsCompletedToday(testUser);
-      expect(count, 3, reason: 'Existing namespaced key takes precedence');
+      final rubIds = await tracker.getRubsCompletedForDate(testUser, testDate);
+      expect(rubIds.length, 3, reason: 'Existing namespaced key takes precedence');
     });
 
     test('MIGRATION 4: Non-Hafs definition cannot inherit Hafs legacy', () async {

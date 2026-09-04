@@ -101,6 +101,11 @@ class WirdService {
     return _rubTracker.getUniqueRubsCompletedToday(userId);
   }
 
+  /// Rub' complétés aujourd'hui (IDs des marqueurs).
+  Future<Set<int>> getTodayCompletedRubIds(String userId) async {
+    return _rubTracker.getRubsCompletedForDate(userId, DateTime.now());
+  }
+
   /// Continuité récente (nombre de jours actifs sur les N derniers jours).
   Future<int> getRecentContinuity(String userId, int lastNDays) async {
     return _rubTracker.getActiveDaysCount(userId, lastNDays);
@@ -122,6 +127,15 @@ class WirdService {
   /// Dernière page séquentielle (pour détecter les sauts).
   Future<int?> getLastSequentialPage(String userId) async {
     return _rubTracker.getLastSequentialPage(userId);
+  }
+
+  /// Dernière position Quran séquentielle (surah, ayah).
+  /// 
+  /// Retourne null si aucune lecture séquentielle n'a eu lieu.
+  /// Cette position est plus précise que lastPage car elle reflète
+  /// la vraie position de lecture séquentielle de l'utilisateur.
+  Future<(int surah, int ayah)?> getLastSequentialQuranPosition(String userId) async {
+    return _rubTracker.getLastSequentialQuranPosition(userId);
   }
 
   /// Enregistre la complétion de la dernière page du Quran.
