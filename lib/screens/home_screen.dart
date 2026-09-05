@@ -526,7 +526,7 @@ class _QuickActionsGrid extends StatelessWidget {
                   child: _QuickActionTile(
                     icon: AnisIconType.bookOpen,
                     title: l10n.mushaf,
-                    subtitle: l10n.mushafHafsDesc,
+                    subtitle: l10n.quickActionMushafSubtitle,
                     onTap: () => context.push('/mushaf'),
                   ),
                 ),
@@ -535,7 +535,7 @@ class _QuickActionsGrid extends StatelessWidget {
                   child: _QuickActionTile(
                     icon: AnisIconType.khatma,
                     title: l10n.khatma,
-                    subtitle: l10n.myKhatmat,
+                    subtitle: l10n.quickActionKhatmaSubtitle,
                     onTap: () => context.go('/khatma'),
                   ),
                 ),
@@ -543,8 +543,8 @@ class _QuickActionsGrid extends StatelessWidget {
                   width: tileWidth,
                   child: _QuickActionTile(
                     icon: AnisIconType.training,
-                    title: l10n.myTraining,
-                    subtitle: l10n.training,
+                    title: l10n.quickActionFormationsTitle,
+                    subtitle: l10n.quickActionFormationsSubtitle,
                     onTap: () => context.go('/training'),
                   ),
                 ),
@@ -553,7 +553,7 @@ class _QuickActionsGrid extends StatelessWidget {
                   child: _QuickActionTile(
                     icon: AnisIconType.bell,
                     title: l10n.notifications,
-                    subtitle: l10n.manageNotifications,
+                    subtitle: l10n.quickActionNotificationsSubtitle,
                     onTap: () => context.go('/notifications'),
                   ),
                 ),
@@ -586,62 +586,51 @@ class _QuickActionTile extends StatelessWidget {
 
     return AnisSurface(
       level: AnisSurfaceLevel.subtle,
-      radius: AnisRadius.lg,
+      radius: AnisRadius.md,
       onTap: onTap,
       semanticLabel: '$title. $subtitle',
+      padding: const EdgeInsetsDirectional.all(AnisSpacing.md),
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minHeight: AnisIconSize.minTapTarget + 36,
+          minHeight: 100,
         ),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.all(AnisSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: colors.actionPrimary.withValues(
-                    alpha: AnisOpacity.subtleFill,
-                  ),
-                  borderRadius: AnisRadius.smAll,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: colors.actionPrimary.withValues(
+                  alpha: AnisOpacity.subtleFill,
                 ),
-                alignment: Alignment.center,
-                child: AnisGlyph.anis(
-                  icon,
-                  size: AnisIconSize.md,
-                  color: colors.actionPrimary,
-                ),
+                borderRadius: AnisRadius.smAll,
               ),
-              const SizedBox(width: AnisSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: text.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AnisSpacing.xxs),
-                    Text(
-                      subtitle,
-                      style: text.caption,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+              alignment: Alignment.center,
+              child: AnisGlyph.anis(
+                icon,
+                size: AnisIconSize.md,
+                color: colors.actionPrimary,
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.textTertiary,
-                size: 20,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: AnisSpacing.sm),
+            Text(
+              title,
+              style: text.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AnisSpacing.xxs),
+            Text(
+              subtitle,
+              style: text.caption,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -966,14 +955,10 @@ class _KhatmaRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final khatma = status.khatma;
-    final subtitle =
-        khatma.isGroup || khatma.reservationMode
-            ? l10n.groupKhatma
-            : l10n.individual;
 
     return AnisListTile(
       title: khatma.title,
-      subtitle: subtitle,
+      subtitle: l10n.groupKhatma,
       leading: _homeListLeadingAnis(context, AnisIconType.khatma),
       onTap:
           () => context.push(

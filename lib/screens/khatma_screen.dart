@@ -5,18 +5,20 @@ import 'package:go_router/go_router.dart';
 import '../core/theme/app_theme.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/reading_provider.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 
 class KhatmaScreen extends ConsumerWidget {
   const KhatmaScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final khatmatAsync = ref.watch(khatmatProvider);
     final khatmat = khatmatAsync.valueOrNull ?? [];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Khatma'),
+        title: Text(l10n.khatma),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -24,12 +26,11 @@ class KhatmaScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _CreateKhatmaCard(
-              onIndividual: () => _showCreateKhatmaDialog(context, isGroup: false),
-              onGroup: () => _showCreateKhatmaDialog(context, isGroup: true),
+              onCreateGroup: () => _showCreateKhatmaDialog(context, isGroup: true),
             ),
             const SizedBox(height: 24),
             Text(
-              'Vos Khatmat en cours',
+              l10n.myKhatmat,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -37,9 +38,10 @@ class KhatmaScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             if (khatmat.isEmpty)
               _EmptyStateCard(
-                message: 'Aucune Khatma en cours',
-                actionLabel: 'Créer une Khatma',
-                onAction: () => _showCreateKhatmaDialog(context, isGroup: false),
+                message: l10n.noKhatma,
+                description: l10n.khatmaEmptyMessage,
+                actionLabel: l10n.createKhatma,
+                onAction: () => _showCreateKhatmaDialog(context, isGroup: true),
               )
             else
               ...khatmat.map((k) => _KhatmaCard(
@@ -48,7 +50,7 @@ class KhatmaScreen extends ConsumerWidget {
                   )),
             const SizedBox(height: 24),
             Text(
-              'Options de lecture',
+              l10n.readingOptions,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -79,62 +81,48 @@ class KhatmaScreen extends ConsumerWidget {
 }
 
 class _CreateKhatmaCard extends StatelessWidget {
-  final VoidCallback onIndividual;
-  final VoidCallback onGroup;
+  final VoidCallback onCreateGroup;
 
   const _CreateKhatmaCard({
-    required this.onIndividual,
-    required this.onGroup,
+    required this.onCreateGroup,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.add_circle, color: AppTheme.primaryGreen, size: 32),
-                const SizedBox(width: 12),
-                Text(
-                  'Créer une nouvelle Khatma',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+      child: InkWell(
+        onTap: onCreateGroup,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Icon(Icons.add_circle, color: AppTheme.primaryGreen, size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.createNewKhatma,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.inviteFamilyFriends,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Choisissez le type de Khatma',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: onIndividual,
-                    icon: const Icon(Icons.person),
-                    label: const Text('Individuelle'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: onGroup,
-                    icon: const Icon(Icons.groups),
-                    label: const Text('Groupe'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+              Icon(Icons.arrow_forward_ios, size: 20, color: AppTheme.primaryGreen),
+            ],
+          ),
         ),
       ),
     );
@@ -158,13 +146,12 @@ class _KhatmaCard extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: AppTheme.primaryGreen.withValues(alpha: 0.2),
           child: Icon(
-            khatma.isGroup ? Icons.groups : Icons.person,
+            Icons.groups,
             color: AppTheme.primaryGreen,
           ),
         ),
         title: Text(khatma.title),
         subtitle: Text(
-          '${khatma.isGroup ? 'Groupe' : 'Individuelle'} • '
           '${khatma.createdAt.day}/${khatma.createdAt.month}/${khatma.createdAt.year}',
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -209,6 +196,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -216,7 +204,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.isGroup ? 'Khatma de groupe' : 'Khatma individuelle',
+            l10n.createCollaborativeKhatma,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -224,18 +212,18 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
           const SizedBox(height: 20),
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(
-              labelText: 'Titre de la Khatma',
-              hintText: 'Ex: Khatma Ramadan 2025',
+            decoration: InputDecoration(
+              labelText: l10n.khatmaTitle,
+              hintText: l10n.khatmaExampleTitle,
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _objectivesController,
             maxLines: 2,
-            decoration: const InputDecoration(
-              labelText: 'Objectifs',
-              hintText: 'Décrivez vos objectifs...',
+            decoration: InputDecoration(
+              labelText: l10n.objectives,
+              hintText: l10n.describeObjectives,
             ),
           ),
           if (widget.isGroup) ...[
@@ -245,9 +233,9 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
                 Expanded(
                   child: TextField(
                     controller: _membersController,
-                    decoration: const InputDecoration(
-                      labelText: 'Inviter des membres',
-                      hintText: 'Email du membre',
+                    decoration: InputDecoration(
+                      labelText: l10n.inviteMembers,
+                      hintText: l10n.memberEmail,
                     ),
                     onSubmitted: (_) => _addMember(),
                   ),
@@ -278,7 +266,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
               Navigator.pop(context);
               context.push('/khatma/distribute', extra: {
                 'title': _titleController.text.trim().isEmpty
-                    ? 'Ma Khatma'
+                    ? l10n.myKhatma
                     : _titleController.text.trim(),
                 'objectives': _objectivesController.text.trim().isEmpty
                     ? null
@@ -287,7 +275,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
                 'members': _members,
               });
             },
-            child: const Text('Suivant → Distribution des Hizb'),
+            child: Text(l10n.nextDistribution),
           ),
         ],
       ),
@@ -297,11 +285,13 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
 
 class _EmptyStateCard extends StatelessWidget {
   final String message;
+  final String description;
   final String actionLabel;
   final VoidCallback onAction;
 
   const _EmptyStateCard({
     required this.message,
+    required this.description,
     required this.actionLabel,
     required this.onAction,
   });
@@ -318,7 +308,16 @@ class _EmptyStateCard extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
             ),
@@ -346,21 +345,22 @@ class _MushafOptionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Column(
         children: [
           ListTile(
             leading: const Icon(Icons.menu_book, color: AppTheme.primaryGreen),
-            title: const Text('Mushaf Hafs'),
-            subtitle: const Text('Version la plus répandue'),
+            title: Text(l10n.mushafHafs),
+            subtitle: Text(l10n.mushafHafsDesc),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: onHafsTap ?? () {},
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.menu_book, color: AppTheme.accentGold),
-            title: const Text('Mushaf Warsh'),
-            subtitle: const Text('Version d\'Afrique du Nord'),
+            title: Text(l10n.mushafWarsh),
+            subtitle: Text(l10n.mushafWarshDesc),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: onWarshTap ?? () {},
           ),
