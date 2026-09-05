@@ -43,6 +43,12 @@ void main() {
       expect(KhatmaLinkService.myKhatmasPath, '/khatma');
       expect(KhatmaLinkService.myKhatmasCreatePath, '/khatma?create=1');
       expect(KhatmaLinkService.completionPath('x'), '/khatma/x/completion');
+      expect(KhatmaLinkService.distributePath, '/khatma/distribute');
+      expect(
+        KhatmaLinkService.detailPath('distribute'),
+        KhatmaLinkService.distributePath,
+        reason: 'same URL — static /khatma/distribute must win over /khatma/:id',
+      );
     });
   });
 
@@ -132,6 +138,28 @@ void main() {
       expect(isKhatmaDeepLinkRoute('/khatma/abc'), isTrue);
       expect(isKhatmaDeepLinkRoute('/khatma'), isFalse);
       expect(isKhatmaDeepLinkRoute('/khatma/distribute'), isFalse);
+      expect(isKhatmaDeepLinkRoute(KhatmaLinkService.distributePath), isFalse);
+    });
+  });
+
+  group('create → route → load ID contract', () {
+    test('Firestore auto-id equals returned model, route and detail load id', () {
+      const createdDocumentId = 'FsAutoCreatedKhatmaId';
+      final returnedKhatma = _k(id: createdDocumentId, reservationMode: true);
+      final routeId = returnedKhatma.id;
+      final detailLoadId = routeId;
+
+      expect(returnedKhatma.id, createdDocumentId);
+      expect(routeId, createdDocumentId);
+      expect(detailLoadId, createdDocumentId);
+      expect(KhatmaLinkService.detailPath(returnedKhatma.id), '/khatma/$createdDocumentId');
+      expect(validatePreloadedKhatma(returnedKhatma, detailLoadId), returnedKhatma);
+      expect(detailLoadId, isNot('distribute'));
+    });
+
+    test('preloaded extra is rejected when route id is the reserved distribute segment', () {
+      final created = _k(id: 'realFirestoreId');
+      expect(validatePreloadedKhatma(created, 'distribute'), isNull);
     });
   });
 }

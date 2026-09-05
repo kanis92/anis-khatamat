@@ -13,6 +13,7 @@ class EmptyState extends StatelessWidget {
   final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final IconData actionIcon;
 
   const EmptyState({
     super.key,
@@ -22,6 +23,7 @@ class EmptyState extends StatelessWidget {
     this.subtitle,
     this.actionLabel,
     this.onAction,
+    this.actionIcon = Icons.add_rounded,
   }) : assert(icon != null || fallbackIcon != null, 'icon or fallbackIcon required');
 
   @override
@@ -69,7 +71,7 @@ class EmptyState extends StatelessWidget {
               AnisButton(
                 label: actionLabel!,
                 onPressed: onAction,
-                icon: Icons.add_rounded,
+                icon: actionIcon,
               ),
             ],
           ],

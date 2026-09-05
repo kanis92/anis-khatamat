@@ -171,6 +171,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: KhatmaLinkService.distributePath,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return HizbDistributionScreen(
+            khatmaTitle: extra['title'] as String? ?? 'Ma Khatma',
+            khatmaObjectives: extra['objectives'] as String?,
+            isGroup: extra['isGroup'] as bool? ?? false,
+            members: List<String>.from(extra['members'] as List? ?? []),
+          );
+        },
+      ),
+      GoRoute(
         path: '/khatma/:id/completion',
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
@@ -203,18 +215,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             khatmaId: id,
             preloadedKhatma: preloaded,
             guestId: guestId,
-          );
-        },
-      ),
-      GoRoute(
-        path: '/khatma/distribute',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return HizbDistributionScreen(
-            khatmaTitle: extra['title'] as String? ?? 'Ma Khatma',
-            khatmaObjectives: extra['objectives'] as String?,
-            isGroup: extra['isGroup'] as bool? ?? false,
-            members: List<String>.from(extra['members'] as List? ?? []),
           );
         },
       ),

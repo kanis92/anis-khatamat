@@ -392,6 +392,18 @@ async function main() {
     );
   });
 
+  await test('creator add() then immediate get() is allowed', async () => {
+    const creator = authedDb(testEnv, 'creator_uid', 'creator@test.com');
+    const created = await assertSucceeds(
+      creator.collection('khatmat').add(
+        baseKhatma({
+          participantIds: ['creator@test.com'],
+        }),
+      ),
+    );
+    await assertSucceeds(created.get());
+  });
+
   await testEnv.cleanup();
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed > 0 ? 1 : 0);

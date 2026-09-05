@@ -1,4 +1,5 @@
 import '../models/khatma.dart';
+import '../services/khatma_link_service.dart';
 import 'my_khatmat_utils.dart';
 
 enum KhatmaExperience { collaborative, classic }
@@ -41,6 +42,6 @@ Khatma? resolveKhatmaSnapshot({
 /// Routes `/khatma/:id` et sous-routes (hors onglet `/khatma` et distribute).
 bool isKhatmaDeepLinkRoute(String location) {
   if (location == '/khatma' || location.startsWith('/khatma?')) return false;
-  if (location == '/khatma/distribute') return false;
+  if (location == KhatmaLinkService.distributePath) return false;
   return location.startsWith('/khatma/');
 }

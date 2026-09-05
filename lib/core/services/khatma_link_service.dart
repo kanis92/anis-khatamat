@@ -66,6 +66,9 @@ class KhatmaLinkService {
   /// Route GoRouter écran de clôture (WOW 01).
   static String completionPath(String khatmaId) => '/khatma/$khatmaId/completion';
 
+  /// Création collaborative : écran de distribution (avant `/khatma/:id`).
+  static const distributePath = '/khatma/distribute';
+
   /// Onglet / liste Mes Khatmas.
   static const myKhatmasPath = '/khatma';
 

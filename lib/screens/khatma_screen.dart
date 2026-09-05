@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theme/app_theme.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/reading_provider.dart';
+import '../core/services/khatma_link_service.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
 
 class KhatmaScreen extends ConsumerWidget {
@@ -264,7 +265,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              context.push('/khatma/distribute', extra: {
+              context.push(KhatmaLinkService.distributePath, extra: {
                 'title': _titleController.text.trim().isEmpty
                     ? l10n.myKhatma
                     : _titleController.text.trim(),

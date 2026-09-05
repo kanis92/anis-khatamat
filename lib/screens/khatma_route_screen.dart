@@ -237,6 +237,7 @@ class _KhatmaRouteErrorScaffold extends StatelessWidget {
             title: title,
             subtitle: message,
             actionLabel: actionLabel,
+            actionIcon: onRetry != null ? Icons.refresh : Icons.arrow_back,
             onAction: onRetry ?? onBack,
           ),
           if (onMyKhatmas != null) ...[
