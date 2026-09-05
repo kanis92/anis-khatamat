@@ -24,8 +24,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>ANIS accède à votre calendrier uniquement si vous choisissez d'y ajouter un horaire de prière ou un événement lié à une khatma.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>ANIS utilise votre position pendant l'utilisation de l'app pour calculer les horaires de prière adaptés à votre localisation.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ANIS accède à votre photothèque uniquement si vous choisissez d'importer un document ou une image depuis votre appareil.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
