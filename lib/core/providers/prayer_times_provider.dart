@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 
 import 'prayer_calculation_provider.dart';
 import 'mosque_provider.dart';
+import '../services/prayer_times_freshness.dart';
 
 /// État des horaires de prière
 class PrayerTimesState {
@@ -46,13 +47,12 @@ class PrayerTimesState {
   bool get isMosqueSelected => selectedMosqueName != null;
   bool get hasUserPosition => userLatitude != null && userLongitude != null;
   
-  /// Check if prayer times are stale (calculated for a different day)
-  bool get isStale {
-    if (calculatedDate == null) return true;
-    final now = DateTime.now();
-    return calculatedDate!.year != now.year ||
-           calculatedDate!.month != now.month ||
-           calculatedDate!.day != now.day;
+  /// Check if prayer times are stale for [now] (defaults to local now).
+  bool isStale([DateTime? now]) {
+    return PrayerTimesFreshness.isDateStale(
+      calculatedDate,
+      now ?? DateTime.now(),
+    );
   }
 }
 
@@ -81,16 +81,30 @@ class PrayerTimesNotifier extends StateNotifier<AsyncValue<PrayerTimesState>>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
-    // When app resumes from background, check if prayer times are stale
     if (state == AppLifecycleState.resumed) {
-      final currentState = this.state.valueOrNull;
-      if (currentState != null && currentState.isStale) {
-        // Prayer times were calculated for a different day
-        // Refresh immediately to ensure correct next-prayer countdown
-        _load();
-      }
+      // Do not rely on background timers. Recalculate only if stale.
+      unawaited(refreshOnResume());
     }
+  }
+
+  /// Called on [AppLifecycleState.resumed]. Recalculates only when the stored
+  /// prayer date is not today's local date, or when mosque input changed.
+  ///
+  /// [now] is injectable so tests can simulate an overnight day boundary
+  /// without waiting on real timers.
+  Future<bool> refreshOnResume({DateTime? now}) async {
+    final clock = now ?? DateTime.now();
+    final current = state.valueOrNull;
+    final mosque = _ref.read(selectedMosqueProvider);
+    final shouldRefresh = PrayerTimesFreshness.shouldRefreshOnResume(
+      calculatedDate: current?.calculatedDate,
+      now: clock,
+      storedMosqueName: current?.selectedMosqueName,
+      currentMosqueName: mosque?.name,
+    );
+    if (!shouldRefresh) return false;
+    await _load();
+    return true;
   }
 
   void _setupAutoRefresh() {

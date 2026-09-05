@@ -82,7 +82,10 @@ class NextPrayerInfo {
     return '${d.inMinutes}min';
   }
 
-  static NextPrayerInfo? fromPrayerTimes(PrayerTimes? pt) {
+  static NextPrayerInfo? fromPrayerTimes(
+    PrayerTimes? pt, {
+    DateTime? now,
+  }) {
     if (pt == null) return null;
     const times = [
       ('Fajr', 'Fajr'),
@@ -91,7 +94,7 @@ class NextPrayerInfo {
       ('Maghrib', 'Maghrib'),
       ('Isha', 'Isha'),
     ];
-    final now = DateTime.now();
+    final clock = now ?? DateTime.now();
     
     // Check prayers for today
     for (final pair in times) {
@@ -103,8 +106,8 @@ class NextPrayerInfo {
         'Isha' => pt.isha,
         _ => pt.fajr,
       };
-      if (t.isAfter(now)) {
-        final diff = t.difference(now);
+      if (t.isAfter(clock)) {
+        final diff = t.difference(clock);
         return NextPrayerInfo(
           name: pair.$2,
           time: t,
@@ -112,11 +115,10 @@ class NextPrayerInfo {
         );
       }
     }
-    
+
     // All today's prayers have passed - return tomorrow's Fajr
-    // pt.fajr is today's Fajr, add 1 day to get tomorrow's
     final tomorrowFajr = pt.fajr.add(const Duration(days: 1));
-    final diff = tomorrowFajr.difference(now);
+    final diff = tomorrowFajr.difference(clock);
     return NextPrayerInfo(
       name: 'Fajr',
       time: tomorrowFajr,
