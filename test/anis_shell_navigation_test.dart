@@ -104,7 +104,7 @@ void main() {
     expect(router.state.uri.path, '/');
   });
 
-  testWidgets('bottom navigation keeps full Notifications label at 375 width', (
+  testWidgets('bottom navigation keeps full Formations label at 375 width', (
     WidgetTester tester,
   ) async {
     final container = ProviderContainer(
@@ -131,8 +131,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Notifications'), findsWidgets);
-    expect(find.textContaining('Notificatio...'), findsNothing);
+    expect(find.text('Formations'), findsWidgets);
+    expect(find.textContaining('Formation...'), findsNothing);
     expect(find.text('Wird'), findsWidgets);
     expect(find.text('Paramètres'), findsWidgets);
   });

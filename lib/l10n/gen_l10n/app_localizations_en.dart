@@ -42,6 +42,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wird => 'Wird';
 
   @override
+  String get formations => 'Training';
+
+  @override
   String get achievements => 'Achievements';
 
   @override
@@ -948,4 +951,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wirdOfMyKhatma => 'of my Khatma';
+
+  @override
+  String get inviteFamilyFriends => 'Invite your family and friends';
+
+  @override
+  String get createCollaborativeKhatma => 'Create a collaborative Khatma';
+
+  @override
+  String get khatmaExampleTitle => 'Ex: Ramadan Khatma 2025';
+
+  @override
+  String get describeObjectives => 'Describe your objectives...';
+
+  @override
+  String get myKhatma => 'My Khatma';
+
+  @override
+  String get khatmaEmptyMessage =>
+      'Create a group Khatma, invite your loved ones and distribute the Hizb.';
+
+  @override
+  String get quickActionMushafSubtitle => 'Resume reading';
+
+  @override
+  String get quickActionKhatmaSubtitle => 'My Khatmat';
+
+  @override
+  String get quickActionFormationsTitle => 'Training';
+
+  @override
+  String get quickActionFormationsSubtitle => 'My courses';
+
+  @override
+  String get quickActionNotificationsSubtitle => 'Manage alerts';
 }

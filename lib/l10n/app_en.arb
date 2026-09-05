@@ -11,6 +11,7 @@
   "notifications": "Notifications",
   "training": "Training",
   "wird": "Wird",
+  "formations": "Training",
   "achievements": "Achievements",
   "createKhatma": "Create Khatma",
   "createAccount": "Create account",
@@ -620,5 +621,16 @@
       }
     }
   },
-  "wirdOfMyKhatma": "of my Khatma"
+  "wirdOfMyKhatma": "of my Khatma",
+  "inviteFamilyFriends": "Invite your family and friends",
+  "createCollaborativeKhatma": "Create a collaborative Khatma",
+  "khatmaExampleTitle": "Ex: Ramadan Khatma 2025",
+  "describeObjectives": "Describe your objectives...",
+  "myKhatma": "My Khatma",
+  "khatmaEmptyMessage": "Create a group Khatma, invite your loved ones and distribute the Hizb.",
+  "quickActionMushafSubtitle": "Resume reading",
+  "quickActionKhatmaSubtitle": "My Khatmat",
+  "quickActionFormationsTitle": "Training",
+  "quickActionFormationsSubtitle": "My courses",
+  "quickActionNotificationsSubtitle": "Manage alerts"
 }

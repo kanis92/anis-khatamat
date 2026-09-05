@@ -166,6 +166,12 @@ abstract class AppLocalizations {
   /// **'Wird'**
   String get wird;
 
+  /// No description provided for @formations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formations'**
+  String get formations;
+
   /// No description provided for @achievements.
   ///
   /// In fr, this message translates to:
@@ -1755,6 +1761,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'de ma Khatma'**
   String get wirdOfMyKhatma;
+
+  /// No description provided for @inviteFamilyFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitez votre famille et vos amis'**
+  String get inviteFamilyFriends;
+
+  /// No description provided for @createCollaborativeKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer une Khatma collaborative'**
+  String get createCollaborativeKhatma;
+
+  /// No description provided for @khatmaExampleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Khatma Ramadan 2025'**
+  String get khatmaExampleTitle;
+
+  /// No description provided for @describeObjectives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décrivez vos objectifs...'**
+  String get describeObjectives;
+
+  /// No description provided for @myKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma Khatma'**
+  String get myKhatma;
+
+  /// No description provided for @khatmaEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez une Khatma de groupe, invitez vos proches et répartissez les Hizb.'**
+  String get khatmaEmptyMessage;
+
+  /// No description provided for @quickActionMushafSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre ma lecture'**
+  String get quickActionMushafSubtitle;
+
+  /// No description provided for @quickActionKhatmaSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Khatmat'**
+  String get quickActionKhatmaSubtitle;
+
+  /// No description provided for @quickActionFormationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formations'**
+  String get quickActionFormationsTitle;
+
+  /// No description provided for @quickActionFormationsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes formations'**
+  String get quickActionFormationsSubtitle;
+
+  /// No description provided for @quickActionNotificationsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes alertes'**
+  String get quickActionNotificationsSubtitle;
 }
 
 class _AppLocalizationsDelegate

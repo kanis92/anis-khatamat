@@ -42,6 +42,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wird => 'ورد';
 
   @override
+  String get formations => 'التدريب';
+
+  @override
   String get achievements => 'الإنجازات';
 
   @override
@@ -939,4 +942,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wirdOfMyKhatma => 'من ختمتي';
+
+  @override
+  String get inviteFamilyFriends => 'ادع عائلتك وأصدقاءك';
+
+  @override
+  String get createCollaborativeKhatma => 'إنشاء ختمة جماعية';
+
+  @override
+  String get khatmaExampleTitle => 'مثال: ختمة رمضان ٢٠٢٥';
+
+  @override
+  String get describeObjectives => 'صف أهدافك...';
+
+  @override
+  String get myKhatma => 'ختمتي';
+
+  @override
+  String get khatmaEmptyMessage =>
+      'أنشئ ختمة جماعية، وادع أحباءك ووزع الأحزاب.';
+
+  @override
+  String get quickActionMushafSubtitle => 'استئناف القراءة';
+
+  @override
+  String get quickActionKhatmaSubtitle => 'ختماتي';
+
+  @override
+  String get quickActionFormationsTitle => 'التدريب';
+
+  @override
+  String get quickActionFormationsSubtitle => 'دوراتي';
+
+  @override
+  String get quickActionNotificationsSubtitle => 'إدارة التنبيهات';
 }

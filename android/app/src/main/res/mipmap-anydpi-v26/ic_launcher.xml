@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 
+    ANIS Adaptive Icon Configuration for Android 8+ (API 26+)
+    
+    Ensures the official ANIS icon (gold A + Islamic geometry + emerald background)
+    is not clipped by circular or squircle launcher masks.
+    
+    Safe zone: Center 66% (foreground should stay within this area)
+    Background: Solid emerald color matching ANIS brand
+    -->
+    <background android:drawable="@color/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>

@@ -308,14 +308,14 @@ class _MainShell extends StatelessWidget {
   static List<AnisNavigationItem> _shellNavigationItems(AppLocalizations l10n) => [
     AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
     AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
-    AnisNavigationItem(label: l10n.notifications, icon: AnisIconType.bell),
+    AnisNavigationItem(label: l10n.formations, icon: AnisIconType.training), // Using training icon
     AnisNavigationItem(label: l10n.wird, icon: AnisIconType.wird),
     AnisNavigationItem(label: l10n.settings, icon: AnisIconType.settings),
   ];
 
   int _calculateSelectedIndex(String location) {
     if (location.startsWith('/khatma')) return 1;
-    if (location.startsWith('/notifications')) return 2;
+    if (location.startsWith('/training')) return 2; // Formations
     if (location.startsWith('/wird')) return 3;
     if (location.startsWith('/settings')) return 4;
     return 0;
@@ -330,7 +330,7 @@ class _MainShell extends StatelessWidget {
         context.go('/khatma');
         break;
       case 2:
-        context.go('/notifications');
+        context.go('/training'); // Formations
         break;
       case 3:
         context.go('/wird');

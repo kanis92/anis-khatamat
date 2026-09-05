@@ -92,6 +92,8 @@ class NextPrayerInfo {
       ('Isha', 'Isha'),
     ];
     final now = DateTime.now();
+    
+    // Check prayers for today
     for (final pair in times) {
       final t = switch (pair.$1) {
         'Fajr' => pt.fajr,
@@ -110,7 +112,16 @@ class NextPrayerInfo {
         );
       }
     }
-    return null;
+    
+    // All today's prayers have passed - return tomorrow's Fajr
+    // pt.fajr is today's Fajr, add 1 day to get tomorrow's
+    final tomorrowFajr = pt.fajr.add(const Duration(days: 1));
+    final diff = tomorrowFajr.difference(now);
+    return NextPrayerInfo(
+      name: 'Fajr',
+      time: tomorrowFajr,
+      inStr: 'dans ${_formatDuration(diff)}',
+    );
   }
 }
 

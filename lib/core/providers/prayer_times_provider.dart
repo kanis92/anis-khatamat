@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:adhan/adhan.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hijri_date_time/hijri_date_time.dart';
@@ -16,6 +18,9 @@ class PrayerTimesState {
   final PrayerTimes? prayerTimes;
   final String? error;
   final bool isLoading;
+  
+  /// Date for which prayer times were calculated (local date)
+  final DateTime? calculatedDate;
 
   /// Mosquée sélectionnée (si horaires affichés pour une mosquée)
   final String? selectedMosqueName;
@@ -30,6 +35,7 @@ class PrayerTimesState {
     this.prayerTimes,
     this.error,
     this.isLoading = false,
+    this.calculatedDate,
     this.selectedMosqueName,
     this.userLatitude,
     this.userLongitude,
@@ -39,6 +45,15 @@ class PrayerTimesState {
   bool get hasError => error != null && error!.isNotEmpty;
   bool get isMosqueSelected => selectedMosqueName != null;
   bool get hasUserPosition => userLatitude != null && userLongitude != null;
+  
+  /// Check if prayer times are stale (calculated for a different day)
+  bool get isStale {
+    if (calculatedDate == null) return true;
+    final now = DateTime.now();
+    return calculatedDate!.year != now.year ||
+           calculatedDate!.month != now.month ||
+           calculatedDate!.day != now.day;
+  }
 }
 
 /// Provider pour les horaires de prière basés sur la position GPS
@@ -47,12 +62,68 @@ final prayerTimesProvider =
       (ref) => PrayerTimesNotifier(ref),
     );
 
-class PrayerTimesNotifier extends StateNotifier<AsyncValue<PrayerTimesState>> {
+class PrayerTimesNotifier extends StateNotifier<AsyncValue<PrayerTimesState>> 
+    with WidgetsBindingObserver {
   PrayerTimesNotifier(this._ref) : super(const AsyncValue.loading()) {
     _load();
+    // Only setup auto-refresh in production/profile mode, not in debug tests
+    if (kReleaseMode || kProfileMode) {
+      _setupAutoRefresh();
+    }
+    // Listen to app lifecycle for resume detection
+    WidgetsBinding.instance.addObserver(this);
   }
 
   final Ref _ref;
+  Timer? _refreshTimer;
+  Timer? _midnightTimer;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // When app resumes from background, check if prayer times are stale
+    if (state == AppLifecycleState.resumed) {
+      final currentState = this.state.valueOrNull;
+      if (currentState != null && currentState.isStale) {
+        // Prayer times were calculated for a different day
+        // Refresh immediately to ensure correct next-prayer countdown
+        _load();
+      }
+    }
+  }
+
+  void _setupAutoRefresh() {
+    // Refresh prayer times at midnight and every hour
+    // This prevents stale prayer times from causing incorrect countdowns
+    // Note: Timers may be suspended on mobile when app is backgrounded
+    // App resume lifecycle check provides additional safety
+    _refreshTimer = Timer.periodic(const Duration(hours: 1), (_) {
+      _load();
+    });
+    
+    // Also schedule a refresh at next midnight
+    _scheduleNextMidnightRefresh();
+  }
+
+  void _scheduleNextMidnightRefresh() {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final durationUntilMidnight = tomorrow.difference(now);
+    
+    _midnightTimer = Timer(durationUntilMidnight, () {
+      _load();
+      _scheduleNextMidnightRefresh(); // Schedule next midnight
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _midnightTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   Future<void> _load() async {
     state = const AsyncValue.loading();
@@ -113,6 +184,7 @@ class PrayerTimesNotifier extends StateNotifier<AsyncValue<PrayerTimesState>> {
       final method = _ref.read(prayerCalculationMethodProvider);
       final params = method.parameters;
 
+      final now = DateTime.now();
       final prayerTimes = PrayerTimes.today(coordinates, params);
 
       state = AsyncValue.data(
@@ -121,6 +193,7 @@ class PrayerTimesNotifier extends StateNotifier<AsyncValue<PrayerTimesState>> {
           longitude: lon,
           prayerTimes: prayerTimes,
           isLoading: false,
+          calculatedDate: DateTime(now.year, now.month, now.day),
           selectedMosqueName: mosqueName,
           userLatitude: position.latitude,
           userLongitude: position.longitude,

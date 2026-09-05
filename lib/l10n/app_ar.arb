@@ -11,6 +11,7 @@
   "notifications": "الإشعارات",
   "training": "التدريب",
   "wird": "ورد",
+  "formations": "التدريب",
   "achievements": "الإنجازات",
   "createKhatma": "إنشاء ختمة",
   "createAccount": "إنشاء حساب",
@@ -620,5 +621,16 @@
       }
     }
   },
-  "wirdOfMyKhatma": "من ختمتي"
+  "wirdOfMyKhatma": "من ختمتي",
+  "inviteFamilyFriends": "ادع عائلتك وأصدقاءك",
+  "createCollaborativeKhatma": "إنشاء ختمة جماعية",
+  "khatmaExampleTitle": "مثال: ختمة رمضان ٢٠٢٥",
+  "describeObjectives": "صف أهدافك...",
+  "myKhatma": "ختمتي",
+  "khatmaEmptyMessage": "أنشئ ختمة جماعية، وادع أحباءك ووزع الأحزاب.",
+  "quickActionMushafSubtitle": "استئناف القراءة",
+  "quickActionKhatmaSubtitle": "ختماتي",
+  "quickActionFormationsTitle": "التدريب",
+  "quickActionFormationsSubtitle": "دوراتي",
+  "quickActionNotificationsSubtitle": "إدارة التنبيهات"
 }
