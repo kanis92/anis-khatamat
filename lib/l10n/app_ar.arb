@@ -530,5 +530,95 @@
         "type": "int"
       }
     }
-  }
+  },
+  "wirdTodayObjective": "هدف اليوم",
+  "wirdPlusQuarterNext": "ثم {quarters} ربع من الحزب التالي",
+  "@wirdPlusQuarterNext": {
+    "placeholders": {
+      "quarters": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdPlusQuartersNext": "ثم {quarters} أرباع من الحزب التالي",
+  "@wirdPlusQuartersNext": {
+    "placeholders": {
+      "quarters": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdMonthlyProgress": "التقدم",
+  "wirdHizbCompleted": "{count} حزب مكتمل",
+  "@wirdHizbCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdInProgressFirstHizb": "جاري الحزب الأول",
+  "wirdDaysRemaining": "{days} يوم متبقي",
+  "@wirdDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdPersonalKhatma": "ختمتي الشخصية",
+  "wirdHizbUnit": "حزب",
+  "wirdHizbOver": "{current} / {total}",
+  "@wirdHizbOver": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompleted_one": "حزب واحد مكتمل",
+  "wirdHizbCompleted_other": "{count} أحزاب مكتملة",
+  "@wirdHizbCompleted_other": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdNextHizbInProgress": "الحزب التالي قيد التقدم",
+  "wirdKhatmaInProgress": "الختمة جارية",
+  "wirdPercentOfKhatma": "{percent}٪ من ختمتي",
+  "@wirdPercentOfKhatma": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompletedOutOf": "{completed} حزب مكتمل من {total}",
+  "@wirdHizbCompletedOutOf": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompletedOutOf_other": "{completed} أحزاب مكتملة من {total}",
+  "@wirdHizbCompletedOutOf_other": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdOfMyKhatma": "من ختمتي"
 }

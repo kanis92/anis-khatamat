@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/wird.dart';
 import '../models/wird_plan.dart';
 import '../models/wird_plan_state.dart';
+import '../resolvers/subdivision_definition_resolver.dart';
 import '../services/wird_plan_service.dart';
+import '../services/wird_rub_tracker.dart';
 import '../services/wird_service.dart';
 import 'auth_provider.dart';
 
@@ -206,6 +208,40 @@ final wirdPlanProgressProvider = FutureProvider<Set<int>>((ref) async {
   final userId = user?.email ?? 'demo';
   
   return planService.getPlanProgress(userId, plan);
+});
+
+/// Progression canonique dans le cycle Personal Khatma actuel.
+/// 
+/// Reflète TOUTE la lecture séquentielle depuis le début du cycle actuel,
+/// indépendamment du plan mensuel actif.
+/// 
+/// **Source de vérité:** wird.currentCycleStartDate (null → legacy fallback to createdAt)
+/// 
+/// Utilisé par le ring de progression Personal Khatma pour afficher
+/// la complétion réelle du Quran dans le cycle actuel, pas seulement
+/// la progression depuis activation du plan.
+/// 
+/// **Temporal scope:** [cycleStart, today]
+/// **Range scope:** Full 1-240 (no plan filtering)
+/// 
+/// Example:
+/// - User reads Hizb 1-15 before activating monthly plan → counted
+/// - User activates plan → ring shows 15 Hizb, not 0
+/// - User continues reading → ring adds new canonical progress
+final wirdCycleProgressProvider = FutureProvider<Set<int>>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final user = ref.watch(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  
+  // Determine cycle start: explicit boundary or legacy fallback
+  final cycleStart = wird.currentCycleStartDate ?? wird.createdAt;
+  
+  final tracker = WirdRubTracker(
+    definition: SubdivisionDefinitionResolver.production()
+        .resolve(wird.subdivisionDefinitionId),
+  );
+  
+  return tracker.getRubsCompletedInCycle(userId, cycleStart);
 });
 
 /// État runtime du plan actif.

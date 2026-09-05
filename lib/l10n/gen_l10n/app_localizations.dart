@@ -1647,6 +1647,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Il y a {days} jours'**
   String notificationsTimeDaysAgo(int days);
+
+  /// No description provided for @wirdTodayObjective.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif aujourd\'hui'**
+  String get wirdTodayObjective;
+
+  /// No description provided for @wirdPlusQuarterNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Puis {quarters} quart du Hizb suivant'**
+  String wirdPlusQuarterNext(int quarters);
+
+  /// No description provided for @wirdPlusQuartersNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Puis {quarters} quarts du Hizb suivant'**
+  String wirdPlusQuartersNext(int quarters);
+
+  /// No description provided for @wirdMonthlyProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get wirdMonthlyProgress;
+
+  /// No description provided for @wirdHizbCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} Hizb terminés'**
+  String wirdHizbCompleted(int count);
+
+  /// No description provided for @wirdInProgressFirstHizb.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours du 1er Hizb'**
+  String get wirdInProgressFirstHizb;
+
+  /// No description provided for @wirdDaysRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours restants'**
+  String wirdDaysRemaining(int days);
+
+  /// No description provided for @wirdPersonalKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma Khatma personnelle'**
+  String get wirdPersonalKhatma;
+
+  /// No description provided for @wirdHizbUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb'**
+  String get wirdHizbUnit;
+
+  /// No description provided for @wirdHizbOver.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} / {total}'**
+  String wirdHizbOver(int current, int total);
+
+  /// No description provided for @wirdHizbCompleted_one.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 Hizb terminé'**
+  String get wirdHizbCompleted_one;
+
+  /// No description provided for @wirdHizbCompleted_other.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} Hizb terminés'**
+  String wirdHizbCompleted_other(int count);
+
+  /// No description provided for @wirdNextHizbInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb suivant en cours'**
+  String get wirdNextHizbInProgress;
+
+  /// No description provided for @wirdKhatmaInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma en cours'**
+  String get wirdKhatmaInProgress;
+
+  /// No description provided for @wirdPercentOfKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent}% de ma Khatma'**
+  String wirdPercentOfKhatma(int percent);
+
+  /// No description provided for @wirdHizbCompletedOutOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed} Hizb terminé sur {total}'**
+  String wirdHizbCompletedOutOf(int completed, int total);
+
+  /// No description provided for @wirdHizbCompletedOutOf_other.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed} Hizb terminés sur {total}'**
+  String wirdHizbCompletedOutOf_other(int completed, int total);
+
+  /// No description provided for @wirdOfMyKhatma.
+  ///
+  /// In fr, this message translates to:
+  /// **'de ma Khatma'**
+  String get wirdOfMyKhatma;
 }
 
 class _AppLocalizationsDelegate

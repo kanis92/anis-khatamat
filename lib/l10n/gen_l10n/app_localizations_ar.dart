@@ -867,4 +867,76 @@ class AppLocalizationsAr extends AppLocalizations {
   String notificationsTimeDaysAgo(int days) {
     return 'منذ $days أيام';
   }
+
+  @override
+  String get wirdTodayObjective => 'هدف اليوم';
+
+  @override
+  String wirdPlusQuarterNext(int quarters) {
+    return 'ثم $quarters ربع من الحزب التالي';
+  }
+
+  @override
+  String wirdPlusQuartersNext(int quarters) {
+    return 'ثم $quarters أرباع من الحزب التالي';
+  }
+
+  @override
+  String get wirdMonthlyProgress => 'التقدم';
+
+  @override
+  String wirdHizbCompleted(int count) {
+    return '$count حزب مكتمل';
+  }
+
+  @override
+  String get wirdInProgressFirstHizb => 'جاري الحزب الأول';
+
+  @override
+  String wirdDaysRemaining(int days) {
+    return '$days يوم متبقي';
+  }
+
+  @override
+  String get wirdPersonalKhatma => 'ختمتي الشخصية';
+
+  @override
+  String get wirdHizbUnit => 'حزب';
+
+  @override
+  String wirdHizbOver(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get wirdHizbCompleted_one => 'حزب واحد مكتمل';
+
+  @override
+  String wirdHizbCompleted_other(int count) {
+    return '$count أحزاب مكتملة';
+  }
+
+  @override
+  String get wirdNextHizbInProgress => 'الحزب التالي قيد التقدم';
+
+  @override
+  String get wirdKhatmaInProgress => 'الختمة جارية';
+
+  @override
+  String wirdPercentOfKhatma(int percent) {
+    return '$percent٪ من ختمتي';
+  }
+
+  @override
+  String wirdHizbCompletedOutOf(int completed, int total) {
+    return '$completed حزب مكتمل من $total';
+  }
+
+  @override
+  String wirdHizbCompletedOutOf_other(int completed, int total) {
+    return '$completed أحزاب مكتملة من $total';
+  }
+
+  @override
+  String get wirdOfMyKhatma => 'من ختمتي';
 }

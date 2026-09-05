@@ -876,4 +876,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationsTimeDaysAgo(int days) {
     return '$days days ago';
   }
+
+  @override
+  String get wirdTodayObjective => 'Today\'s objective';
+
+  @override
+  String wirdPlusQuarterNext(int quarters) {
+    return 'Plus $quarters quarter of the next Hizb';
+  }
+
+  @override
+  String wirdPlusQuartersNext(int quarters) {
+    return 'Plus $quarters quarters of the next Hizb';
+  }
+
+  @override
+  String get wirdMonthlyProgress => 'Progress';
+
+  @override
+  String wirdHizbCompleted(int count) {
+    return '$count Hizb completed';
+  }
+
+  @override
+  String get wirdInProgressFirstHizb => 'In progress: 1st Hizb';
+
+  @override
+  String wirdDaysRemaining(int days) {
+    return '$days days remaining';
+  }
+
+  @override
+  String get wirdPersonalKhatma => 'My Personal Khatma';
+
+  @override
+  String get wirdHizbUnit => 'Hizb';
+
+  @override
+  String wirdHizbOver(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get wirdHizbCompleted_one => '1 Hizb completed';
+
+  @override
+  String wirdHizbCompleted_other(int count) {
+    return '$count Hizb completed';
+  }
+
+  @override
+  String get wirdNextHizbInProgress => 'Next Hizb in progress';
+
+  @override
+  String get wirdKhatmaInProgress => 'Khatma in progress';
+
+  @override
+  String wirdPercentOfKhatma(int percent) {
+    return '$percent% of my Khatma';
+  }
+
+  @override
+  String wirdHizbCompletedOutOf(int completed, int total) {
+    return '$completed Hizb completed out of $total';
+  }
+
+  @override
+  String wirdHizbCompletedOutOf_other(int completed, int total) {
+    return '$completed Hizb completed out of $total';
+  }
+
+  @override
+  String get wirdOfMyKhatma => 'of my Khatma';
 }

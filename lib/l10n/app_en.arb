@@ -530,5 +530,95 @@
         "type": "int"
       }
     }
-  }
+  },
+  "wirdTodayObjective": "Today's objective",
+  "wirdPlusQuarterNext": "Plus {quarters} quarter of the next Hizb",
+  "@wirdPlusQuarterNext": {
+    "placeholders": {
+      "quarters": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdPlusQuartersNext": "Plus {quarters} quarters of the next Hizb",
+  "@wirdPlusQuartersNext": {
+    "placeholders": {
+      "quarters": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdMonthlyProgress": "Progress",
+  "wirdHizbCompleted": "{count} Hizb completed",
+  "@wirdHizbCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdInProgressFirstHizb": "In progress: 1st Hizb",
+  "wirdDaysRemaining": "{days} days remaining",
+  "@wirdDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdPersonalKhatma": "My Personal Khatma",
+  "wirdHizbUnit": "Hizb",
+  "wirdHizbOver": "{current} / {total}",
+  "@wirdHizbOver": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompleted_one": "1 Hizb completed",
+  "wirdHizbCompleted_other": "{count} Hizb completed",
+  "@wirdHizbCompleted_other": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdNextHizbInProgress": "Next Hizb in progress",
+  "wirdKhatmaInProgress": "Khatma in progress",
+  "wirdPercentOfKhatma": "{percent}% of my Khatma",
+  "@wirdPercentOfKhatma": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompletedOutOf": "{completed} Hizb completed out of {total}",
+  "@wirdHizbCompletedOutOf": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdHizbCompletedOutOf_other": "{completed} Hizb completed out of {total}",
+  "@wirdHizbCompletedOutOf_other": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdOfMyKhatma": "of my Khatma"
 }

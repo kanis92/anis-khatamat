@@ -36,6 +36,18 @@ class Wird extends Equatable {
   /// Date de création du Wird
   final DateTime createdAt;
 
+  /// Date de début du cycle Personal Khatma actuel.
+  /// 
+  /// Définit la boundary temporelle pour le calcul de progression du ring.
+  /// Tous les Rub' complétés depuis cette date comptent pour le cycle actuel.
+  /// 
+  /// - null = legacy: utilise createdAt comme fallback pour premier cycle
+  /// - non-null = cycle explicite démarré à cette date
+  /// 
+  /// Quand l'utilisateur complète 240/240 et démarre un nouveau cycle,
+  /// cette date est mise à jour, permettant au ring de repartir de 0.
+  final DateTime? currentCycleStartDate;
+
   /// Plan personnel actif (Personal Khatma Plan).
   /// 
   /// - null = mode libre (objectif quotidien fixe, pas de deadline)
@@ -51,6 +63,7 @@ class Wird extends Equatable {
     this.lastPage,
     this.lastReadAt,
     required this.createdAt,
+    this.currentCycleStartDate,
     this.activePlan,
   });
 
@@ -61,6 +74,7 @@ class Wird extends Equatable {
     int? lastPage,
     DateTime? lastReadAt,
     DateTime? createdAt,
+    DateTime? currentCycleStartDate,
     WirdPlan? activePlan,
   }) {
     return Wird(
@@ -71,6 +85,7 @@ class Wird extends Equatable {
       lastPage: lastPage ?? this.lastPage,
       lastReadAt: lastReadAt ?? this.lastReadAt,
       createdAt: createdAt ?? this.createdAt,
+      currentCycleStartDate: currentCycleStartDate ?? this.currentCycleStartDate,
       activePlan: activePlan ?? this.activePlan,
     );
   }
@@ -83,6 +98,8 @@ class Wird extends Equatable {
       'lastPage': lastPage,
       'lastReadAt': lastReadAt?.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
+      if (currentCycleStartDate != null) 
+        'currentCycleStartDate': currentCycleStartDate!.toIso8601String(),
       if (activePlan != null) 'activePlan': activePlan!.toMap(),
     };
   }
@@ -101,6 +118,10 @@ class Wird extends Equatable {
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'] as String)
           : DateTime.now(),
+      // MIGRATION: Legacy records without currentCycleStartDate will use createdAt as fallback
+      currentCycleStartDate: map['currentCycleStartDate'] != null
+          ? DateTime.parse(map['currentCycleStartDate'] as String)
+          : null,
       // MIGRATION: Legacy records without activePlan remain in free daily mode
       activePlan: map['activePlan'] != null
           ? WirdPlan.fromMap(map['activePlan'] as Map<String, dynamic>)
@@ -110,10 +131,12 @@ class Wird extends Equatable {
 
   /// Wird par défaut : 1 Hizb par jour (4 Rub') avec définition Hafs 240
   static Wird defaultWird() {
+    final now = DateTime.now();
     return Wird(
       subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
       dailyTargetRubs: 4, // 1 Hizb
-      createdAt: DateTime.now(),
+      createdAt: now,
+      currentCycleStartDate: now, // Premier cycle démarre maintenant
     );
   }
 
@@ -141,6 +164,7 @@ class Wird extends Equatable {
         lastPage,
         lastReadAt,
         createdAt,
+        currentCycleStartDate,
         activePlan,
       ];
 }

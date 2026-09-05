@@ -178,6 +178,51 @@ class WirdRubTracker {
     return list.length;
   }
 
+  /// Rub' complétés dans le cycle Personal Khatma actuel.
+  /// 
+  /// Aggregate ALL canonical Rub' completions from cycleStartDate to today.
+  /// Used by Personal Khatma ring to reflect REAL sequential reading progress,
+  /// not limited to monthly plan period.
+  /// 
+  /// **Temporal scope:** [cycleStartDate, today]
+  /// **Range scope:** Full 1-240 (no filtering by plan range)
+  /// 
+  /// Example:
+  /// - User reads Hizb 1-15 before activating monthly plan
+  /// - User activates plan
+  /// - Ring must show 15 Hizb, not 0
+  Future<Set<int>> getRubsCompletedInCycle(
+    String userId,
+    DateTime cycleStartDate,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cycleCompletions = <int>{};
+    
+    final today = DateTime.now();
+    final startMidnight = _toMidnight(cycleStartDate);
+    final todayMidnight = _toMidnight(today);
+    
+    var currentDate = startMidnight;
+    
+    while (currentDate.isBefore(todayMidnight) || currentDate == todayMidnight) {
+      final dateKey = _dateKey(currentDate);
+      
+      // Migration lazy pour les données Hafs legacy
+      await _migrateLegacyRubsIfNeeded(prefs, userId, dateKey);
+      
+      final key = _namespacedRubsKey(userId, dateKey);
+      final dailyCompletions = prefs.getStringList(key) ?? [];
+      
+      for (final idStr in dailyCompletions) {
+        cycleCompletions.add(int.parse(idStr));
+      }
+      
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+    
+    return cycleCompletions;
+  }
+
   /// Rub' complétés pour une date donnée.
   Future<Set<int>> getRubsCompletedForDate(
     String userId,
@@ -283,6 +328,8 @@ class WirdRubTracker {
 
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  DateTime _toMidnight(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
   /// Construit une clé namespacée pour les marker IDs complétés
   String _namespacedRubsKey(String userId, String dateKey) =>

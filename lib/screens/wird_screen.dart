@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as math;
 
 import '../core/models/subdivision_marker.dart';
 import '../core/models/wird.dart';
@@ -10,7 +11,6 @@ import '../core/providers/auth_provider.dart';
 import '../core/providers/wird_provider.dart';
 import '../core/resolvers/subdivision_definition_resolver.dart';
 import '../core/services/hizb_navigation_service.dart';
-import '../core/utils/hizb_formatter.dart';
 import '../core/widgets/anis_icon.dart';
 import '../design_system/anis_design_system.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
@@ -192,7 +192,7 @@ class _WirdBody extends ConsumerWidget {
                           progress: todayProgress,
                           target: target,
                         ),
-                        const SizedBox(height: AnisSpacing.xxl),
+                        const SizedBox(height: AnisSpacing.xl),
 
                         // 2. Ma Khatma Personnelle (si plan actif)
                         Consumer(
@@ -205,10 +205,10 @@ class _WirdBody extends ConsumerWidget {
                                 if (state == WirdPlanState.none) {
                                   return const SizedBox.shrink();
                                 }
-                                return const Column(
+                                return Column(
                                   children: [
-                                    WirdPlanCard(),
-                                    SizedBox(height: AnisSpacing.xxl),
+                                    _MonthlyKhatmaCard(wird: wird),
+                                    const SizedBox(height: AnisSpacing.xl),
                                   ],
                                 );
                               },
@@ -222,7 +222,7 @@ class _WirdBody extends ConsumerWidget {
                           currentHizb: currentHizb,
                           sequentialPosition: sequentialPos,
                         ),
-                        const SizedBox(height: AnisSpacing.xl),
+                        const SizedBox(height: AnisSpacing.lg),
 
                         // 4. CTA primaire
                         _ResumeReadingCTA(
@@ -312,9 +312,23 @@ class _WirdBody extends ConsumerWidget {
 
 // ── Lecture du jour ─────────────────────────────────────────────────────────
 
+/// Décompose un nombre de Rub' en Hizb entiers + quarts résiduels.
+/// 
+/// Exemple: 9 Rub' = (2 Hizb entiers, 1 quart)
+///          10 Rub' = (2 Hizb entiers, 2 quarts)
+///          8 Rub' = (2 Hizb entiers, 0 quarts)
+(int wholeHizb, int quarters) _rubsToHizbAndQuarters(int rubs) {
+  final wholeHizb = rubs ~/ 4;
+  final quarters = rubs % 4;
+  return (wholeHizb, quarters);
+}
+
 /// Section 1: Qu'ai-je lu aujourd'hui?
-/// Affiche la progression quotidienne dans l'unité appropriée avec
-/// une segmentation discrète (pas de grandes cartes Rub').
+/// 
+/// UX Model:
+/// - Objectif PRIMAIRE en Hizb entiers (pas de fractions géantes)
+/// - Quarts résiduels SECONDAIRES si nécessaires
+/// - Progression simple et lisible
 class _DailyReadingSection extends StatelessWidget {
   const _DailyReadingSection({
     required this.progress,
@@ -332,41 +346,54 @@ class _DailyReadingSection extends StatelessWidget {
     
     final isComplete = progress >= target && target > 0;
     
-    // Déterminer l'unité d'affichage et calculer les fractions exactes
-    final showInHizb = target >= 4;
+    // Décomposer l'objectif en Hizb entiers + quarts
+    final (targetWholeHizb, targetQuarters) = _rubsToHizbAndQuarters(target);
+    final (progressWholeHizb, progressQuarters) = _rubsToHizbAndQuarters(progress);
     
-    String progressText;
-    String targetLabel;
-    String? remainingText;
-    
-    if (showInHizb) {
-      progressText = formatRubsAsHizb(progress);
-      targetLabel = formatTargetAsHizb(target);
-      remainingText = formatRemainingAsHizb(target - progress);
-    } else if (target == 2) {
-      // Objectif 1/2 Hizb: parler en Rub' mais avec contexte ½ Hizb
-      progressText = '$progress';
-      targetLabel = '2 Rub\' (½ Hizb)';
-      
-      if (!isComplete) {
-        final remaining = target - progress;
-        remainingText = remaining == 1 ? l10n.wirdRemainingOneRub : l10n.wirdRemainingManyRubs(remaining);
-      }
+    // Label primaire: Hizb entiers
+    final String primaryObjective;
+    if (targetWholeHizb > 0) {
+      primaryObjective = '$targetWholeHizb ${l10n.wirdHizbUnit}';
     } else {
-      // Objectif 1 Rub': explicite
-      progressText = '$progress';
-      targetLabel = '$target Rub\'';
-      
-      if (!isComplete) {
-        final remaining = target - progress;
-        remainingText = remaining == 1 ? l10n.wirdRemainingOneRub : l10n.wirdRemainingManyRubs(remaining);
-      }
+      // Rare: objectif < 1 Hizb, utiliser Rub' explicitement
+      primaryObjective = '$target Rub\'';
+    }
+    
+    // Label secondaire: quarts supplémentaires si fractionnaire
+    final String? secondaryObjective = targetQuarters > 0
+        ? (targetQuarters == 1
+            ? l10n.wirdPlusQuarterNext(1)
+            : l10n.wirdPlusQuartersNext(targetQuarters))
+        : null;
+    
+    // Modèle sémantique de progression (pas de fractions)
+    final String? progressLabel;
+    final String? progressSubLabel;
+    
+    if (isComplete) {
+      progressLabel = null; // Handled separately below
+      progressSubLabel = null;
+    } else if (progressWholeHizb > 0) {
+      // Au moins 1 Hizb terminé
+      progressLabel = progressWholeHizb == 1
+          ? l10n.wirdHizbCompleted_one
+          : l10n.wirdHizbCompleted_other(progressWholeHizb);
+      // Si des quarts dans le Hizb suivant
+      progressSubLabel = progressQuarters > 0 ? l10n.wirdNextHizbInProgress : null;
+    } else if (progressQuarters > 0) {
+      // Moins d'1 Hizb, mais progression en cours
+      progressLabel = l10n.wirdNextHizbInProgress;
+      progressSubLabel = null;
+    } else {
+      // Aucune progression
+      progressLabel = null;
+      progressSubLabel = null;
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Titre section avec signature géométrique islamique subtile
+        // Titre section
         Row(
           children: [
             Container(
@@ -398,17 +425,44 @@ class _DailyReadingSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Objectif label discret
+              // Label "Objectif aujourd'hui"
               Text(
-                l10n.wirdObjectiveLabel(targetLabel),
+                l10n.wirdTodayObjective,
                 style: text.caption.copyWith(
                   color: colors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: AnisSpacing.lg),
+              const SizedBox(height: AnisSpacing.xs),
+              
+              // Objectif primaire (Hizb entiers)
+              Text(
+                primaryObjective,
+                style: text.titleLarge.copyWith(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: colors.actionPrimary,
+                  height: 1.2,
+                ),
+              ),
+              
+              // Objectif secondaire (quarts si applicable)
+              if (secondaryObjective != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  secondaryObjective,
+                  style: text.caption.copyWith(
+                    color: colors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+              
+              const SizedBox(height: AnisSpacing.md),
               
               if (isComplete) ...[
-                // État accompli - compact et raffiné
+                // État accompli - compact
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AnisSpacing.md,
@@ -443,7 +497,7 @@ class _DailyReadingSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              l10n.wirdDailyCompleted(targetLabel),
+                              l10n.wirdDailyCompleted(primaryObjective),
                               style: text.caption.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: colors.accentGoldText,
@@ -466,47 +520,35 @@ class _DailyReadingSection extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                // Progression en cours
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      progressText,
-                      style: text.titleLarge.copyWith(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: colors.actionPrimary,
-                        height: 1,
-                      ),
+                // Progression en cours - modèle sémantique
+                if (progressLabel != null) ...[
+                  Text(
+                    progressLabel,
+                    style: text.label.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: colors.actionPrimary,
                     ),
-                    const SizedBox(width: 4),
+                  ),
+                  if (progressSubLabel != null) ...[
+                    const SizedBox(height: 4),
                     Text(
-                      '/ $targetLabel',
-                      style: text.title.copyWith(
+                      progressSubLabel,
+                      style: text.caption.copyWith(
                         color: colors.textSecondary,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: AnisSpacing.lg),
+                  const SizedBox(height: AnisSpacing.md),
+                ],
                 
-                // Segmentation discrète (4 segments toujours, échelle interne Rub')
-                _DiscreteProgressBar(
+                // Barre de progression exacte (ratio canonique)
+                _ContinuousProgressBar(
                   completed: progress,
                   total: target,
+                  colors: colors,
                 ),
-                
-                // Ligne "Il vous reste..." basée sur progression canonique exacte
-                if (remainingText != null) ...[
-                  const SizedBox(height: AnisSpacing.md),
-                  Text(
-                    remainingText,
-                    style: text.caption.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
               ],
             ],
           ),
@@ -519,55 +561,236 @@ class _DailyReadingSection extends StatelessWidget {
 /// Barre de progression segmentée discrète
 /// Toujours 4 segments visuels (Rub' = unité interne canonique)
 /// mais échelle adaptée à l'objectif pour éviter confusion
-class _DiscreteProgressBar extends StatelessWidget {
-  const _DiscreteProgressBar({
+// ── Barre de progression continue ────────────────────────────────────────────
+
+/// Barre de progression continue représentant exactement le ratio canonique.
+/// 
+/// Exemple: 7 / 9 Rub' = 77.78% de progression exacte.
+/// Pas de segments fixes, pas de fausse complétion.
+class _ContinuousProgressBar extends StatelessWidget {
+  const _ContinuousProgressBar({
     required this.completed,
     required this.total,
+    required this.colors,
   });
 
   final int completed;
   final int total;
+  final AnisColors colors;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.anisColors;
+    final progress = total > 0 ? completed / total : 0.0;
     
-    // Toujours afficher 4 segments (1 Hizb = 4 Rub')
-    // Mais l'échelle visuelle s'adapte à l'objectif
-    return Row(
+    return Column(
       children: [
-        for (var i = 0; i < 4; i++) ...[
-          Expanded(
-            child: _ProgressSegment(
-              isCompleted: i < (completed.clamp(0, 4)),
-              colors: colors,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 8,
+            decoration: BoxDecoration(
+              color: colors.surfaceElevated,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: progress.clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.actionPrimary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
           ),
-          if (i < 3) const SizedBox(width: 6),
-        ],
+        ),
       ],
     );
   }
 }
 
-class _ProgressSegment extends StatelessWidget {
-  const _ProgressSegment({
-    required this.isCompleted,
-    required this.colors,
+// ── Khatma personnelle mensuelle ─────────────────────────────────────────────
+
+/// Carte "Ma Khatma personnelle" avec ring de progression premium.
+/// 
+/// Affiche la progression MENSUELLE TOTALE (pas juste TODAY).
+/// Ring basé sur la progression exacte en Rub' (canonique / 240).
+/// Affichage simplifié: Hizb entiers complétés ou pourcentage.
+class _MonthlyKhatmaCard extends ConsumerWidget {
+  const _MonthlyKhatmaCard({required this.wird});
+  
+  final Wird wird;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.anisColors;
+    final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
+    
+    final plan = wird.activePlan;
+    if (plan == null) return const SizedBox.shrink();
+    
+    // Progression du cycle Khatma actuel (pas seulement depuis plan)
+    final progressAsync = ref.watch(wirdCycleProgressProvider);
+    
+    return progressAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (completedRubIds) {
+        final cycleCompleted = completedRubIds.length;
+        
+        // Pourcentage entier (floor) de la Khatma
+        final percentComplete = ((cycleCompleted / 240) * 100).floor();
+        
+        // Calculer jours restants
+        final now = DateTime.now();
+        final endDate = plan.endDate;
+        final daysRemaining = endDate != null 
+            ? endDate.difference(now).inDays.clamp(0, 999)
+            : 0;
+        
+        // Déterminer le mois
+        final monthName = endDate != null
+            ? DateFormat.MMMM(Localizations.localeOf(context).toString()).format(endDate)
+            : '';
+        
+        // Hizb entiers complétés
+        final completedHizb = (cycleCompleted / 4).floor();
+        
+        return AnisSurface(
+          level: AnisSurfaceLevel.raised,
+          radius: AnisRadius.xl,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Titre
+              Text(
+                l10n.wirdPersonalKhatma,
+                style: text.sectionTitle.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              
+              if (monthName.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  monthName,
+                  style: text.caption.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
+              
+              const SizedBox(height: AnisSpacing.md),
+              
+              // Ring de progression premium avec % au centre
+              Center(
+                child: SizedBox(
+                  width: 145,
+                  height: 145,
+                  child: _MonthlyRingWithPercentage(
+                    completedRubs: cycleCompleted,
+                    totalRubs: 240,
+                    percentComplete: percentComplete,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: AnisSpacing.md),
+              
+              // Contexte stable en-dessous
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    completedHizb > 0
+                        ? (completedHizb == 1
+                            ? l10n.wirdHizbCompletedOutOf(completedHizb, 60)
+                            : l10n.wirdHizbCompletedOutOf_other(completedHizb, 60))
+                        : l10n.wirdKhatmaInProgress,
+                    style: text.label.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  
+                  if (daysRemaining > 0) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.wirdDaysRemaining(daysRemaining),
+                      style: text.caption.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Ring de progression avec pourcentage stable au centre.
+class _MonthlyRingWithPercentage extends StatelessWidget {
+  const _MonthlyRingWithPercentage({
+    required this.completedRubs,
+    required this.totalRubs,
+    required this.percentComplete,
   });
 
-  final bool isCompleted;
-  final AnisColors colors;
+  final int completedRubs;
+  final int totalRubs;
+  final int percentComplete;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 6,
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? colors.actionPrimary
-            : colors.surfaceElevated,
-        borderRadius: BorderRadius.circular(3),
+    final colors = context.anisColors;
+    final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
+    
+    final progress = totalRubs > 0 ? completedRubs / totalRubs : 0.0;
+    
+    return CustomPaint(
+      size: const Size(160, 160),
+      painter: _MonthlyRingPainter(
+        progress: progress,
+        primaryColor: colors.actionPrimary,
+        accentColor: colors.accentGoldStrong,
+        trackColor: colors.surfaceElevated,
+      ),
+      child: SizedBox(
+        width: 160,
+        height: 160,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$percentComplete%',
+                style: text.titleLarge.copyWith(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: colors.actionPrimary,
+                  height: 1.1,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l10n.wirdOfMyKhatma,
+                style: text.caption.copyWith(
+                  fontSize: 12,
+                  color: colors.textSecondary,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -607,14 +830,14 @@ class _ResumePositionSection extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: AnisSpacing.sm),
+        const SizedBox(height: AnisSpacing.xs),
         Text(
           l10n.wirdContinueSubtitle,
           style: text.caption.copyWith(
             color: colors.textSecondary,
           ),
         ),
-        const SizedBox(height: AnisSpacing.md),
+        const SizedBox(height: AnisSpacing.sm),
         
         // Carte contexte - traitement éditorial
         AnisSurface(
@@ -625,7 +848,7 @@ class _ResumePositionSection extends StatelessWidget {
               // Accent éditorial vertical (inspiration architecture islamique)
               Container(
                 width: 4,
-                height: 64,
+                height: 52,
                 decoration: BoxDecoration(
                   color: colors.actionPrimary,
                   borderRadius: BorderRadius.circular(2),
@@ -866,6 +1089,177 @@ class _GoalOption extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ── Monthly Ring Painter ─────────────────────────────────────────────────────
+
+/// CustomPainter pour le ring de progression mensuelle premium.
+/// 
+/// Architecture en layers pour effet LED lumineux:
+/// 1. Dormant 360° body (toujours visible)
+/// 2. Progress outer bloom (derrière l'arc complété)
+/// 3. Progress luminous body (arc principal riche)
+/// 4. Inner light core (highlight crisp intérieur)
+/// 5. Optional gold refinement (endpoint si >5%)
+class _MonthlyRingPainter extends CustomPainter {
+  _MonthlyRingPainter({
+    required this.progress,
+    required this.primaryColor,
+    required this.accentColor,
+    required this.trackColor,
+  });
+
+  final double progress;
+  final Color primaryColor;
+  final Color accentColor;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final strokeWidth = 10.0;
+    final startAngle = -math.pi / 2;
+
+    // ══════════════════════════════════════════════════════════════════════
+    // A. DORMANT 360° BODY — CERCLE COMPLET (richer emerald base)
+    // ══════════════════════════════════════════════════════════════════════
+    
+    // Émeraude désaturé/sombre plus riche (plus de primaryColor, moins de trackColor)
+    final dormantBase = Color.lerp(trackColor, primaryColor, 0.35)!;
+    
+    // Outer edge
+    final dormantOuterPaint = Paint()
+      ..color = dormantBase.withValues(alpha: 0.30)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth + 1.5
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 0.8);
+
+    canvas.drawCircle(center, radius - strokeWidth / 2, dormantOuterPaint);
+
+    // Dormant body principal (plus d'opacité pour richer appearance)
+    final dormantPaint = Paint()
+      ..color = dormantBase.withValues(alpha: 0.50)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius - strokeWidth / 2, dormantPaint);
+
+    // Inner edge
+    final dormantInnerPaint = Paint()
+      ..color = dormantBase.withValues(alpha: 0.20)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth * 0.4
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius - strokeWidth / 2, dormantInnerPaint);
+
+    // ══════════════════════════════════════════════════════════════════════
+    // B-D. PROGRESS ARC ILLUMINÉ — UNE BANDE LUMINEUSE UNIFIÉE
+    // ══════════════════════════════════════════════════════════════════════
+    
+    if (progress > 0) {
+      final sweepAngle = math.pi * 2 * progress;
+      final arcRect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+
+      // ────────────────────────────────────────────────────────────────────
+      // B. OUTER BLOOM — Lumière émise (tightened)
+      // ────────────────────────────────────────────────────────────────────
+      
+      final outerBloomPaint = Paint()
+        ..color = primaryColor.withValues(alpha: 0.10)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth + 12
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+
+      canvas.drawArc(arcRect, startAngle, sweepAngle, false, outerBloomPaint);
+
+      final innerBloomPaint = Paint()
+        ..color = primaryColor.withValues(alpha: 0.18)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth + 6
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+
+      canvas.drawArc(arcRect, startAngle, sweepAngle, false, innerBloomPaint);
+
+      // ────────────────────────────────────────────────────────────────────
+      // C. LUMINOUS BODY — Bande principale avec gradient intégré
+      // ────────────────────────────────────────────────────────────────────
+      
+      // Gradient radial from edges (darker) to center (brighter)
+      // Créer impression de lumière intérieure sans second stroke séparé
+      final darkerEmerald = Color.lerp(primaryColor, Colors.black, 0.15)!;
+      final richEmerald = primaryColor;
+      final brightEmerald = Color.lerp(primaryColor, const Color(0xFF10B981), 0.25)!;
+      
+      // Body avec gradient pour effet de profondeur lumineux
+      final luminousBodyPaint = Paint()
+        ..shader = LinearGradient(
+          colors: [darkerEmerald, richEmerald, brightEmerald],
+          stops: const [0.0, 0.5, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(Rect.fromCircle(center: center, radius: radius))
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawArc(arcRect, startAngle, sweepAngle, false, luminousBodyPaint);
+
+      // ────────────────────────────────────────────────────────────────────
+      // D. SUBTLE INNER HIGHLIGHT — Narrow, soft, integrated
+      // ────────────────────────────────────────────────────────────────────
+      
+      // Highlight très subtil au centre de la bande (pas un contour séparé)
+      final subtleHighlightPaint = Paint()
+        ..color = const Color(0xFFFFFFFF).withValues(alpha: 0.25)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth * 0.2
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
+
+      canvas.drawArc(arcRect, startAngle, sweepAngle, false, subtleHighlightPaint);
+
+      // ────────────────────────────────────────────────────────────────────
+      // E. GOLD ENDPOINT — Extremely subtle, skip at very low progress
+      // ────────────────────────────────────────────────────────────────────
+      
+      if (progress > 0.08) { // Only show gold after 8% to avoid distraction at 2%
+        final endAngle = startAngle + sweepAngle;
+        final endpointCenter = Offset(
+          center.dx + (radius - strokeWidth / 2) * math.cos(endAngle),
+          center.dy + (radius - strokeWidth / 2) * math.sin(endAngle),
+        );
+
+        // Gold glow minimal
+        final goldGlowPaint = Paint()
+          ..color = accentColor.withValues(alpha: 0.15)
+          ..style = PaintingStyle.fill
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+
+        canvas.drawCircle(endpointCenter, 3, goldGlowPaint);
+
+        // Gold point très petit
+        final goldPointPaint = Paint()
+          ..color = accentColor.withValues(alpha: 0.7)
+          ..style = PaintingStyle.fill;
+
+        canvas.drawCircle(endpointCenter, 1, goldPointPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _MonthlyRingPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.primaryColor != primaryColor ||
+        oldDelegate.accentColor != accentColor ||
+        oldDelegate.trackColor != trackColor;
   }
 }
 
