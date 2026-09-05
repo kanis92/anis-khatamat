@@ -5,12 +5,14 @@ import 'package:intl/intl.dart';
 
 import '../core/models/subdivision_marker.dart';
 import '../core/models/wird.dart';
+import '../core/models/wird_plan_state.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/wird_provider.dart';
 import '../core/resolvers/subdivision_definition_resolver.dart';
 import '../core/services/hizb_navigation_service.dart';
 import '../core/widgets/anis_icon.dart';
 import '../design_system/anis_design_system.dart';
+import 'wird_plan_widgets.dart';
 
 /// Wird — Compagnon de lecture quotidienne du Quran
 ///
@@ -111,6 +113,20 @@ class _WirdBody extends ConsumerWidget {
                               ),
                             ),
                             IconButton(
+                              onPressed: () => showWirdPlanSheet(context, ref),
+                              icon: const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                              tooltip: 'Plan',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 44,
+                                minHeight: 44,
+                              ),
+                            ),
+                            IconButton(
                               onPressed: () => _showGoalConfig(context, ref),
                               icon: const Icon(
                                 Icons.tune_outlined,
@@ -160,7 +176,29 @@ class _WirdBody extends ConsumerWidget {
                     ),
                     const SizedBox(height: AnisSpacing.xxl),
 
-                    // 2. Où continuer?
+                    // 2. Ma Khatma Personnelle (si plan actif)
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final planStateAsync = ref.watch(wirdPlanStateProvider);
+                        return planStateAsync.when(
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, __) => const SizedBox.shrink(),
+                          data: (state) {
+                            if (state == WirdPlanState.none) {
+                              return const SizedBox.shrink();
+                            }
+                            return const Column(
+                              children: [
+                                WirdPlanCard(),
+                                SizedBox(height: AnisSpacing.xxl),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+
+                    // 3. Où continuer?
                     _ResumePositionSection(
                       wird: wird,
                       currentHizb: currentHizb,
@@ -168,7 +206,7 @@ class _WirdBody extends ConsumerWidget {
                     ),
                     const SizedBox(height: AnisSpacing.xl),
 
-                    // 3. CTA primaire
+                    // 4. CTA primaire
                     _ResumeReadingCTA(
                       wird: wird,
                       onPressed: () => _resumeReading(context, ref, wird),

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../lib/core/models/wird.dart';
 import '../../../lib/core/models/wird_plan.dart';
+import '../../../lib/core/models/wird_plan_state.dart';
 import '../../../lib/core/services/wird_plan_service.dart';
 
 void main() {
@@ -452,5 +453,277 @@ void main() {
         expect(plan1.id, isNot(plan2.id));
       });
     });
+
+    group('calculateRemainingRubs', () {
+      test('calculates correct remaining Rub count', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          startCompletionId: 1,
+          endCompletionId: 240,
+          createdAt: DateTime.now(),
+        );
+
+        final progress = <int>{1, 2, 3, 4, 5, 6, 7, 8}; // 8 completed
+
+        final remaining = service.calculateRemainingRubs(plan, progress);
+        expect(remaining, 232); // 240 - 8
+      });
+
+      test('returns 0 when all completed', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          startCompletionId: 1,
+          endCompletionId: 8,
+          createdAt: DateTime.now(),
+        );
+
+        final progress = <int>{1, 2, 3, 4, 5, 6, 7, 8};
+
+        final remaining = service.calculateRemainingRubs(plan, progress);
+        expect(remaining, 0);
+      });
+    });
+
+    group('calculateRemainingDays', () {
+      test('calculates days including today', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 2);
+        final remaining = service.calculateRemainingDays(plan, today);
+
+        // Sept 2 to Sept 30 = 29 days
+        expect(remaining, 29);
+      });
+
+      test('returns 1 on last day', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 30);
+        final remaining = service.calculateRemainingDays(plan, today);
+
+        expect(remaining, 1);
+      });
+
+      test('returns 0 when past deadline', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 10, 1);
+        final remaining = service.calculateRemainingDays(plan, today);
+
+        expect(remaining, 0);
+      });
+
+      test('returns large number for plans without endDate', () {
+        final plan = WirdPlan(
+          id: 'test',
+          type: WirdPlanType.freeDaily,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final remaining = service.calculateRemainingDays(plan, today);
+
+        expect(remaining, 999); // No deadline
+      });
+    });
+
+    group('determinePlanState', () {
+      test('returns none when plan is null', () {
+        final state = service.determinePlanState(null, {}, DateTime.now());
+        expect(state, WirdPlanState.none);
+      });
+
+      test('returns scheduled when before start date', () {
+        final plan = WirdPlan(
+          id: 'future',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 30), // Baseline Sept 30
+          endDate: DateTime(2026, 10, 31), // Oct 1-31
+          createdAt: DateTime(2026, 9, 5),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final state = service.determinePlanState(plan, {}, today);
+
+        expect(state, WirdPlanState.scheduled);
+      });
+
+      test('returns active for current month plan', () {
+        final plan = WirdPlan(
+          id: 'active',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final progress = <int>{1, 2, 3, 4}; // Some progress
+        final state = service.determinePlanState(plan, progress, today);
+
+        expect(state, WirdPlanState.active);
+      });
+
+      test('returns completed when all Rub accomplished', () {
+        final plan = WirdPlan(
+          id: 'done',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          startCompletionId: 1,
+          endCompletionId: 8,
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final progress = <int>{1, 2, 3, 4, 5, 6, 7, 8}; // All completed
+        final state = service.determinePlanState(plan, progress, today);
+
+        expect(state, WirdPlanState.completed);
+      });
+
+      test('returns expired when past endDate and not completed', () {
+        final plan = WirdPlan(
+          id: 'expired',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 8, 1),
+          endDate: DateTime(2026, 8, 31),
+          createdAt: DateTime(2026, 8, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final progress = <int>{1, 2, 3}; // Incomplete
+        final state = service.determinePlanState(plan, progress, today);
+
+        expect(state, WirdPlanState.expired);
+      });
+
+      test('prioritizes completedAt flag', () {
+        final plan = WirdPlan(
+          id: 'done',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          completedAt: DateTime(2026, 9, 10), // Explicitly marked complete
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final progress = <int>{1, 2}; // Not all completed, but flag is set
+        final state = service.determinePlanState(plan, progress, today);
+
+        expect(state, WirdPlanState.completed);
+      });
+    });
+
+    group('isPlanActiveToday', () {
+      test('returns false when plan is null', () {
+        final active = service.isPlanActiveToday(null, DateTime.now());
+        expect(active, false);
+      });
+
+      test('returns false for scheduled plan', () {
+        final plan = WirdPlan(
+          id: 'future',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 30),
+          endDate: DateTime(2026, 10, 31),
+          createdAt: DateTime(2026, 9, 5),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final active = service.isPlanActiveToday(plan, today);
+
+        expect(active, false); // Not started yet
+      });
+
+      test('returns true for active plan', () {
+        final plan = WirdPlan(
+          id: 'active',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1),
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 15);
+        final active = service.isPlanActiveToday(plan, today);
+
+        expect(active, true);
+      });
+
+      test('returns true on first day of plan', () {
+        final plan = WirdPlan(
+          id: 'active',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 9, 1), // Baseline Sept 1
+          endDate: DateTime(2026, 9, 30),
+          createdAt: DateTime(2026, 9, 2),
+        );
+
+        final today = DateTime(2026, 9, 2); // First day
+        final active = service.isPlanActiveToday(plan, today);
+
+        expect(active, true);
+      });
+
+      test('returns true even when expired', () {
+        final plan = WirdPlan(
+          id: 'expired',
+          type: WirdPlanType.gregorianMonth,
+          subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+          baselineDate: DateTime(2026, 8, 1),
+          endDate: DateTime(2026, 8, 31),
+          createdAt: DateTime(2026, 8, 2),
+        );
+
+        final today = DateTime(2026, 9, 15); // Past endDate
+        final active = service.isPlanActiveToday(plan, today);
+
+        // Still "active today" in the sense it's past baseline
+        // The allocation logic handles expired separately
+        expect(active, true);
+      });
+    });
   });
 }
+

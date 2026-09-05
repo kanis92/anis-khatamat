@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/wird.dart';
+import '../models/wird_plan.dart';
 import 'wird_rub_tracker.dart';
 
 /// Service Wird V2 — tracking canonique par Rub'.
@@ -33,6 +34,43 @@ class WirdService {
       userId,
       wird.copyWith(dailyTargetRubs: targetRubs),
     );
+  }
+
+  /// Active un plan personnel de Khatma.
+  ///
+  /// **Validation :** Le plan doit avoir le même subdivisionDefinitionId
+  /// que le Wird actuel.
+  ///
+  /// Throws [ArgumentError] si incompatible.
+  Future<void> activatePlan(String userId, WirdPlan plan) async {
+    final wird = await getWird(userId);
+    
+    // Validate compatibility
+    if (plan.subdivisionDefinitionId != wird.subdivisionDefinitionId) {
+      throw ArgumentError(
+        'Cannot activate plan with subdivisionDefinitionId '
+        '"${plan.subdivisionDefinitionId}" for Wird with '
+        '"${wird.subdivisionDefinitionId}"',
+      );
+    }
+    
+    await saveWird(userId, wird.copyWith(activePlan: plan));
+  }
+
+  /// Désactive le plan actuel (retour au mode libre).
+  Future<void> clearActivePlan(String userId) async {
+    final wird = await getWird(userId);
+    // Create a new Wird explicitly without activePlan
+    final cleared = Wird(
+      subdivisionDefinitionId: wird.subdivisionDefinitionId,
+      dailyTargetRubs: wird.dailyTargetRubs,
+      lastMushafType: wird.lastMushafType,
+      lastPage: wird.lastPage,
+      lastReadAt: wird.lastReadAt,
+      createdAt: wird.createdAt,
+      activePlan: null, // Explicitly null
+    );
+    await saveWird(userId, cleared);
   }
 
   /// Enregistre un tour de page séquentiel (marque les Rub' franchis).

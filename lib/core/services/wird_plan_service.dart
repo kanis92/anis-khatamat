@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/wird.dart';
 import '../models/wird_plan.dart';
+import '../models/wird_plan_state.dart';
 import '../utils/balanced_distribution.dart';
 
 /// Service de gestion des plans de lecture personnels du Quran.
@@ -112,7 +113,7 @@ class WirdPlanService {
   /// Retourne jours restants inclus aujourd'hui.
   /// - Normalisation à minuit pour comparaison date-only
   /// - today inclus dans le compte
-  int _calculateRemainingDays(WirdPlan plan, DateTime today) {
+  int calculateRemainingDays(WirdPlan plan, DateTime today) {
     if (plan.endDate == null) return 999; // Pas de deadline
 
     final todayMidnight = _toMidnight(today);
@@ -122,6 +123,10 @@ class WirdPlanService {
 
     final diff = endMidnight.difference(todayMidnight).inDays;
     return diff + 1; // +1 car aujourd'hui compte
+  }
+
+  int _calculateRemainingDays(WirdPlan plan, DateTime today) {
+    return calculateRemainingDays(plan, today);
   }
 
   /// Crée un plan mois hijri en réutilisant la convention ANIS existante.
@@ -233,6 +238,88 @@ class WirdPlanService {
       endCompletionId: 240,
       createdAt: DateTime.now(),
     );
+  }
+
+  /// Calcule le nombre de Rub' restants à accomplir.
+  int calculateRemainingRubs(WirdPlan plan, Set<int> currentProgress) {
+    final totalTarget = plan.totalRubTarget;
+    final completed = currentProgress.length;
+    return totalTarget - completed;
+  }
+
+  /// Détermine l'état runtime du plan.
+  ///
+  /// **Logique :**
+  /// - null plan → none
+  /// - plan.completedAt != null → completed
+  /// - today < baselineDate + 1 → scheduled (pas encore démarré)
+  /// - today > endDate && not completed → expired
+  /// - sinon → active
+  WirdPlanState determinePlanState(
+    WirdPlan? plan,
+    Set<int> currentProgress,
+    DateTime today,
+  ) {
+    if (plan == null) return WirdPlanState.none;
+
+    // Complété explicitement
+    if (plan.completedAt != null) return WirdPlanState.completed;
+
+    // Vérifier si tous les Rub' sont complétés (implicitement complété)
+    final remaining = calculateRemainingRubs(plan, currentProgress);
+    if (remaining <= 0) return WirdPlanState.completed;
+
+    final todayMidnight = _toMidnight(today);
+    final baselineMidnight = _toMidnight(plan.baselineDate);
+    final startMidnight = baselineMidnight.add(const Duration(days: 1));
+
+    // Pas encore démarré
+    if (todayMidnight.isBefore(startMidnight)) {
+      return WirdPlanState.scheduled;
+    }
+
+    // Expiré (deadline passée et non complété)
+    if (plan.endDate != null) {
+      final endMidnight = _toMidnight(plan.endDate!);
+      if (todayMidnight.isAfter(endMidnight)) {
+        return WirdPlanState.expired;
+      }
+    }
+
+    // Actif
+    return WirdPlanState.active;
+  }
+
+  /// Vérifie si le plan est actif aujourd'hui (pas scheduled).
+  ///
+  /// **Important :** Un plan scheduled ne doit PAS affecter l'objectif
+  /// quotidien libre d'aujourd'hui.
+  bool isPlanActiveToday(WirdPlan? plan, DateTime today) {
+    if (plan == null) return false;
+
+    final todayMidnight = _toMidnight(today);
+    final baselineMidnight = _toMidnight(plan.baselineDate);
+    final startMidnight = baselineMidnight.add(const Duration(days: 1));
+
+    return !todayMidnight.isBefore(startMidnight);
+  }
+
+  /// Valide qu'un plan est compatible avec son Wird parent.
+  ///
+  /// **Invariant critique :**
+  /// - WirdPlan.subdivisionDefinitionId DOIT correspondre à
+  ///   Wird.subdivisionDefinitionId
+  /// - Sinon, le plan lirait un namespace de progression incorrect
+  ///
+  /// Throws [ArgumentError] si mismatch détecté.
+  void validatePlanForWird(WirdPlan plan, String wirdDefinitionId) {
+    if (plan.subdivisionDefinitionId != wirdDefinitionId) {
+      throw ArgumentError(
+        'Plan subdivisionDefinitionId "${plan.subdivisionDefinitionId}" '
+        'does not match Wird subdivisionDefinitionId "$wirdDefinitionId". '
+        'Cannot use plan with different definition.',
+      );
+    }
   }
 
   String _formatDateKey(DateTime date) =>

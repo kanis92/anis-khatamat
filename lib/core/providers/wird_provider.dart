@@ -1,12 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/wird.dart';
+import '../models/wird_plan.dart';
+import '../models/wird_plan_state.dart';
+import '../services/wird_plan_service.dart';
 import '../services/wird_service.dart';
 import 'auth_provider.dart';
 
 /// Providers Wird V2 — État Wird utilisateur avec tracking Rub' canonique
 
 final wirdServiceProvider = Provider<WirdService>((ref) => WirdService());
+
+final wirdPlanServiceProvider = Provider<WirdPlanService>((ref) => WirdPlanService());
 
 /// Wird de l'utilisateur (objectif + position)
 final wirdProvider = FutureProvider<Wird>((ref) async {
@@ -77,6 +82,8 @@ Future<bool> recordWirdSequentialPageTurn(
   if (completed) {
     ref.invalidate(wirdProvider);
     ref.invalidate(wirdTodayProgressProvider);
+    ref.invalidate(wirdTodayCompletedRubIdsProvider);
+    // Plan progress is derived from tracker, will update automatically
   }
 
   return completed;
@@ -137,4 +144,138 @@ Future<void> recordWirdFinalPageCompletion(
   
   ref.invalidate(wirdProvider);
   ref.invalidate(wirdTodayProgressProvider);
+  ref.invalidate(wirdTodayCompletedRubIdsProvider);
+  // Plan progress is derived, will update automatically on next read
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Personal Khatma Plan Providers
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Plan personnel actif de l'utilisateur (null si mode libre).
+final wirdActivePlanProvider = FutureProvider<Wird>((ref) async {
+  return ref.watch(wirdProvider.future);
+});
+
+/// Progression actuelle du plan actif (completion IDs dérivés du tracker).
+///
+/// **Important :** Dérivé dynamiquement depuis WirdRubTracker storage.
+/// Aucune duplication de progression n'est persistée dans le plan.
+///
+/// **Validation :** Si le plan existe, son subdivisionDefinitionId doit
+/// correspondre au Wird parent. Sinon, throw error.
+final wirdPlanProgressProvider = FutureProvider<Set<int>>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  
+  if (plan == null) return {};
+  
+  final planService = ref.watch(wirdPlanServiceProvider);
+  
+  // CRITICAL: Validate plan compatibility
+  planService.validatePlanForWird(plan, wird.subdivisionDefinitionId);
+  
+  final user = ref.watch(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  
+  return planService.getPlanProgress(userId, plan);
+});
+
+/// État runtime du plan actif.
+final wirdPlanStateProvider = FutureProvider<WirdPlanState>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  final progress = await ref.watch(wirdPlanProgressProvider.future);
+  
+  final planService = ref.watch(wirdPlanServiceProvider);
+  return planService.determinePlanState(plan, progress, DateTime.now());
+});
+
+/// Allocation quotidienne dynamique pour aujourd'hui.
+///
+/// **Logique :**
+/// - Aucun plan ou plan scheduled → dailyTargetRubs du Wird (mode libre)
+/// - Plan actif → allocation équilibrée dynamique basée sur progression réelle
+/// - Plan complété/expiré → 0
+final wirdPlanAllocationProvider = FutureProvider<int>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  final state = await ref.watch(wirdPlanStateProvider.future);
+  
+  // Pas de plan ou plan schedulé → mode libre
+  if (plan == null || state == WirdPlanState.scheduled) {
+    return wird.dailyTargetRubs;
+  }
+  
+  // Plan complété ou expiré → 0
+  if (state == WirdPlanState.completed || state == WirdPlanState.expired) {
+    return 0;
+  }
+  
+  // Plan actif → allocation dynamique
+  final progress = await ref.watch(wirdPlanProgressProvider.future);
+  final planService = ref.watch(wirdPlanServiceProvider);
+  
+  return planService.calculateTodayAllocation(
+    plan,
+    progress,
+    wird,
+    DateTime.now(),
+  );
+});
+
+/// Nombre de Rub' restants à accomplir dans le plan actif.
+final wirdPlanRemainingRubsProvider = FutureProvider<int>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  
+  if (plan == null) return 0;
+  
+  final progress = await ref.watch(wirdPlanProgressProvider.future);
+  final planService = ref.watch(wirdPlanServiceProvider);
+  
+  return planService.calculateRemainingRubs(plan, progress);
+});
+
+/// Jours restants dans le cycle du plan actif.
+final wirdPlanRemainingDaysProvider = FutureProvider<int>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  
+  if (plan == null) return 0;
+  
+  final planService = ref.watch(wirdPlanServiceProvider);
+  return planService.calculateRemainingDays(plan, DateTime.now());
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Personal Khatma Plan Actions
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Active un plan personnel de Khatma.
+///
+/// **Validation :** Le plan doit avoir le même subdivisionDefinitionId
+/// que le Wird actuel.
+///
+/// Invalidates: wirdProvider, wirdPlanStateProvider, et tous les dérivés.
+Future<void> activateWirdPlan(WidgetRef ref, WirdPlan plan) async {
+  final service = ref.read(wirdServiceProvider);
+  final user = ref.read(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  
+  await service.activatePlan(userId, plan);
+  
+  // Invalidate all plan-related providers
+  ref.invalidate(wirdProvider);
+}
+
+/// Désactive le plan actuel (retour au mode libre).
+Future<void> clearWirdPlan(WidgetRef ref) async {
+  final service = ref.read(wirdServiceProvider);
+  final user = ref.read(currentUserProvider);
+  final userId = user?.email ?? 'demo';
+  
+  await service.clearActivePlan(userId);
+  
+  ref.invalidate(wirdProvider);
 }
