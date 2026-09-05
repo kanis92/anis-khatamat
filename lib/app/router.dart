@@ -309,11 +309,8 @@ class _MainShell extends StatelessWidget {
     AnisNavigationItem(label: l10n.home, icon: AnisIconType.home),
     AnisNavigationItem(label: l10n.khatma, icon: AnisIconType.khatma),
     AnisNavigationItem(label: l10n.notifications, icon: AnisIconType.bell),
-    AnisNavigationItem(label: l10n.wird, icon: AnisIconType.bookOpen),
-    AnisNavigationItem(
-      label: l10n.settings,
-      materialIcon: Icons.settings_outlined,
-    ),
+    AnisNavigationItem(label: l10n.wird, icon: AnisIconType.wird),
+    AnisNavigationItem(label: l10n.settings, icon: AnisIconType.settings),
   ];
 
   int _calculateSelectedIndex(String location) {

@@ -51,11 +51,11 @@ class AnisBottomNavigation extends StatelessWidget {
         mode == AnisAccessibilityTextMode.extreme
             ? AnisSpacing.xs * 2
             : AnisSpacing.sm * 2;
-    const iconBlock = AnisIconSize.minTapTarget + AnisSpacing.xs * 3 + 3;
+    const iconBlock = AnisIconSize.lg + AnisSpacing.xs * 2 + 2;
 
     switch (mode) {
       case AnisAccessibilityTextMode.normal:
-        final labelLine = scaler.scale(13) * 1.35;
+        final labelLine = scaler.scale(11) * 1.2 * 2;
         return safeBottom +
             verticalPad +
             iconBlock +
@@ -170,7 +170,7 @@ class _AnisNavigationTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
-    final tint = selected ? colors.actionPrimary : colors.textSecondary;
+    final tint = selected ? colors.actionPrimary : colors.textTertiary;
     final showLabel = !compactLabels;
 
     return Semantics(
@@ -186,9 +186,11 @@ class _AnisNavigationTab extends StatelessWidget {
               minHeight: AnisIconSize.minTapTarget,
             ),
             child: Padding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                vertical: AnisSpacing.sm,
-                horizontal: AnisSpacing.xs,
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AnisSpacing.xxs,
+                AnisSpacing.sm,
+                AnisSpacing.xxs,
+                AnisSpacing.xs,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -206,12 +208,13 @@ class _AnisNavigationTab extends StatelessWidget {
                     const SizedBox(height: AnisSpacing.xs),
                     Text(
                       item.label,
-                      style: text.label.copyWith(
+                      style: text.caption.copyWith(
                         color: tint,
                         fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w400,
+                            selected ? FontWeight.w600 : FontWeight.w500,
+                        height: 1.2,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -221,10 +224,12 @@ class _AnisNavigationTab extends StatelessWidget {
                   AnimatedContainer(
                     duration: AnisMotion.durationOf(context, AnisMotion.fast),
                     curve: AnisMotion.enter,
-                    width: selected ? 18 : 0,
-                    height: 3,
+                    width: selected ? 16 : 0,
+                    height: 2,
                     decoration: BoxDecoration(
-                      color: colors.accentGoldStrong,
+                      color: selected
+                          ? colors.accentGoldStrong
+                          : colors.surfaceElevated,
                       borderRadius: AnisRadius.pillAll,
                     ),
                   ),

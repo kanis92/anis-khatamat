@@ -94,7 +94,7 @@ class _AnisSideNavigationDestination extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
-    final tint = selected ? colors.actionPrimary : colors.textSecondary;
+    final tint = selected ? colors.actionPrimary : colors.textTertiary;
     final bg = selected ? colors.actionPrimary.withValues(alpha: 0.08) : null;
 
     return Semantics(

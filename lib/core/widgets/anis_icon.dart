@@ -12,12 +12,14 @@ enum AnisIconType {
   geometric,
   home,
   khatma,
+  wird,
   calendar,
   chart,
   training,
   bell,
   bookmark,
   user,
+  settings,
 }
 
 /// Widget affichant une icône ANIS (SVG) avec teinte couleur
@@ -42,6 +44,8 @@ class AnisIcon extends StatelessWidget {
         return 'assets/icons/icon_home.svg';
       case AnisIconType.khatma:
         return 'assets/icons/icon_khatma.svg';
+      case AnisIconType.wird:
+        return 'assets/icons/icon_wird.svg';
       case AnisIconType.calendar:
         return 'assets/icons/icon_calendar.svg';
       case AnisIconType.chart:
@@ -54,6 +58,8 @@ class AnisIcon extends StatelessWidget {
         return 'assets/icons/icon_bookmark_filled.svg';
       case AnisIconType.user:
         return 'assets/icons/icon_user_filled.svg';
+      case AnisIconType.settings:
+        return 'assets/icons/icon_settings.svg';
     }
   }
 

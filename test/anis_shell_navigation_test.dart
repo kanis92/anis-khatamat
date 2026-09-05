@@ -103,4 +103,37 @@ void main() {
     expect(find.text('Khatma'), findsWidgets);
     expect(router.state.uri.path, '/');
   });
+
+  testWidgets('bottom navigation keeps full Notifications label at 375 width', (
+    WidgetTester tester,
+  ) async {
+    final container = ProviderContainer(
+      overrides: [demoModeProvider.overrideWith((ref) => true)],
+    );
+    addTearDown(container.dispose);
+
+    final router = container.read(goRouterProvider);
+
+    await tester.binding.setSurfaceSize(const Size(375, 667));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Notifications'), findsWidgets);
+    expect(find.textContaining('Notificatio...'), findsNothing);
+    expect(find.text('Wird'), findsWidgets);
+    expect(find.text('Paramètres'), findsWidgets);
+  });
 }
