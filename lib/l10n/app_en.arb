@@ -497,5 +497,38 @@
         "type": "int"
       }
     }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsEmptyTitle": "No notifications",
+  "notificationsEmptySubtitle": "You're all caught up",
+  "notificationsSettingsTitle": "Notification settings",
+  "notificationsEnableReadingReminders": "Enable reading reminders",
+  "notificationsReceiveHizbReminders": "Receive reminders for your Hizb",
+  "notificationsGroupNotifications": "Group notifications",
+  "notificationsWorkshopReminders": "Workshop reminders",
+  "notificationsMarkAsRead": "Mark as read",
+  "notificationsDelete": "Delete",
+  "notificationsDemoReadingTime": "Time to read",
+  "notificationsDemoReadingTimeBody": "Don't forget to complete your daily Hizb",
+  "notificationsDemoKhatmaReminder": "Khatma Reminder",
+  "notificationsDemoKhatmaBody": "Your group Khatma is waiting for you",
+  "notificationsDemoWorkshop": "Training workshop",
+  "notificationsDemoWorkshopBody": "New session available next week",
+  "notificationsTimeHoursAgo": "{hours} hours ago",
+  "@notificationsTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTimeYesterday": "Yesterday",
+  "notificationsTimeDaysAgo": "{days} days ago",
+  "@notificationsTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

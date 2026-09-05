@@ -806,4 +806,65 @@ class AppLocalizationsAr extends AppLocalizations {
   String homeRamadanPillAr(int day) {
     return 'رمضان · اليوم $day من 30';
   }
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsEmptyTitle => 'لا توجد إشعارات';
+
+  @override
+  String get notificationsEmptySubtitle => 'أنت على اطلاع';
+
+  @override
+  String get notificationsSettingsTitle => 'إعدادات الإشعارات';
+
+  @override
+  String get notificationsEnableReadingReminders => 'تفعيل تذكيرات القراءة';
+
+  @override
+  String get notificationsReceiveHizbReminders => 'تلقي تذكيرات لحزبك اليومي';
+
+  @override
+  String get notificationsGroupNotifications => 'إشعارات المجموعة';
+
+  @override
+  String get notificationsWorkshopReminders => 'تذكيرات الورش';
+
+  @override
+  String get notificationsMarkAsRead => 'تحديد كمقروء';
+
+  @override
+  String get notificationsDelete => 'حذف';
+
+  @override
+  String get notificationsDemoReadingTime => 'حان وقت القراءة';
+
+  @override
+  String get notificationsDemoReadingTimeBody => 'لا تنسَ إكمال حزبك اليومي';
+
+  @override
+  String get notificationsDemoKhatmaReminder => 'تذكير الختمة';
+
+  @override
+  String get notificationsDemoKhatmaBody => 'ختمة مجموعتك في انتظارك';
+
+  @override
+  String get notificationsDemoWorkshop => 'ورشة تدريبية';
+
+  @override
+  String get notificationsDemoWorkshopBody => 'جلسة جديدة متاحة الأسبوع القادم';
+
+  @override
+  String notificationsTimeHoursAgo(int hours) {
+    return 'منذ $hours ساعات';
+  }
+
+  @override
+  String get notificationsTimeYesterday => 'أمس';
+
+  @override
+  String notificationsTimeDaysAgo(int days) {
+    return 'منذ $days أيام';
+  }
 }

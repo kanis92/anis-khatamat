@@ -1533,6 +1533,120 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'رمضان · اليوم {day} من 30'**
   String homeRamadanPillAr(int day);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune notification'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes à jour'**
+  String get notificationsEmptySubtitle;
+
+  /// No description provided for @notificationsSettingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres des notifications'**
+  String get notificationsSettingsTitle;
+
+  /// No description provided for @notificationsEnableReadingReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les rappels de lecture'**
+  String get notificationsEnableReadingReminders;
+
+  /// No description provided for @notificationsReceiveHizbReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir des rappels pour vos Hizb'**
+  String get notificationsReceiveHizbReminders;
+
+  /// No description provided for @notificationsGroupNotifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications de groupe'**
+  String get notificationsGroupNotifications;
+
+  /// No description provided for @notificationsWorkshopReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels d\'ateliers'**
+  String get notificationsWorkshopReminders;
+
+  /// No description provided for @notificationsMarkAsRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme lu'**
+  String get notificationsMarkAsRead;
+
+  /// No description provided for @notificationsDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get notificationsDelete;
+
+  /// No description provided for @notificationsDemoReadingTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est l\'heure de lire'**
+  String get notificationsDemoReadingTime;
+
+  /// No description provided for @notificationsDemoReadingTimeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'N\'oubliez pas de compléter votre Hizb du jour'**
+  String get notificationsDemoReadingTimeBody;
+
+  /// No description provided for @notificationsDemoKhatmaReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel Khatma'**
+  String get notificationsDemoKhatmaReminder;
+
+  /// No description provided for @notificationsDemoKhatmaBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Khatma de groupe attend votre participation'**
+  String get notificationsDemoKhatmaBody;
+
+  /// No description provided for @notificationsDemoWorkshop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atelier de formation'**
+  String get notificationsDemoWorkshop;
+
+  /// No description provided for @notificationsDemoWorkshopBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle session disponible la semaine prochaine'**
+  String get notificationsDemoWorkshopBody;
+
+  /// No description provided for @notificationsTimeHoursAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {hours} heures'**
+  String notificationsTimeHoursAgo(int hours);
+
+  /// No description provided for @notificationsTimeYesterday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get notificationsTimeYesterday;
+
+  /// No description provided for @notificationsTimeDaysAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {days} jours'**
+  String notificationsTimeDaysAgo(int days);
 }
 
 class _AppLocalizationsDelegate

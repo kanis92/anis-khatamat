@@ -528,5 +528,38 @@
         "type": "int"
       }
     }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsEmptyTitle": "Aucune notification",
+  "notificationsEmptySubtitle": "Vous êtes à jour",
+  "notificationsSettingsTitle": "Paramètres des notifications",
+  "notificationsEnableReadingReminders": "Activer les rappels de lecture",
+  "notificationsReceiveHizbReminders": "Recevoir des rappels pour vos Hizb",
+  "notificationsGroupNotifications": "Notifications de groupe",
+  "notificationsWorkshopReminders": "Rappels d'ateliers",
+  "notificationsMarkAsRead": "Marquer comme lu",
+  "notificationsDelete": "Supprimer",
+  "notificationsDemoReadingTime": "C'est l'heure de lire",
+  "notificationsDemoReadingTimeBody": "N'oubliez pas de compléter votre Hizb du jour",
+  "notificationsDemoKhatmaReminder": "Rappel Khatma",
+  "notificationsDemoKhatmaBody": "Votre Khatma de groupe attend votre participation",
+  "notificationsDemoWorkshop": "Atelier de formation",
+  "notificationsDemoWorkshopBody": "Nouvelle session disponible la semaine prochaine",
+  "notificationsTimeHoursAgo": "Il y a {hours} heures",
+  "@notificationsTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTimeYesterday": "Hier",
+  "notificationsTimeDaysAgo": "Il y a {days} jours",
+  "@notificationsTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

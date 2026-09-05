@@ -812,4 +812,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeRamadanPillAr(int day) {
     return 'رمضان · اليوم $day من 30';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmptyTitle => 'No notifications';
+
+  @override
+  String get notificationsEmptySubtitle => 'You\'re all caught up';
+
+  @override
+  String get notificationsSettingsTitle => 'Notification settings';
+
+  @override
+  String get notificationsEnableReadingReminders => 'Enable reading reminders';
+
+  @override
+  String get notificationsReceiveHizbReminders =>
+      'Receive reminders for your Hizb';
+
+  @override
+  String get notificationsGroupNotifications => 'Group notifications';
+
+  @override
+  String get notificationsWorkshopReminders => 'Workshop reminders';
+
+  @override
+  String get notificationsMarkAsRead => 'Mark as read';
+
+  @override
+  String get notificationsDelete => 'Delete';
+
+  @override
+  String get notificationsDemoReadingTime => 'Time to read';
+
+  @override
+  String get notificationsDemoReadingTimeBody =>
+      'Don\'t forget to complete your daily Hizb';
+
+  @override
+  String get notificationsDemoKhatmaReminder => 'Khatma Reminder';
+
+  @override
+  String get notificationsDemoKhatmaBody =>
+      'Your group Khatma is waiting for you';
+
+  @override
+  String get notificationsDemoWorkshop => 'Training workshop';
+
+  @override
+  String get notificationsDemoWorkshopBody => 'New session available next week';
+
+  @override
+  String notificationsTimeHoursAgo(int hours) {
+    return '$hours hours ago';
+  }
+
+  @override
+  String get notificationsTimeYesterday => 'Yesterday';
+
+  @override
+  String notificationsTimeDaysAgo(int days) {
+    return '$days days ago';
+  }
 }

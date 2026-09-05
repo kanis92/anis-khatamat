@@ -497,5 +497,38 @@
         "type": "int"
       }
     }
+  },
+  "notificationsTitle": "الإشعارات",
+  "notificationsEmptyTitle": "لا توجد إشعارات",
+  "notificationsEmptySubtitle": "أنت على اطلاع",
+  "notificationsSettingsTitle": "إعدادات الإشعارات",
+  "notificationsEnableReadingReminders": "تفعيل تذكيرات القراءة",
+  "notificationsReceiveHizbReminders": "تلقي تذكيرات لحزبك اليومي",
+  "notificationsGroupNotifications": "إشعارات المجموعة",
+  "notificationsWorkshopReminders": "تذكيرات الورش",
+  "notificationsMarkAsRead": "تحديد كمقروء",
+  "notificationsDelete": "حذف",
+  "notificationsDemoReadingTime": "حان وقت القراءة",
+  "notificationsDemoReadingTimeBody": "لا تنسَ إكمال حزبك اليومي",
+  "notificationsDemoKhatmaReminder": "تذكير الختمة",
+  "notificationsDemoKhatmaBody": "ختمة مجموعتك في انتظارك",
+  "notificationsDemoWorkshop": "ورشة تدريبية",
+  "notificationsDemoWorkshopBody": "جلسة جديدة متاحة الأسبوع القادم",
+  "notificationsTimeHoursAgo": "منذ {hours} ساعات",
+  "@notificationsTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTimeYesterday": "أمس",
+  "notificationsTimeDaysAgo": "منذ {days} أيام",
+  "@notificationsTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

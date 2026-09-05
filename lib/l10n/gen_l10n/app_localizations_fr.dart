@@ -815,4 +815,70 @@ class AppLocalizationsFr extends AppLocalizations {
   String homeRamadanPillAr(int day) {
     return 'رمضان · اليوم $day من 30';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmptyTitle => 'Aucune notification';
+
+  @override
+  String get notificationsEmptySubtitle => 'Vous êtes à jour';
+
+  @override
+  String get notificationsSettingsTitle => 'Paramètres des notifications';
+
+  @override
+  String get notificationsEnableReadingReminders =>
+      'Activer les rappels de lecture';
+
+  @override
+  String get notificationsReceiveHizbReminders =>
+      'Recevoir des rappels pour vos Hizb';
+
+  @override
+  String get notificationsGroupNotifications => 'Notifications de groupe';
+
+  @override
+  String get notificationsWorkshopReminders => 'Rappels d\'ateliers';
+
+  @override
+  String get notificationsMarkAsRead => 'Marquer comme lu';
+
+  @override
+  String get notificationsDelete => 'Supprimer';
+
+  @override
+  String get notificationsDemoReadingTime => 'C\'est l\'heure de lire';
+
+  @override
+  String get notificationsDemoReadingTimeBody =>
+      'N\'oubliez pas de compléter votre Hizb du jour';
+
+  @override
+  String get notificationsDemoKhatmaReminder => 'Rappel Khatma';
+
+  @override
+  String get notificationsDemoKhatmaBody =>
+      'Votre Khatma de groupe attend votre participation';
+
+  @override
+  String get notificationsDemoWorkshop => 'Atelier de formation';
+
+  @override
+  String get notificationsDemoWorkshopBody =>
+      'Nouvelle session disponible la semaine prochaine';
+
+  @override
+  String notificationsTimeHoursAgo(int hours) {
+    return 'Il y a $hours heures';
+  }
+
+  @override
+  String get notificationsTimeYesterday => 'Hier';
+
+  @override
+  String notificationsTimeDaysAgo(int days) {
+    return 'Il y a $days jours';
+  }
 }

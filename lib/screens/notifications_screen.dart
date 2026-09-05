@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Demo notifications - localized for consistency
           _NotificationCard(
-            title: 'C\'est l\'heure de lire',
-            subtitle: 'N\'oubliez pas de compléter votre Hizb du jour',
-            time: 'Il y a 2 heures',
+            title: l10n.notificationsDemoReadingTime,
+            subtitle: l10n.notificationsDemoReadingTimeBody,
+            time: l10n.notificationsTimeHoursAgo(2),
             isRead: false,
             icon: Icons.menu_book,
           ),
           _NotificationCard(
-            title: 'Rappel Khatma',
-            subtitle: 'Votre Khatma de groupe attend votre participation',
-            time: 'Hier',
+            title: l10n.notificationsDemoKhatmaReminder,
+            subtitle: l10n.notificationsDemoKhatmaBody,
+            time: l10n.notificationsTimeYesterday,
             isRead: true,
             icon: Icons.groups,
           ),
           _NotificationCard(
-            title: 'Atelier de formation',
-            subtitle: 'Nouvelle session disponible la semaine prochaine',
-            time: 'Il y a 3 jours',
+            title: l10n.notificationsDemoWorkshop,
+            subtitle: l10n.notificationsDemoWorkshopBody,
+            time: l10n.notificationsTimeDaysAgo(3),
             isRead: true,
             icon: Icons.school,
           ),
@@ -43,25 +47,25 @@ class NotificationsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Paramètres des notifications',
+                    l10n.notificationsSettingsTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 12),
                   SwitchListTile(
-                    title: const Text('Activer les rappels de lecture'),
-                    subtitle: const Text('Recevoir des rappels pour vos Hizb'),
+                    title: Text(l10n.notificationsEnableReadingReminders),
+                    subtitle: Text(l10n.notificationsReceiveHizbReminders),
                     value: true,
                     onChanged: (v) {},
                   ),
                   SwitchListTile(
-                    title: const Text('Notifications de groupe'),
+                    title: Text(l10n.notificationsGroupNotifications),
                     value: true,
                     onChanged: (v) {},
                   ),
                   SwitchListTile(
-                    title: const Text('Rappels d\'ateliers'),
+                    title: Text(l10n.notificationsWorkshopReminders),
                     value: true,
                     onChanged: (v) {},
                   ),
@@ -123,10 +127,13 @@ class _NotificationCard extends StatelessWidget {
         ),
         isThreeLine: true,
         trailing: PopupMenuButton(
-          itemBuilder: (context) => [
-            const PopupMenuItem(value: 'read', child: Text('Marquer comme lu')),
-            const PopupMenuItem(value: 'delete', child: Text('Supprimer')),
-          ],
+          itemBuilder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return [
+              PopupMenuItem(value: 'read', child: Text(l10n.notificationsMarkAsRead)),
+              PopupMenuItem(value: 'delete', child: Text(l10n.notificationsDelete)),
+            ];
+          },
         ),
       ),
     );
