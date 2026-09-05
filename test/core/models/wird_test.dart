@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:anis_khatamat/core/models/wird.dart';
+import 'package:anis_khatamat/core/models/wird_plan.dart';
 
 void main() {
   group('Wird Model — Persistence Migration', () {
@@ -171,4 +172,159 @@ void main() {
       expect(wird.createdAt, isNotNull);
     });
   });
+
+  group('Wird Model — Personal Khatma Plan Integration', () {
+    test('legacy Wird without activePlan defaults to free mode (null)', () {
+      final legacyJson = {
+        'subdivisionDefinitionId': 'hafs_quran_foundation_rub_240_v1',
+        'dailyTargetRubs': 4,
+        'createdAt': '2026-01-01T00:00:00.000Z',
+      };
+
+      final wird = Wird.fromMap(legacyJson);
+
+      expect(wird.activePlan, null,
+          reason: 'Legacy Wird without activePlan must remain in free mode');
+    });
+
+    test('Wird with activePlan serializes and deserializes correctly', () {
+      final plan = WirdPlan(
+        id: 'test-plan-id',
+        type: WirdPlanType.gregorianMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        endDate: DateTime(2026, 9, 30),
+        createdAt: DateTime(2026, 9, 2),
+      );
+
+      final wird = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: DateTime(2026, 9, 1),
+        activePlan: plan,
+      );
+
+      final json = wird.toMap();
+      expect(json.containsKey('activePlan'), true);
+
+      final restored = Wird.fromMap(json);
+      expect(restored.activePlan, isNotNull);
+      expect(restored.activePlan!.id, 'test-plan-id');
+      expect(restored.activePlan!.type, WirdPlanType.gregorianMonth);
+    });
+
+    test('Wird without activePlan omits field from serialization', () {
+      final wird = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: DateTime(2026, 9, 1),
+        activePlan: null,
+      );
+
+      final json = wird.toMap();
+      expect(json.containsKey('activePlan'), false,
+          reason: 'Null activePlan should not be serialized');
+    });
+
+    test('copyWith preserves activePlan when omitted', () {
+      final plan = WirdPlan(
+        id: 'original-plan',
+        type: WirdPlanType.hijriMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        createdAt: DateTime(2026, 9, 1),
+      );
+
+      final original = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: DateTime(2026, 9, 1),
+        activePlan: plan,
+      );
+
+      final updated = original.copyWith(dailyTargetRubs: 8);
+
+      expect(updated.activePlan, plan);
+      expect(updated.dailyTargetRubs, 8);
+    });
+
+    test('copyWith can set activePlan', () {
+      final original = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: DateTime(2026, 9, 1),
+        activePlan: null,
+      );
+
+      final plan = WirdPlan(
+        id: 'new-plan',
+        type: WirdPlanType.gregorianMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        createdAt: DateTime(2026, 9, 1),
+      );
+
+      final updated = original.copyWith(activePlan: plan);
+
+      expect(updated.activePlan, plan);
+    });
+
+    test('subdivisionDefinitionId consistency between Wird and Plan', () {
+      final plan = WirdPlan(
+        id: 'plan-1',
+        type: WirdPlanType.gregorianMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        createdAt: DateTime(2026, 9, 1),
+      );
+
+      final wird = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: DateTime(2026, 9, 1),
+        activePlan: plan,
+      );
+
+      expect(wird.subdivisionDefinitionId, wird.activePlan!.subdivisionDefinitionId,
+          reason: 'Wird and its active plan must share the same subdivisionDefinitionId');
+    });
+
+    test('Equatable includes activePlan in equality', () {
+      final plan1 = WirdPlan(
+        id: 'plan-1',
+        type: WirdPlanType.gregorianMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        createdAt: DateTime(2026, 9, 1),
+      );
+
+      final plan2 = WirdPlan(
+        id: 'plan-2',
+        type: WirdPlanType.hijriMonth,
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        baselineDate: DateTime(2026, 9, 1),
+        createdAt: DateTime(2026, 9, 1),
+      );
+
+      final createdAt = DateTime(2026, 9, 1);
+
+      final wird1 = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: createdAt,
+        activePlan: plan1,
+      );
+
+      final wird2 = Wird(
+        subdivisionDefinitionId: 'hafs_quran_foundation_rub_240_v1',
+        dailyTargetRubs: 4,
+        createdAt: createdAt,
+        activePlan: plan2,
+      );
+
+      expect(wird1 == wird2, false,
+          reason: 'Different activePlan must make Wird instances unequal');
+    });
+  });
 }
+
