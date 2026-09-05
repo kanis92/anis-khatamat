@@ -10,6 +10,7 @@ import '../core/providers/auth_provider.dart';
 import '../core/providers/wird_provider.dart';
 import '../core/resolvers/subdivision_definition_resolver.dart';
 import '../core/services/hizb_navigation_service.dart';
+import '../core/utils/hizb_formatter.dart';
 import '../core/widgets/anis_icon.dart';
 import '../design_system/anis_design_system.dart';
 import 'wird_plan_widgets.dart';
@@ -332,41 +333,9 @@ class _DailyReadingSection extends StatelessWidget {
     String? remainingText;
     
     if (showInHizb) {
-      // Objectif en Hizb: utiliser des fractions exactes (¼, ½, ¾)
-      final fullHizbs = progress ~/ 4;
-      final remainingRubs = progress % 4;
-      final targetHizbs = target ~/ 4;
-      
-      // Construire le texte de progression avec fractions exactes
-      if (fullHizbs == 0 && remainingRubs == 0) {
-        progressText = '0';
-      } else if (remainingRubs == 0) {
-        progressText = '$fullHizbs';
-      } else {
-        final fraction = _getQuarterFraction(remainingRubs);
-        progressText = fullHizbs > 0 ? '$fullHizbs$fraction' : fraction;
-      }
-      
-      targetLabel = '$targetHizbs Hizb';
-      
-      // Calculer le reste en fractions exactes
-      if (!isComplete) {
-        final remainingRubsTotal = target - progress;
-        final remainingHizbsFull = remainingRubsTotal ~/ 4;
-        final remainingRubsPartial = remainingRubsTotal % 4;
-        
-        if (remainingHizbsFull == 0 && remainingRubsPartial > 0) {
-          final fraction = _getQuarterFraction(remainingRubsPartial);
-          remainingText = 'Il vous reste $fraction Hizb';
-        } else if (remainingHizbsFull == 1 && remainingRubsPartial == 0) {
-          remainingText = 'Il vous reste 1 Hizb';
-        } else if (remainingHizbsFull > 0 && remainingRubsPartial == 0) {
-          remainingText = 'Il vous reste $remainingHizbsFull Hizb';
-        } else if (remainingHizbsFull > 0 && remainingRubsPartial > 0) {
-          final fraction = _getQuarterFraction(remainingRubsPartial);
-          remainingText = 'Il vous reste $remainingHizbsFull$fraction Hizb';
-        }
-      }
+      progressText = formatRubsAsHizb(progress);
+      targetLabel = formatTargetAsHizb(target);
+      remainingText = formatRemainingAsHizb(target - progress);
     } else if (target == 2) {
       // Objectif 1/2 Hizb: parler en Rub' mais avec contexte ½ Hizb
       progressText = '$progress';
@@ -537,16 +506,6 @@ class _DailyReadingSection extends StatelessWidget {
         ),
       ],
     );
-  }
-  
-  /// Convertit un nombre de Rub' (1-3) en fraction Unicode exacte
-  String _getQuarterFraction(int rubs) {
-    switch (rubs) {
-      case 1: return '¼';
-      case 2: return '½';
-      case 3: return '¾';
-      default: return '';
-    }
   }
 }
 

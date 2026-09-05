@@ -551,10 +551,16 @@ void main() {
 
         container = ProviderContainer();
 
-        final progress = await container.read(wirdPlanProgressProvider.future);
-        
-        // Progress should use plan's definition namespace
-        expect(progress, {4, 5, 6}); // From 'different_definition' namespace
+        await expectLater(
+          container.read(wirdPlanProgressProvider.future),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('does not match'),
+            ),
+          ),
+        );
       });
     });
   });

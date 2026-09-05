@@ -47,6 +47,17 @@ String formatProgressAsHizb(int completed, int total) {
   return '$completedHizb / $totalHizb Hizb';
 }
 
+/// Objectif quotidien user-facing, fractions exactes.
+///
+/// Exemples: 8 → "2 Hizb", 10 → "2½ Hizb", 1 → "¼ Hizb"
+String formatTargetAsHizb(int rubs) => '${formatRubsAsHizb(rubs)} Hizb';
+
+/// Reste du jour, même langage que [formatTargetAsHizb].
+String? formatRemainingAsHizb(int remainingRubs) {
+  if (remainingRubs <= 0) return null;
+  return 'Il vous reste ${formatRubsAsHizb(remainingRubs)} Hizb';
+}
+
 String _formatRubFraction(int rubs) {
   switch (rubs) {
     case 1:

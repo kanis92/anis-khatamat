@@ -67,6 +67,12 @@ void main() {
         expect(formatProgressAsHizb(3, 240), '¾ / 60 Hizb');
       });
 
+      test('formats adaptive mid-month target 10 Rub as 2½ Hizb', () {
+        expect(formatTargetAsHizb(10), '2½ Hizb');
+        expect(formatProgressAsHizb(0, 10), '0 / 2½ Hizb');
+        expect(formatRemainingAsHizb(10), 'Il vous reste 2½ Hizb');
+      });
+
       test('never uses decimal approximations', () {
         // Ces valeurs doivent rester fractions exactes
         final result1 = formatProgressAsHizb(49, 240);
