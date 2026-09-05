@@ -7,6 +7,7 @@ import '../core/models/wird_plan.dart';
 import '../core/models/wird_plan_state.dart';
 import '../core/providers/wird_provider.dart';
 import '../core/services/wird_plan_service.dart';
+import '../core/utils/hizb_formatter.dart';
 import '../core/utils/quran_reading_formatter.dart';
 import '../design_system/anis_design_system.dart';
 
@@ -499,7 +500,6 @@ class WirdPlanCard extends ConsumerWidget {
     final wirdAsync = ref.watch(wirdProvider);
     final stateAsync = ref.watch(wirdPlanStateProvider);
     final progressAsync = ref.watch(wirdPlanProgressProvider);
-    final allocationAsync = ref.watch(wirdPlanAllocationProvider);
     final remainingRubsAsync = ref.watch(wirdPlanRemainingRubsProvider);
     final remainingDaysAsync = ref.watch(wirdPlanRemainingDaysProvider);
 
@@ -518,7 +518,6 @@ class WirdPlanCard extends ConsumerWidget {
             if (state == WirdPlanState.none) return const SizedBox.shrink();
 
             final progress = progressAsync.valueOrNull ?? {};
-            final allocation = allocationAsync.valueOrNull ?? 0;
             final remainingRubs = remainingRubsAsync.valueOrNull ?? 0;
             final remainingDays = remainingDaysAsync.valueOrNull ?? 0;
 
@@ -580,18 +579,13 @@ class WirdPlanCard extends ConsumerWidget {
                   _buildMetricRow(
                     context,
                     'Progression',
-                    '${progress.length} / ${plan.totalRubTarget} Rub\'',
+                    formatProgressAsHizb(progress.length, plan.totalRubTarget),
                   ),
                   if (state == WirdPlanState.active) ...[
                     _buildMetricRow(
                       context,
                       'Jours restants',
                       '$remainingDays ${remainingDays > 1 ? "jours" : "jour"}',
-                    ),
-                    _buildMetricRow(
-                      context,
-                      'Aujourd\'hui',
-                      formatRubsAsReadingPace(allocation, 'fr'),
                     ),
                   ],
 

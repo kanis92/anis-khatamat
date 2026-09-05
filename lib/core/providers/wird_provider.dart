@@ -37,6 +37,33 @@ final wirdTodayCompletedRubIdsProvider = FutureProvider<Set<int>>((ref) async {
   return service.getTodayCompletedRubIds(userId);
 });
 
+/// Objectif quotidien autoritaire (en Rub').
+///
+/// **Règle produit:**
+/// - Plan ACTIVE → allocation adaptive du plan
+/// - Plan SCHEDULED → free goal (plan futur n'affecte pas aujourd'hui)
+/// - NO plan → free goal
+/// - Plan COMPLETED/EXPIRED → free goal
+///
+/// Cette valeur devient la source unique de vérité pour "Lecture du jour".
+final wirdTodayAuthoritativeTargetProvider = FutureProvider<int>((ref) async {
+  final wird = await ref.watch(wirdProvider.future);
+  final plan = wird.activePlan;
+  
+  // Pas de plan → free goal
+  if (plan == null) return wird.dailyTargetRubs;
+  
+  final state = await ref.watch(wirdPlanStateProvider.future);
+  
+  // Plan scheduled/completed/expired → free goal
+  if (state != WirdPlanState.active) {
+    return wird.dailyTargetRubs;
+  }
+  
+  // Plan actif → allocation adaptive
+  return ref.watch(wirdPlanAllocationProvider.future);
+});
+
 /// Continuité 7 derniers jours (jours actifs)
 final wirdContinuityProvider = FutureProvider<int>((ref) async {
   final service = ref.watch(wirdServiceProvider);

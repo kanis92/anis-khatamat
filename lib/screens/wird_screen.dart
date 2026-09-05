@@ -166,52 +166,60 @@ class _WirdBody extends ConsumerWidget {
                 AnisSpacing.lg,
               ),
               sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 1. Qu'ai-je lu aujourd'hui?
-                    _DailyReadingSection(
-                      progress: todayProgress,
-                      target: wird.dailyTargetRubs,
-                    ),
-                    const SizedBox(height: AnisSpacing.xxl),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    // Objectif autoritaire du jour
+                    final targetAsync = ref.watch(wirdTodayAuthoritativeTargetProvider);
+                    final target = targetAsync.valueOrNull ?? wird.dailyTargetRubs;
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 1. Qu'ai-je lu aujourd'hui?
+                        _DailyReadingSection(
+                          progress: todayProgress,
+                          target: target,
+                        ),
+                        const SizedBox(height: AnisSpacing.xxl),
 
-                    // 2. Ma Khatma Personnelle (si plan actif)
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final planStateAsync = ref.watch(wirdPlanStateProvider);
-                        return planStateAsync.when(
-                          loading: () => const SizedBox.shrink(),
-                          error: (_, __) => const SizedBox.shrink(),
-                          data: (state) {
-                            if (state == WirdPlanState.none) {
-                              return const SizedBox.shrink();
-                            }
-                            return const Column(
-                              children: [
-                                WirdPlanCard(),
-                                SizedBox(height: AnisSpacing.xxl),
-                              ],
+                        // 2. Ma Khatma Personnelle (si plan actif)
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final planStateAsync = ref.watch(wirdPlanStateProvider);
+                            return planStateAsync.when(
+                              loading: () => const SizedBox.shrink(),
+                              error: (_, __) => const SizedBox.shrink(),
+                              data: (state) {
+                                if (state == WirdPlanState.none) {
+                                  return const SizedBox.shrink();
+                                }
+                                return const Column(
+                                  children: [
+                                    WirdPlanCard(),
+                                    SizedBox(height: AnisSpacing.xxl),
+                                  ],
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
 
-                    // 3. Où continuer?
-                    _ResumePositionSection(
-                      wird: wird,
-                      currentHizb: currentHizb,
-                      sequentialPosition: sequentialPos,
-                    ),
-                    const SizedBox(height: AnisSpacing.xl),
+                        // 3. Où continuer?
+                        _ResumePositionSection(
+                          wird: wird,
+                          currentHizb: currentHizb,
+                          sequentialPosition: sequentialPos,
+                        ),
+                        const SizedBox(height: AnisSpacing.xl),
 
-                    // 4. CTA primaire
-                    _ResumeReadingCTA(
-                      wird: wird,
-                      onPressed: () => _resumeReading(context, ref, wird),
-                    ),
-                  ],
+                        // 4. CTA primaire
+                        _ResumeReadingCTA(
+                          wird: wird,
+                          onPressed: () => _resumeReading(context, ref, wird),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
