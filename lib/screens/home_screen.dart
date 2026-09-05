@@ -250,11 +250,10 @@ class _HeroPrayerChip extends ConsumerWidget {
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: AnisBadge(
-          label: '${prayer.name} · ${prayer.inStr}',
+          label: context.l10n.homePrayerPill(prayer.name, prayer.inStr),
           tone: AnisBadgeTone.active,
           anisIcon: AnisIconType.mihrab,
-          semanticLabel:
-              '${context.l10n.nextPrayer} : ${prayer.name} ${prayer.inStr}',
+          semanticLabel: context.l10n.homeNextPrayerSemantic(prayer.name, prayer.inStr),
         ),
       ),
     );
@@ -326,10 +325,11 @@ class _RamadanSummaryCard extends StatelessWidget {
   }
 
   static String _ramadanDayLabel(BuildContext context, int day) {
+    final l10n = context.l10n;
     return switch (Localizations.localeOf(context).languageCode) {
-      'ar' => 'رمضان · اليوم $day من 30',
-      'en' => 'Ramadan · Day $day of 30',
-      _ => 'Ramadan · Jour $day sur 30',
+      'ar' => l10n.homeRamadanPillAr(day),
+      'en' => l10n.homeRamadanPillEn(day),
+      _ => l10n.homeRamadanPillFr(day),
     };
   }
 }

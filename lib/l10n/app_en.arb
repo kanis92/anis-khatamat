@@ -262,5 +262,240 @@
   "joinWithCode": "Join with a code",
   "back": "Back",
   "wirdCompleteFinalPage": "Complete the Quran",
-  "wirdFinalPageCompleted": "Alhamdulillah! You have completed the Quran."
+  "wirdFinalPageCompleted": "Alhamdulillah! You have completed the Quran.",
+  "wirdMyWird": "My Wird",
+  "wirdPlanTooltip": "Plan",
+  "wirdConfigureTooltip": "Configure",
+  "wirdDailySectionTitle": "Today's reading",
+  "wirdObjectiveLabel": "Goal: {target}",
+  "@wirdObjectiveLabel": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "wirdDailyCompleted": "{target} • Today's Wird completed",
+  "@wirdDailyCompleted": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "wirdRemainingOneRub": "You have 1 Rub' left",
+  "wirdRemainingManyRubs": "You have {count} Rub' left",
+  "@wirdRemainingManyRubs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdContinueSectionTitle": "Continue reading",
+  "wirdContinueSubtitle": "Pick up where you left off",
+  "wirdHizbNumber": "Hizb {number}",
+  "@wirdHizbNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdSurahAyah": "Surah {surah} • Ayah {ayah}",
+  "@wirdSurahAyah": {
+    "placeholders": {
+      "surah": {
+        "type": "int"
+      },
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdPageNumber": "Page {page}",
+  "@wirdPageNumber": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "wirdReadingMushaf": "Reading: {mushaf}",
+  "@wirdReadingMushaf": {
+    "placeholders": {
+      "mushaf": {
+        "type": "String"
+      }
+    }
+  },
+  "wirdNoReadingInProgress": "No reading in progress",
+  "wirdResumeReading": "Resume reading",
+  "wirdStartReading": "Start reading",
+  "wirdDailyGoalTitle": "Daily goal",
+  "wirdDailyGoalSubtitle": "Choose your daily reading goal",
+  "wirdLoadError": "Couldn't load your Wird",
+  "personalKhatmaTitle": "MY PERSONAL KHATMA",
+  "personalKhatmaProgressionLabel": "Progress",
+  "personalKhatmaDaysRemainingLabel": "Days remaining",
+  "personalKhatmaDaysRemainingValue": "{days} {daysLabel}",
+  "@personalKhatmaDaysRemainingValue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "daysLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "personalKhatmaDaysUnit": "days",
+  "personalKhatmaDayUnit": "day",
+  "personalKhatmaScheduled": "Scheduled",
+  "personalKhatmaCompleted": "Khatma completed — Al-hamdu lillāh",
+  "personalKhatmaCreateNew": "Create a new plan",
+  "personalKhatmaRemainingToRead": "{remaining} remaining to read",
+  "@personalKhatmaRemainingToRead": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "personalKhatmaContinueWithoutDeadline": "You can continue reading without a deadline",
+  "personalKhatmaManagePlan": "Manage my plan",
+  "readingPlanTitle": "Reading plan",
+  "readingPlanFreeGoalTitle": "Free daily goal",
+  "readingPlanFreeGoalSubtitle": "Daily reading without deadline",
+  "readingPlanHijriMonthTitle": "1 Khatma / Hijri month",
+  "readingPlanHijriMonthSubtitle": "Finish the Quran in 1 lunar month",
+  "readingPlanGregorianMonthTitle": "1 Khatma / Gregorian month",
+  "readingPlanGregorianMonthSubtitle": "Finish the Quran in 1 month",
+  "readingPlanStartingLabel": "Starting",
+  "readingPlanStartNowLabel": "Start now",
+  "readingPlanStartNextLabel": "Start next month",
+  "readingPlanStartNowHijriDescription": "Rest of {month}",
+  "@readingPlanStartNowHijriDescription": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPlanStartNowGregorianDescription": "Rest of month ({days} days)",
+  "@readingPlanStartNowGregorianDescription": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "readingPlanActivateFreeGoal": "Activate free goal",
+  "readingPlanCreatePlan": "Create plan",
+  "readingPlanPreviewTitle": "Preview",
+  "readingPlanPreviewPeriod": "Period",
+  "readingPlanPreviewReadingDays": "Reading days",
+  "readingPlanPreviewReadingDaysValue": "{days} days",
+  "@readingPlanPreviewReadingDaysValue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "readingPlanPreviewPace": "Recommended pace",
+  "readingPlanError": "Error: {error}",
+  "@readingPlanError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "hijriMonthMuharram": "Muharram",
+  "hijriMonthSafar": "Safar",
+  "hijriMonthRabiAlAwwal": "Rabi' al-awwal",
+  "hijriMonthRabiAlThani": "Rabi' al-thani",
+  "hijriMonthJumadaAlAwwal": "Jumada al-awwal",
+  "hijriMonthJumadaAlThani": "Jumada al-thani",
+  "hijriMonthRajab": "Rajab",
+  "hijriMonthShaban": "Sha'ban",
+  "hijriMonthRamadan": "Ramadan",
+  "hijriMonthShawwal": "Shawwal",
+  "hijriMonthDhuAlQidah": "Dhu al-Qi'dah",
+  "hijriMonthDhuAlHijjah": "Dhu al-Hijjah",
+  "gregorianMonthJanuary": "January",
+  "gregorianMonthFebruary": "February",
+  "gregorianMonthMarch": "March",
+  "gregorianMonthApril": "April",
+  "gregorianMonthMay": "May",
+  "gregorianMonthJune": "June",
+  "gregorianMonthJuly": "July",
+  "gregorianMonthAugust": "August",
+  "gregorianMonthSeptember": "September",
+  "gregorianMonthOctober": "October",
+  "gregorianMonthNovember": "November",
+  "gregorianMonthDecember": "December",
+  "monthOfHijri": "Month of {month}",
+  "@monthOfHijri": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthOfGregorian": "Month of {month}",
+  "@monthOfGregorian": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "homePrayerPill": "{prayerName} · {timeRemaining}",
+  "@homePrayerPill": {
+    "placeholders": {
+      "prayerName": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNextPrayerSemantic": "Next prayer: {prayerName} in {timeRemaining}",
+  "@homeNextPrayerSemantic": {
+    "placeholders": {
+      "prayerName": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRamadanPillFr": "Ramadan · Day {day} of 30",
+  "@homeRamadanPillFr": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRamadanPillEn": "Ramadan · Day {day} of 30",
+  "@homeRamadanPillEn": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRamadanPillAr": "رمضان · اليوم {day} من 30",
+  "@homeRamadanPillAr": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  }
 }

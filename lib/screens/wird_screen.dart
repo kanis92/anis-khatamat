@@ -13,6 +13,7 @@ import '../core/services/hizb_navigation_service.dart';
 import '../core/utils/hizb_formatter.dart';
 import '../core/widgets/anis_icon.dart';
 import '../design_system/anis_design_system.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 import 'wird_plan_widgets.dart';
 
 /// Wird — Compagnon de lecture quotidienne du Quran
@@ -69,6 +70,7 @@ class _WirdBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final colors = context.anisColors;
     final text = context.anisText;
 
@@ -105,7 +107,7 @@ class _WirdBody extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                'Mon Wird',
+                                l10n.wirdMyWird,
                                 style: text.sectionTitle.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -120,7 +122,7 @@ class _WirdBody extends ConsumerWidget {
                                 color: Colors.white,
                                 size: 22,
                               ),
-                              tooltip: 'Plan',
+                              tooltip: l10n.wirdPlanTooltip,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 44,
@@ -134,7 +136,7 @@ class _WirdBody extends ConsumerWidget {
                                 color: Colors.white,
                                 size: 22,
                               ),
-                              tooltip: 'Configurer',
+                              tooltip: l10n.wirdConfigureTooltip,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 44,
@@ -144,12 +146,21 @@ class _WirdBody extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          _formatToday(),
-                          style: text.caption.copyWith(
-                            color: Colors.white.withValues(alpha: 0.75),
-                            letterSpacing: 0.2,
-                          ),
+                        Builder(
+                          builder: (ctx) {
+                            final today = DateTime.now();
+                            final formatted = DateFormat(
+                              'EEEE d MMMM yyyy',
+                              Localizations.localeOf(ctx).toString()
+                            ).format(today);
+                            return Text(
+                              formatted,
+                              style: text.caption.copyWith(
+                                color: Colors.white.withValues(alpha: 0.75),
+                                letterSpacing: 0.2,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -274,11 +285,6 @@ class _WirdBody extends ConsumerWidget {
     return (HizbNavigationService.displayedHizb(lastPage), null);
   }
 
-  String _formatToday() {
-    final now = DateTime.now();
-    final formatter = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
-    return formatter.format(now);
-  }
 
   void _showGoalConfig(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
@@ -322,6 +328,7 @@ class _DailyReadingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
     
     final isComplete = progress >= target && target > 0;
     
@@ -343,7 +350,7 @@ class _DailyReadingSection extends StatelessWidget {
       
       if (!isComplete) {
         final remaining = target - progress;
-        remainingText = remaining == 1 ? 'Il vous reste 1 Rub\'' : 'Il vous reste $remaining Rub\'';
+        remainingText = remaining == 1 ? l10n.wirdRemainingOneRub : l10n.wirdRemainingManyRubs(remaining);
       }
     } else {
       // Objectif 1 Rub': explicite
@@ -352,7 +359,7 @@ class _DailyReadingSection extends StatelessWidget {
       
       if (!isComplete) {
         final remaining = target - progress;
-        remainingText = remaining == 1 ? 'Il vous reste 1 Rub\'' : 'Il vous reste $remaining Rub\'';
+        remainingText = remaining == 1 ? l10n.wirdRemainingOneRub : l10n.wirdRemainingManyRubs(remaining);
       }
     }
 
@@ -373,7 +380,7 @@ class _DailyReadingSection extends StatelessWidget {
             const SizedBox(width: AnisSpacing.sm),
             Expanded(
               child: Text(
-                'Lecture du jour',
+                l10n.wirdDailySectionTitle,
                 style: text.sectionTitle.copyWith(
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.2,
@@ -393,7 +400,7 @@ class _DailyReadingSection extends StatelessWidget {
             children: [
               // Objectif label discret
               Text(
-                'Objectif: $targetLabel',
+                l10n.wirdObjectiveLabel(targetLabel),
                 style: text.caption.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -436,7 +443,7 @@ class _DailyReadingSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '$targetLabel • Wird du jour accompli',
+                              l10n.wirdDailyCompleted(targetLabel),
                               style: text.caption.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: colors.accentGoldText,
@@ -444,7 +451,7 @@ class _DailyReadingSection extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'Al-hamdu lillāh',
+                              l10n.completionAlhamdulillah,
                               style: text.caption.copyWith(
                                 color: colors.textSecondary,
                                 fontStyle: FontStyle.italic,
@@ -586,6 +593,7 @@ class _ResumePositionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
     
     final hasPosition = wird.lastMushafType != null && wird.lastPage != null;
 
@@ -594,14 +602,14 @@ class _ResumePositionSection extends StatelessWidget {
       children: [
         // Titre section
         Text(
-          'Continuer ma lecture',
+          l10n.wirdContinueSectionTitle,
           style: text.sectionTitle.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: AnisSpacing.sm),
         Text(
-          'Reprenez là où vous vous êtes arrêté',
+          l10n.wirdContinueSubtitle,
           style: text.caption.copyWith(
             color: colors.textSecondary,
           ),
@@ -632,7 +640,7 @@ class _ResumePositionSection extends StatelessWidget {
                   children: [
                     // Hizb en contexte éditorial
                     Text(
-                      'Hizb $currentHizb',
+                      l10n.wirdHizbNumber(currentHizb),
                       style: text.title.copyWith(
                         fontWeight: FontWeight.w800,
                         color: colors.actionPrimary,
@@ -643,7 +651,7 @@ class _ResumePositionSection extends StatelessWidget {
                     if (sequentialPosition != null) ...[
                       // Position précise Sourate:Ayah (universelle, certifiée)
                       Text(
-                        'Sourate ${sequentialPosition!.$1} • Ayah ${sequentialPosition!.$2}',
+                        l10n.wirdSurahAyah(sequentialPosition!.$1, sequentialPosition!.$2),
                         style: text.label.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -654,7 +662,7 @@ class _ResumePositionSection extends StatelessWidget {
                       if (hasPosition && wird.lastMushafType == 'hafs') ...[
                         const SizedBox(height: 2),
                         Text(
-                          'Page ${wird.lastPage}',
+                          l10n.wirdPageNumber(wird.lastPage!),
                           style: text.caption.copyWith(
                             color: colors.textSecondary,
                             fontSize: 12,
@@ -666,7 +674,7 @@ class _ResumePositionSection extends StatelessWidget {
                       if (wird.lastMushafType == 'hafs')
                         // Hafs: pagination certifiée
                         Text(
-                          'Page ${wird.lastPage}',
+                          l10n.wirdPageNumber(wird.lastPage!),
                           style: text.label.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w600,
@@ -675,7 +683,7 @@ class _ResumePositionSection extends StatelessWidget {
                       else
                         // Warsh/Women: contexte
                         Text(
-                          'Lecture: ${_getMushafLabel(wird.lastMushafType!)}',
+                          l10n.wirdReadingMushaf(_getMushafLabel(context, wird.lastMushafType!)),
                           style: text.label.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w600,
@@ -683,7 +691,7 @@ class _ResumePositionSection extends StatelessWidget {
                         ),
                     ] else
                       Text(
-                        'Aucune lecture en cours',
+                        l10n.wirdNoReadingInProgress,
                         style: text.label.copyWith(
                           color: colors.textSecondary,
                         ),
@@ -698,14 +706,15 @@ class _ResumePositionSection extends StatelessWidget {
     );
   }
 
-  String _getMushafLabel(String mushafType) {
+  String _getMushafLabel(BuildContext context, String mushafType) {
+    final l10n = AppLocalizations.of(context)!;
     switch (mushafType) {
       case 'hafs':
-        return 'Hafs';
+        return l10n.mushafHafs;
       case 'warsh':
-        return 'Warsh';
+        return l10n.mushafWarsh;
       case 'women':
-        return 'Lecture Femmes';
+        return l10n.mushafWomen;
       default:
         return mushafType;
     }
@@ -725,10 +734,11 @@ class _ResumeReadingCTA extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final hasPosition = wird.lastMushafType != null && wird.lastPage != null;
 
     return AnisPrimaryButton(
-      label: hasPosition ? 'Reprendre ma lecture' : 'Commencer ma lecture',
+      label: hasPosition ? l10n.wirdResumeReading : l10n.wirdStartReading,
       anisIcon: AnisIconType.bookOpen,
       onPressed: onPressed,
     );
@@ -746,6 +756,7 @@ class _GoalConfigSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = context.anisText;
     final colors = context.anisColors;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Padding(
@@ -757,7 +768,7 @@ class _GoalConfigSheet extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  'Objectif quotidien',
+                  l10n.wirdDailyGoalTitle,
                   style: text.title,
                 ),
                 const Spacer(),
@@ -769,7 +780,7 @@ class _GoalConfigSheet extends ConsumerWidget {
             ),
             const SizedBox(height: AnisSpacing.xs),
             Text(
-              'Choisissez votre objectif de lecture quotidienne',
+              l10n.wirdDailyGoalSubtitle,
               style: text.bodySecondary.copyWith(
                 color: colors.textSecondary,
               ),
@@ -876,8 +887,9 @@ class _WirdErrorBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Impossible de charger votre Wird'),
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
+      child: Text(l10n.wirdLoadError),
     );
   }
 }

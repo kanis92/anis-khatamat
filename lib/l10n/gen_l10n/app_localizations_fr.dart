@@ -523,4 +523,296 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get wirdFinalPageCompleted =>
       'Alhamdulillah ! Vous avez terminé le Coran.';
+
+  @override
+  String get wirdMyWird => 'Mon Wird';
+
+  @override
+  String get wirdPlanTooltip => 'Plan';
+
+  @override
+  String get wirdConfigureTooltip => 'Configurer';
+
+  @override
+  String get wirdDailySectionTitle => 'Lecture du jour';
+
+  @override
+  String wirdObjectiveLabel(String target) {
+    return 'Objectif: $target';
+  }
+
+  @override
+  String wirdDailyCompleted(String target) {
+    return '$target • Wird du jour accompli';
+  }
+
+  @override
+  String get wirdRemainingOneRub => 'Il vous reste 1 Rub\'';
+
+  @override
+  String wirdRemainingManyRubs(int count) {
+    return 'Il vous reste $count Rub\'';
+  }
+
+  @override
+  String get wirdContinueSectionTitle => 'Continuer ma lecture';
+
+  @override
+  String get wirdContinueSubtitle => 'Reprenez là où vous vous êtes arrêté';
+
+  @override
+  String wirdHizbNumber(int number) {
+    return 'Hizb $number';
+  }
+
+  @override
+  String wirdSurahAyah(int surah, int ayah) {
+    return 'Sourate $surah • Ayah $ayah';
+  }
+
+  @override
+  String wirdPageNumber(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String wirdReadingMushaf(String mushaf) {
+    return 'Lecture: $mushaf';
+  }
+
+  @override
+  String get wirdNoReadingInProgress => 'Aucune lecture en cours';
+
+  @override
+  String get wirdResumeReading => 'Reprendre ma lecture';
+
+  @override
+  String get wirdStartReading => 'Commencer ma lecture';
+
+  @override
+  String get wirdDailyGoalTitle => 'Objectif quotidien';
+
+  @override
+  String get wirdDailyGoalSubtitle =>
+      'Choisissez votre objectif de lecture quotidienne';
+
+  @override
+  String get wirdLoadError => 'Impossible de charger votre Wird';
+
+  @override
+  String get personalKhatmaTitle => 'MA KHATMA PERSONNELLE';
+
+  @override
+  String get personalKhatmaProgressionLabel => 'Progression';
+
+  @override
+  String get personalKhatmaDaysRemainingLabel => 'Jours restants';
+
+  @override
+  String personalKhatmaDaysRemainingValue(int days, String daysLabel) {
+    return '$days $daysLabel';
+  }
+
+  @override
+  String get personalKhatmaDaysUnit => 'jours';
+
+  @override
+  String get personalKhatmaDayUnit => 'jour';
+
+  @override
+  String get personalKhatmaScheduled => 'Programmé';
+
+  @override
+  String get personalKhatmaCompleted => 'Khatma accomplie — Al-hamdu lillāh';
+
+  @override
+  String get personalKhatmaCreateNew => 'Créer un nouveau plan';
+
+  @override
+  String personalKhatmaRemainingToRead(String remaining) {
+    return 'Il reste $remaining à lire';
+  }
+
+  @override
+  String get personalKhatmaContinueWithoutDeadline =>
+      'Vous pouvez continuer votre lecture sans deadline';
+
+  @override
+  String get personalKhatmaManagePlan => 'Gérer mon plan';
+
+  @override
+  String get readingPlanTitle => 'Plan de lecture';
+
+  @override
+  String get readingPlanFreeGoalTitle => 'Objectif quotidien libre';
+
+  @override
+  String get readingPlanFreeGoalSubtitle => 'Lecture quotidienne sans deadline';
+
+  @override
+  String get readingPlanHijriMonthTitle => '1 Khatma / mois hégirien';
+
+  @override
+  String get readingPlanHijriMonthSubtitle =>
+      'Finir le Quran en 1 mois lunaire';
+
+  @override
+  String get readingPlanGregorianMonthTitle => '1 Khatma / mois grégorien';
+
+  @override
+  String get readingPlanGregorianMonthSubtitle => 'Finir le Quran en 1 mois';
+
+  @override
+  String get readingPlanStartingLabel => 'Démarrage';
+
+  @override
+  String get readingPlanStartNowLabel => 'Commencer maintenant';
+
+  @override
+  String get readingPlanStartNextLabel => 'Commencer le prochain mois';
+
+  @override
+  String readingPlanStartNowHijriDescription(String month) {
+    return 'Reste du mois de $month';
+  }
+
+  @override
+  String readingPlanStartNowGregorianDescription(int days) {
+    return 'Reste du mois ($days jours)';
+  }
+
+  @override
+  String get readingPlanActivateFreeGoal => 'Activer l\'objectif libre';
+
+  @override
+  String get readingPlanCreatePlan => 'Créer le plan';
+
+  @override
+  String get readingPlanPreviewTitle => 'Aperçu';
+
+  @override
+  String get readingPlanPreviewPeriod => 'Période';
+
+  @override
+  String get readingPlanPreviewReadingDays => 'Jours de lecture';
+
+  @override
+  String readingPlanPreviewReadingDaysValue(int days) {
+    return '$days jours';
+  }
+
+  @override
+  String get readingPlanPreviewPace => 'Rythme recommandé';
+
+  @override
+  String readingPlanError(String error) {
+    return 'Erreur: $error';
+  }
+
+  @override
+  String get hijriMonthMuharram => 'Muharram';
+
+  @override
+  String get hijriMonthSafar => 'Safar';
+
+  @override
+  String get hijriMonthRabiAlAwwal => 'Rabi\' al-awwal';
+
+  @override
+  String get hijriMonthRabiAlThani => 'Rabi\' al-thani';
+
+  @override
+  String get hijriMonthJumadaAlAwwal => 'Jumada al-awwal';
+
+  @override
+  String get hijriMonthJumadaAlThani => 'Jumada al-thani';
+
+  @override
+  String get hijriMonthRajab => 'Rajab';
+
+  @override
+  String get hijriMonthShaban => 'Sha\'ban';
+
+  @override
+  String get hijriMonthRamadan => 'Ramadan';
+
+  @override
+  String get hijriMonthShawwal => 'Shawwal';
+
+  @override
+  String get hijriMonthDhuAlQidah => 'Dhu al-Qi\'dah';
+
+  @override
+  String get hijriMonthDhuAlHijjah => 'Dhu al-Hijjah';
+
+  @override
+  String get gregorianMonthJanuary => 'janvier';
+
+  @override
+  String get gregorianMonthFebruary => 'février';
+
+  @override
+  String get gregorianMonthMarch => 'mars';
+
+  @override
+  String get gregorianMonthApril => 'avril';
+
+  @override
+  String get gregorianMonthMay => 'mai';
+
+  @override
+  String get gregorianMonthJune => 'juin';
+
+  @override
+  String get gregorianMonthJuly => 'juillet';
+
+  @override
+  String get gregorianMonthAugust => 'août';
+
+  @override
+  String get gregorianMonthSeptember => 'septembre';
+
+  @override
+  String get gregorianMonthOctober => 'octobre';
+
+  @override
+  String get gregorianMonthNovember => 'novembre';
+
+  @override
+  String get gregorianMonthDecember => 'décembre';
+
+  @override
+  String monthOfHijri(String month) {
+    return 'Mois de $month';
+  }
+
+  @override
+  String monthOfGregorian(String month) {
+    return 'Mois de $month';
+  }
+
+  @override
+  String homePrayerPill(String prayerName, String timeRemaining) {
+    return '$prayerName · $timeRemaining';
+  }
+
+  @override
+  String homeNextPrayerSemantic(String prayerName, String timeRemaining) {
+    return 'Prochaine prière : $prayerName dans $timeRemaining';
+  }
+
+  @override
+  String homeRamadanPillFr(int day) {
+    return 'Ramadan · Jour $day sur 30';
+  }
+
+  @override
+  String homeRamadanPillEn(int day) {
+    return 'Ramadan · Day $day of 30';
+  }
+
+  @override
+  String homeRamadanPillAr(int day) {
+    return 'رمضان · اليوم $day من 30';
+  }
 }

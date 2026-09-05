@@ -10,6 +10,7 @@ import '../core/services/wird_plan_service.dart';
 import '../core/utils/hizb_formatter.dart';
 import '../core/utils/quran_reading_formatter.dart';
 import '../design_system/anis_design_system.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 
 /// Bottom sheet pour créer ou modifier un plan personnel de Khatma.
 ///
@@ -51,6 +52,7 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Padding(
@@ -67,7 +69,7 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
             children: [
               // Header
               Text(
-                'Plan de lecture',
+                l10n.readingPlanTitle,
                 style: text.sectionTitle.copyWith(color: colors.textPrimary),
               ),
               const SizedBox(height: AnisSpacing.md),
@@ -76,43 +78,43 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
               _buildOptionTile(
                 context,
                 type: null,
-                title: 'Objectif quotidien libre',
-                subtitle: 'Lecture quotidienne sans deadline',
+                title: l10n.readingPlanFreeGoalTitle,
+                subtitle: l10n.readingPlanFreeGoalSubtitle,
               ),
               const SizedBox(height: AnisSpacing.sm),
               _buildOptionTile(
                 context,
                 type: WirdPlanType.hijriMonth,
-                title: '1 Khatma / mois hégirien',
-                subtitle: 'Finir le Quran en 1 mois lunaire',
+                title: l10n.readingPlanHijriMonthTitle,
+                subtitle: l10n.readingPlanHijriMonthSubtitle,
               ),
               const SizedBox(height: AnisSpacing.sm),
               _buildOptionTile(
                 context,
                 type: WirdPlanType.gregorianMonth,
-                title: '1 Khatma / mois grégorien',
-                subtitle: 'Finir le Quran en 1 mois',
+                title: l10n.readingPlanGregorianMonthTitle,
+                subtitle: l10n.readingPlanGregorianMonthSubtitle,
               ),
               
               // Timing choice (for monthly plans)
               if (_selectedType != null) ...[
                 const SizedBox(height: AnisSpacing.lg),
                 Text(
-                  'Démarrage',
+                  l10n.readingPlanStartingLabel,
                   style: text.label.copyWith(color: colors.textSecondary),
                 ),
                 const SizedBox(height: AnisSpacing.sm),
                 _buildTimingOption(
                   context,
                   startNext: false,
-                  label: 'Commencer maintenant',
+                  label: l10n.readingPlanStartNowLabel,
                   description: _getStartNowDescription(),
                 ),
                 const SizedBox(height: AnisSpacing.xs),
                 _buildTimingOption(
                   context,
                   startNext: true,
-                  label: 'Commencer le prochain mois',
+                  label: l10n.readingPlanStartNextLabel,
                   description: _getStartNextDescription(),
                 ),
                 
@@ -149,8 +151,8 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
                         )
                       : Text(
                           _selectedType == null
-                              ? 'Activer l\'objectif libre'
-                              : 'Créer le plan',
+                              ? l10n.readingPlanActivateFreeGoal
+                              : l10n.readingPlanCreatePlan,
                           style: text.label.copyWith(color: colors.textOnAction),
                         ),
                 ),
@@ -281,6 +283,7 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
   Widget _buildPlanPreview(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
+    final l10n = AppLocalizations.of(context)!;
     final summary = _calculatePlanSummary();
     
     if (summary == null) return const SizedBox.shrink();
@@ -296,13 +299,25 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Aperçu',
+            l10n.readingPlanPreviewTitle,
             style: text.label.copyWith(color: colors.noticeText),
           ),
           const SizedBox(height: AnisSpacing.sm),
-          _buildPreviewRow(context, 'Période', summary.period),
-          _buildPreviewRow(context, 'Jours de lecture', '${summary.days} jours'),
-          _buildPreviewRow(context, 'Rythme recommandé', summary.pace),
+          _buildPreviewRow(
+            context,
+            l10n.readingPlanPreviewPeriod,
+            summary.period,
+          ),
+          _buildPreviewRow(
+            context,
+            l10n.readingPlanPreviewReadingDays,
+            l10n.readingPlanPreviewReadingDaysValue(summary.days),
+          ),
+          _buildPreviewRow(
+            context,
+            l10n.readingPlanPreviewPace,
+            summary.pace,
+          ),
         ],
       ),
     );
@@ -331,13 +346,14 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
   }
 
   String _getStartNowDescription() {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedType == WirdPlanType.hijriMonth) {
       final hijri = HijriDateTime.now();
-      return 'Reste du mois de ${_getHijriMonthName(hijri.month)}';
+      return l10n.readingPlanStartNowHijriDescription(_getHijriMonthName(hijri.month));
     } else if (_selectedType == WirdPlanType.gregorianMonth) {
       final now = DateTime.now();
       final daysLeft = DateTime(now.year, now.month + 1, 0).day - now.day + 1;
-      return 'Reste du mois ($daysLeft jours)';
+      return l10n.readingPlanStartNowGregorianDescription(daysLeft);
     }
     return '';
   }
@@ -381,7 +397,8 @@ class _WirdPlanSheetState extends ConsumerState<_WirdPlanSheet> {
       plan.baselineDate.add(const Duration(days: 1)),
     );
     final rubsPerDay = (240 / days).ceil();
-    final pace = formatDailyPace(rubsPerDay, 'fr');
+    final locale = Localizations.localeOf(context).languageCode;
+    final pace = formatDailyPace(rubsPerDay, locale);
 
     String period;
     if (_selectedType == WirdPlanType.hijriMonth) {

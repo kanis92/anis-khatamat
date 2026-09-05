@@ -1035,6 +1035,504 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Alhamdulillah ! Vous avez terminé le Coran.'**
   String get wirdFinalPageCompleted;
+
+  /// No description provided for @wirdMyWird.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon Wird'**
+  String get wirdMyWird;
+
+  /// No description provided for @wirdPlanTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan'**
+  String get wirdPlanTooltip;
+
+  /// No description provided for @wirdConfigureTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurer'**
+  String get wirdConfigureTooltip;
+
+  /// No description provided for @wirdDailySectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture du jour'**
+  String get wirdDailySectionTitle;
+
+  /// No description provided for @wirdObjectiveLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif: {target}'**
+  String wirdObjectiveLabel(String target);
+
+  /// No description provided for @wirdDailyCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{target} • Wird du jour accompli'**
+  String wirdDailyCompleted(String target);
+
+  /// No description provided for @wirdRemainingOneRub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il vous reste 1 Rub\''**
+  String get wirdRemainingOneRub;
+
+  /// No description provided for @wirdRemainingManyRubs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il vous reste {count} Rub\''**
+  String wirdRemainingManyRubs(int count);
+
+  /// No description provided for @wirdContinueSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer ma lecture'**
+  String get wirdContinueSectionTitle;
+
+  /// No description provided for @wirdContinueSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprenez là où vous vous êtes arrêté'**
+  String get wirdContinueSubtitle;
+
+  /// No description provided for @wirdHizbNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hizb {number}'**
+  String wirdHizbNumber(int number);
+
+  /// No description provided for @wirdSurahAyah.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sourate {surah} • Ayah {ayah}'**
+  String wirdSurahAyah(int surah, int ayah);
+
+  /// No description provided for @wirdPageNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {page}'**
+  String wirdPageNumber(int page);
+
+  /// No description provided for @wirdReadingMushaf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture: {mushaf}'**
+  String wirdReadingMushaf(String mushaf);
+
+  /// No description provided for @wirdNoReadingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune lecture en cours'**
+  String get wirdNoReadingInProgress;
+
+  /// No description provided for @wirdResumeReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre ma lecture'**
+  String get wirdResumeReading;
+
+  /// No description provided for @wirdStartReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer ma lecture'**
+  String get wirdStartReading;
+
+  /// No description provided for @wirdDailyGoalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif quotidien'**
+  String get wirdDailyGoalTitle;
+
+  /// No description provided for @wirdDailyGoalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre objectif de lecture quotidienne'**
+  String get wirdDailyGoalSubtitle;
+
+  /// No description provided for @wirdLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger votre Wird'**
+  String get wirdLoadError;
+
+  /// No description provided for @personalKhatmaTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MA KHATMA PERSONNELLE'**
+  String get personalKhatmaTitle;
+
+  /// No description provided for @personalKhatmaProgressionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get personalKhatmaProgressionLabel;
+
+  /// No description provided for @personalKhatmaDaysRemainingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours restants'**
+  String get personalKhatmaDaysRemainingLabel;
+
+  /// No description provided for @personalKhatmaDaysRemainingValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} {daysLabel}'**
+  String personalKhatmaDaysRemainingValue(int days, String daysLabel);
+
+  /// No description provided for @personalKhatmaDaysUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'jours'**
+  String get personalKhatmaDaysUnit;
+
+  /// No description provided for @personalKhatmaDayUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'jour'**
+  String get personalKhatmaDayUnit;
+
+  /// No description provided for @personalKhatmaScheduled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programmé'**
+  String get personalKhatmaScheduled;
+
+  /// No description provided for @personalKhatmaCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma accomplie — Al-hamdu lillāh'**
+  String get personalKhatmaCompleted;
+
+  /// No description provided for @personalKhatmaCreateNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un nouveau plan'**
+  String get personalKhatmaCreateNew;
+
+  /// No description provided for @personalKhatmaRemainingToRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {remaining} à lire'**
+  String personalKhatmaRemainingToRead(String remaining);
+
+  /// No description provided for @personalKhatmaContinueWithoutDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez continuer votre lecture sans deadline'**
+  String get personalKhatmaContinueWithoutDeadline;
+
+  /// No description provided for @personalKhatmaManagePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mon plan'**
+  String get personalKhatmaManagePlan;
+
+  /// No description provided for @readingPlanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan de lecture'**
+  String get readingPlanTitle;
+
+  /// No description provided for @readingPlanFreeGoalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif quotidien libre'**
+  String get readingPlanFreeGoalTitle;
+
+  /// No description provided for @readingPlanFreeGoalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture quotidienne sans deadline'**
+  String get readingPlanFreeGoalSubtitle;
+
+  /// No description provided for @readingPlanHijriMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 Khatma / mois hégirien'**
+  String get readingPlanHijriMonthTitle;
+
+  /// No description provided for @readingPlanHijriMonthSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finir le Quran en 1 mois lunaire'**
+  String get readingPlanHijriMonthSubtitle;
+
+  /// No description provided for @readingPlanGregorianMonthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 Khatma / mois grégorien'**
+  String get readingPlanGregorianMonthTitle;
+
+  /// No description provided for @readingPlanGregorianMonthSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finir le Quran en 1 mois'**
+  String get readingPlanGregorianMonthSubtitle;
+
+  /// No description provided for @readingPlanStartingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage'**
+  String get readingPlanStartingLabel;
+
+  /// No description provided for @readingPlanStartNowLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer maintenant'**
+  String get readingPlanStartNowLabel;
+
+  /// No description provided for @readingPlanStartNextLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer le prochain mois'**
+  String get readingPlanStartNextLabel;
+
+  /// No description provided for @readingPlanStartNowHijriDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste du mois de {month}'**
+  String readingPlanStartNowHijriDescription(String month);
+
+  /// No description provided for @readingPlanStartNowGregorianDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste du mois ({days} jours)'**
+  String readingPlanStartNowGregorianDescription(int days);
+
+  /// No description provided for @readingPlanActivateFreeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer l\'objectif libre'**
+  String get readingPlanActivateFreeGoal;
+
+  /// No description provided for @readingPlanCreatePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le plan'**
+  String get readingPlanCreatePlan;
+
+  /// No description provided for @readingPlanPreviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu'**
+  String get readingPlanPreviewTitle;
+
+  /// No description provided for @readingPlanPreviewPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période'**
+  String get readingPlanPreviewPeriod;
+
+  /// No description provided for @readingPlanPreviewReadingDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours de lecture'**
+  String get readingPlanPreviewReadingDays;
+
+  /// No description provided for @readingPlanPreviewReadingDaysValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours'**
+  String readingPlanPreviewReadingDaysValue(int days);
+
+  /// No description provided for @readingPlanPreviewPace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme recommandé'**
+  String get readingPlanPreviewPace;
+
+  /// No description provided for @readingPlanError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur: {error}'**
+  String readingPlanError(String error);
+
+  /// No description provided for @hijriMonthMuharram.
+  ///
+  /// In fr, this message translates to:
+  /// **'Muharram'**
+  String get hijriMonthMuharram;
+
+  /// No description provided for @hijriMonthSafar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Safar'**
+  String get hijriMonthSafar;
+
+  /// No description provided for @hijriMonthRabiAlAwwal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rabi\' al-awwal'**
+  String get hijriMonthRabiAlAwwal;
+
+  /// No description provided for @hijriMonthRabiAlThani.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rabi\' al-thani'**
+  String get hijriMonthRabiAlThani;
+
+  /// No description provided for @hijriMonthJumadaAlAwwal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jumada al-awwal'**
+  String get hijriMonthJumadaAlAwwal;
+
+  /// No description provided for @hijriMonthJumadaAlThani.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jumada al-thani'**
+  String get hijriMonthJumadaAlThani;
+
+  /// No description provided for @hijriMonthRajab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rajab'**
+  String get hijriMonthRajab;
+
+  /// No description provided for @hijriMonthShaban.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sha\'ban'**
+  String get hijriMonthShaban;
+
+  /// No description provided for @hijriMonthRamadan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ramadan'**
+  String get hijriMonthRamadan;
+
+  /// No description provided for @hijriMonthShawwal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shawwal'**
+  String get hijriMonthShawwal;
+
+  /// No description provided for @hijriMonthDhuAlQidah.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dhu al-Qi\'dah'**
+  String get hijriMonthDhuAlQidah;
+
+  /// No description provided for @hijriMonthDhuAlHijjah.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dhu al-Hijjah'**
+  String get hijriMonthDhuAlHijjah;
+
+  /// No description provided for @gregorianMonthJanuary.
+  ///
+  /// In fr, this message translates to:
+  /// **'janvier'**
+  String get gregorianMonthJanuary;
+
+  /// No description provided for @gregorianMonthFebruary.
+  ///
+  /// In fr, this message translates to:
+  /// **'février'**
+  String get gregorianMonthFebruary;
+
+  /// No description provided for @gregorianMonthMarch.
+  ///
+  /// In fr, this message translates to:
+  /// **'mars'**
+  String get gregorianMonthMarch;
+
+  /// No description provided for @gregorianMonthApril.
+  ///
+  /// In fr, this message translates to:
+  /// **'avril'**
+  String get gregorianMonthApril;
+
+  /// No description provided for @gregorianMonthMay.
+  ///
+  /// In fr, this message translates to:
+  /// **'mai'**
+  String get gregorianMonthMay;
+
+  /// No description provided for @gregorianMonthJune.
+  ///
+  /// In fr, this message translates to:
+  /// **'juin'**
+  String get gregorianMonthJune;
+
+  /// No description provided for @gregorianMonthJuly.
+  ///
+  /// In fr, this message translates to:
+  /// **'juillet'**
+  String get gregorianMonthJuly;
+
+  /// No description provided for @gregorianMonthAugust.
+  ///
+  /// In fr, this message translates to:
+  /// **'août'**
+  String get gregorianMonthAugust;
+
+  /// No description provided for @gregorianMonthSeptember.
+  ///
+  /// In fr, this message translates to:
+  /// **'septembre'**
+  String get gregorianMonthSeptember;
+
+  /// No description provided for @gregorianMonthOctober.
+  ///
+  /// In fr, this message translates to:
+  /// **'octobre'**
+  String get gregorianMonthOctober;
+
+  /// No description provided for @gregorianMonthNovember.
+  ///
+  /// In fr, this message translates to:
+  /// **'novembre'**
+  String get gregorianMonthNovember;
+
+  /// No description provided for @gregorianMonthDecember.
+  ///
+  /// In fr, this message translates to:
+  /// **'décembre'**
+  String get gregorianMonthDecember;
+
+  /// No description provided for @monthOfHijri.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois de {month}'**
+  String monthOfHijri(String month);
+
+  /// No description provided for @monthOfGregorian.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois de {month}'**
+  String monthOfGregorian(String month);
+
+  /// No description provided for @homePrayerPill.
+  ///
+  /// In fr, this message translates to:
+  /// **'{prayerName} · {timeRemaining}'**
+  String homePrayerPill(String prayerName, String timeRemaining);
+
+  /// No description provided for @homeNextPrayerSemantic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine prière : {prayerName} dans {timeRemaining}'**
+  String homeNextPrayerSemantic(String prayerName, String timeRemaining);
+
+  /// No description provided for @homeRamadanPillFr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ramadan · Jour {day} sur 30'**
+  String homeRamadanPillFr(int day);
+
+  /// No description provided for @homeRamadanPillEn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ramadan · Day {day} of 30'**
+  String homeRamadanPillEn(int day);
+
+  /// No description provided for @homeRamadanPillAr.
+  ///
+  /// In fr, this message translates to:
+  /// **'رمضان · اليوم {day} من 30'**
+  String homeRamadanPillAr(int day);
 }
 
 class _AppLocalizationsDelegate
