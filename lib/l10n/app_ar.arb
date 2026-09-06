@@ -475,6 +475,31 @@
       }
     }
   },
+  "prayerFajr": "الفجر",
+  "prayerDhuhr": "الظهر",
+  "prayerAsr": "العصر",
+  "prayerMaghrib": "المغرب",
+  "prayerIsha": "العشاء",
+  "timeIn": "بعد {duration}",
+  "@timeIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "courseLevelBeginner": "مبتدئ",
+  "courseLevelIntermediate": "متوسط",
+  "courseLevelAdvanced": "متقدم",
+  "courseCategoryTajweed": "تجويد",
+  "courseCategoryTafsir": "تفسير",
+  "courseCategoryFiqh": "فقه",
+  "courseCategorySira": "سيرة",
+  "courseCategoryAqida": "عقيدة",
+  "courseCategoryArabic": "عربية",
+  "courseCategoryMemorization": "حفظ",
+  "courseCategorySpirituality": "روحانية",
+  "courseCategoryOther": "أخرى",
   "homeRamadanPillFr": "رمضان · يوم {day} من 30",
   "@homeRamadanPillFr": {
     "placeholders": {

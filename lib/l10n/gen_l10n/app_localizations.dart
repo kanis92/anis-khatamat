@@ -1522,6 +1522,114 @@ abstract class AppLocalizations {
   /// **'Prochaine prière : {prayerName} dans {timeRemaining}'**
   String homeNextPrayerSemantic(String prayerName, String timeRemaining);
 
+  /// No description provided for @prayerFajr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// No description provided for @prayerDhuhr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// No description provided for @prayerAsr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// No description provided for @prayerMaghrib.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// No description provided for @prayerIsha.
+  ///
+  /// In fr, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// No description provided for @timeIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'dans {duration}'**
+  String timeIn(String duration);
+
+  /// No description provided for @courseLevelBeginner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débutant'**
+  String get courseLevelBeginner;
+
+  /// No description provided for @courseLevelIntermediate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intermédiaire'**
+  String get courseLevelIntermediate;
+
+  /// No description provided for @courseLevelAdvanced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancé'**
+  String get courseLevelAdvanced;
+
+  /// No description provided for @courseCategoryTajweed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tajweed'**
+  String get courseCategoryTajweed;
+
+  /// No description provided for @courseCategoryTafsir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tafsir'**
+  String get courseCategoryTafsir;
+
+  /// No description provided for @courseCategoryFiqh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiqh'**
+  String get courseCategoryFiqh;
+
+  /// No description provided for @courseCategorySira.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sîra'**
+  String get courseCategorySira;
+
+  /// No description provided for @courseCategoryAqida.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aqida'**
+  String get courseCategoryAqida;
+
+  /// No description provided for @courseCategoryArabic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arabe'**
+  String get courseCategoryArabic;
+
+  /// No description provided for @courseCategoryMemorization.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémorisation'**
+  String get courseCategoryMemorization;
+
+  /// No description provided for @courseCategorySpirituality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spiritualité'**
+  String get courseCategorySpirituality;
+
+  /// No description provided for @courseCategoryOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get courseCategoryOther;
+
   /// No description provided for @homeRamadanPillFr.
   ///
   /// In fr, this message translates to:

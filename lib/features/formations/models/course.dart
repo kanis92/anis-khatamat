@@ -99,39 +99,6 @@ class Course extends Equatable {
     'isPublished': isPublished,
   };
 
-  String get levelLabel {
-    switch (level) {
-      case CourseLevel.beginner:
-        return 'Débutant';
-      case CourseLevel.intermediate:
-        return 'Intermédiaire';
-      case CourseLevel.advanced:
-        return 'Avancé';
-    }
-  }
-
-  String get categoryLabel {
-    switch (category) {
-      case CourseCategory.tajweed:
-        return 'Tajweed';
-      case CourseCategory.tafsir:
-        return 'Tafsir';
-      case CourseCategory.fiqh:
-        return 'Fiqh';
-      case CourseCategory.sira:
-        return 'Sîra';
-      case CourseCategory.aqida:
-        return 'Aqida';
-      case CourseCategory.arabic:
-        return 'Arabe';
-      case CourseCategory.memorization:
-        return 'Mémorisation';
-      case CourseCategory.spirituality:
-        return 'Spiritualité';
-      case CourseCategory.other:
-        return 'Autre';
-    }
-  }
 
   @override
   List<Object?> get props => [id, title, level, category, isPublished];

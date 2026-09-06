@@ -2,6 +2,7 @@ import 'package:adhan/adhan.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:anis_khatamat/core/providers/home_dashboard_provider.dart';
+import 'package:anis_khatamat/core/utils/duration_formatter.dart';
 
 void main() {
   group('NextPrayerInfo Prayer Time Logic', () {
@@ -47,8 +48,8 @@ void main() {
       // This will always return something since we added tomorrow's Fajr logic
       final result = NextPrayerInfo.fromPrayerTimes(pt);
       expect(result, isNotNull);
-      expect(result!.name, isNotEmpty);
-      expect(result.inStr, contains('dans'));
+      expect(result!.prayerKey, isNotEmpty);
+      expect(result.duration, isA<Duration>());
     });
 
     test('Next prayer is always in the future', () {
@@ -74,7 +75,7 @@ void main() {
       if (now.isAfter(pt.isha)) {
         final result = NextPrayerInfo.fromPrayerTimes(pt);
         expect(result, isNotNull);
-        expect(result!.name, 'Fajr');
+        expect(result!.prayerKey, 'fajr');
         
         // Verify it's tomorrow's Fajr (approximately)
         expect(result.time.day, greaterThanOrEqualTo(now.day));
@@ -102,12 +103,11 @@ void main() {
       final result = NextPrayerInfo.fromPrayerTimes(pt);
       expect(result, isNotNull);
       
-      // The format should contain "dans" (French for "in")
-      final inStr = result!.inStr;
-      expect(inStr, contains('dans'));
-      
-      // Should not be negative
-      expect(inStr, isNot(contains('-')));
+      // Duration should be positive and formatted correctly
+      final duration = result!.duration;
+      expect(duration.inMinutes, greaterThan(0));
+      final formatted = DurationFormatter.formatCompact(duration);
+      expect(formatted, anyOf(contains('h'), contains('min')));
     });
   });
 }

@@ -134,7 +134,7 @@ void main() {
       
       expect(result, isNotNull,
           reason: 'After Isha, should return tomorrow Fajr, not null');
-      expect(result!.name, isNotEmpty);
+      expect(result!.prayerKey, isNotEmpty);
     });
 
     test('Normal daytime next-prayer selection works', () {
@@ -148,7 +148,7 @@ void main() {
       final result = NextPrayerInfo.fromPrayerTimes(prayerTimes);
       
       expect(result, isNotNull);
-      expect(result!.name, isIn(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']));
+      expect(result!.prayerKey, isIn(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']));
       
       // Countdown should be positive
       final countdown = result.time.difference(DateTime.now());

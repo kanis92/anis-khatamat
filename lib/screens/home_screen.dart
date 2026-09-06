@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import '../core/constants/app_constants.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/models/home_dashboard_state.dart';
+import '../core/utils/duration_formatter.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 import '../core/models/khatma_with_status.dart';
 import '../core/utils/auth_diag.dart';
 import '../core/providers/auth_provider.dart';
@@ -143,8 +145,8 @@ class _HomeHero extends StatelessWidget {
     final locale = Localizations.localeOf(context);
     final isArabic = locale.languageCode == 'ar';
     final imageAlignment = isArabic
-        ? const Alignment(-0.35, -0.15) // Shift left: logo visible, greeting zone clear (Arabic/RTL)
-        : const Alignment(0, -0.15);    // Center: approved LTR layout
+        ? const Alignment(-0.7, -0.15) // Shift left: logo visible, greeting zone clear (Arabic/RTL)
+        : const Alignment(0, -0.15);   // Center: approved LTR layout
 
     return SizedBox(
       height: heroHeight,
@@ -253,18 +255,34 @@ class _HeroPrayerChip extends ConsumerWidget {
     final prayer = ref.watch(nextPrayerProvider);
     if (prayer == null) return const SizedBox.shrink();
 
+    final l10n = context.l10n;
+    final prayerName = _getPrayerName(l10n, prayer.prayerKey);
+    final durationFormatted = DurationFormatter.format(prayer.duration, context);
+    final timeRemaining = l10n.timeIn(durationFormatted);
+
     return Padding(
       padding: const EdgeInsetsDirectional.only(top: AnisSpacing.sm),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: AnisBadge(
-          label: context.l10n.homePrayerPill(prayer.name, prayer.inStr),
+          label: l10n.homePrayerPill(prayerName, timeRemaining),
           tone: AnisBadgeTone.active,
           anisIcon: AnisIconType.mihrab,
-          semanticLabel: context.l10n.homeNextPrayerSemantic(prayer.name, prayer.inStr),
+          semanticLabel: l10n.homeNextPrayerSemantic(prayerName, timeRemaining),
         ),
       ),
     );
+  }
+
+  String _getPrayerName(AppLocalizations l10n, String key) {
+    return switch (key) {
+      'fajr' => l10n.prayerFajr,
+      'dhuhr' => l10n.prayerDhuhr,
+      'asr' => l10n.prayerAsr,
+      'maghrib' => l10n.prayerMaghrib,
+      'isha' => l10n.prayerIsha,
+      _ => key,
+    };
   }
 }
 

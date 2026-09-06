@@ -65,22 +65,15 @@ final homeDashboardProvider = FutureProvider<HomeDashboardState>((ref) async {
 
 /// Infos de la prière suivante pour la home
 class NextPrayerInfo {
-  final String name;
+  final String prayerKey; // Key for localization (fajr, dhuhr, asr, maghrib, isha)
   final DateTime time;
-  final String inStr;
+  final Duration duration;
 
   const NextPrayerInfo({
-    required this.name,
+    required this.prayerKey,
     required this.time,
-    required this.inStr,
+    required this.duration,
   });
-
-  static String _formatDuration(Duration d) {
-    if (d.inHours > 0) {
-      return '${d.inHours}h ${d.inMinutes % 60}m';
-    }
-    return '${d.inMinutes}min';
-  }
 
   static NextPrayerInfo? fromPrayerTimes(
     PrayerTimes? pt, {
@@ -88,17 +81,17 @@ class NextPrayerInfo {
   }) {
     if (pt == null) return null;
     const times = [
-      ('Fajr', 'Fajr'),
-      ('Dhuhr', 'Dhuhr'),
-      ('Asr', 'Asr'),
-      ('Maghrib', 'Maghrib'),
-      ('Isha', 'Isha'),
+      ('fajr', 'Fajr'),
+      ('dhuhr', 'Dhuhr'),
+      ('asr', 'Asr'),
+      ('maghrib', 'Maghrib'),
+      ('isha', 'Isha'),
     ];
     final clock = now ?? DateTime.now();
     
     // Check prayers for today
     for (final pair in times) {
-      final t = switch (pair.$1) {
+      final t = switch (pair.$2) {
         'Fajr' => pt.fajr,
         'Dhuhr' => pt.dhuhr,
         'Asr' => pt.asr,
@@ -109,9 +102,9 @@ class NextPrayerInfo {
       if (t.isAfter(clock)) {
         final diff = t.difference(clock);
         return NextPrayerInfo(
-          name: pair.$2,
+          prayerKey: pair.$1,
           time: t,
-          inStr: 'dans ${_formatDuration(diff)}',
+          duration: diff,
         );
       }
     }
@@ -120,9 +113,9 @@ class NextPrayerInfo {
     final tomorrowFajr = pt.fajr.add(const Duration(days: 1));
     final diff = tomorrowFajr.difference(clock);
     return NextPrayerInfo(
-      name: 'Fajr',
+      prayerKey: 'fajr',
       time: tomorrowFajr,
-      inStr: 'dans ${_formatDuration(diff)}',
+      duration: diff,
     );
   }
 }

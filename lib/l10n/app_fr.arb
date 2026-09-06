@@ -506,6 +506,31 @@
       }
     }
   },
+  "prayerFajr": "Fajr",
+  "prayerDhuhr": "Dhuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "timeIn": "dans {duration}",
+  "@timeIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "courseLevelBeginner": "Débutant",
+  "courseLevelIntermediate": "Intermédiaire",
+  "courseLevelAdvanced": "Avancé",
+  "courseCategoryTajweed": "Tajweed",
+  "courseCategoryTafsir": "Tafsir",
+  "courseCategoryFiqh": "Fiqh",
+  "courseCategorySira": "Sîra",
+  "courseCategoryAqida": "Aqida",
+  "courseCategoryArabic": "Arabe",
+  "courseCategoryMemorization": "Mémorisation",
+  "courseCategorySpirituality": "Spiritualité",
+  "courseCategoryOther": "Autre",
   "homeRamadanPillFr": "Ramadan · Jour {day} sur 30",
   "@homeRamadanPillFr": {
     "placeholders": {

@@ -88,7 +88,7 @@ void main() {
       expect(freshNext.time, isNot(ptSept4.dhuhr));
 
       if (sept5Morning.isBefore(ptSept5.dhuhr)) {
-        expect(freshNext.name, 'Dhuhr');
+        expect(freshNext.prayerKey, 'dhuhr');
         expect(freshNext.time, ptSept5.dhuhr);
       }
 
@@ -129,7 +129,7 @@ void main() {
       );
       final next = NextPrayerInfo.fromPrayerTimes(ptSept5, now: beforeDhuhr);
       expect(next, isNotNull);
-      expect(next!.name, 'Dhuhr');
+      expect(next!.prayerKey, 'dhuhr');
       expect(next.time, ptSept5.dhuhr);
       expect(next.time.difference(beforeDhuhr).isNegative, isFalse);
     });
@@ -138,7 +138,7 @@ void main() {
       final afterDhuhr = ptSept5.dhuhr.add(const Duration(minutes: 1));
       final next = NextPrayerInfo.fromPrayerTimes(ptSept5, now: afterDhuhr);
       expect(next, isNotNull);
-      expect(next!.name, 'Asr');
+      expect(next!.prayerKey, 'asr');
       expect(next.time, ptSept5.asr);
     });
 
@@ -146,10 +146,10 @@ void main() {
       final afterIsha = ptSept5.isha.add(const Duration(minutes: 15));
       final next = NextPrayerInfo.fromPrayerTimes(ptSept5, now: afterIsha);
       expect(next, isNotNull);
-      expect(next!.name, 'Fajr');
+      expect(next!.prayerKey, 'fajr');
       expect(next.time, ptSept5.fajr.add(const Duration(days: 1)));
       expect(next.time.difference(afterIsha).isNegative, isFalse);
-      expect(next.inStr, isNot(contains('-')));
+      expect(next.duration.inMinutes, greaterThan(0));
     });
   });
 }

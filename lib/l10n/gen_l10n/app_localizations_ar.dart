@@ -796,6 +796,62 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get prayerFajr => 'الفجر';
+
+  @override
+  String get prayerDhuhr => 'الظهر';
+
+  @override
+  String get prayerAsr => 'العصر';
+
+  @override
+  String get prayerMaghrib => 'المغرب';
+
+  @override
+  String get prayerIsha => 'العشاء';
+
+  @override
+  String timeIn(String duration) {
+    return 'بعد $duration';
+  }
+
+  @override
+  String get courseLevelBeginner => 'مبتدئ';
+
+  @override
+  String get courseLevelIntermediate => 'متوسط';
+
+  @override
+  String get courseLevelAdvanced => 'متقدم';
+
+  @override
+  String get courseCategoryTajweed => 'تجويد';
+
+  @override
+  String get courseCategoryTafsir => 'تفسير';
+
+  @override
+  String get courseCategoryFiqh => 'فقه';
+
+  @override
+  String get courseCategorySira => 'سيرة';
+
+  @override
+  String get courseCategoryAqida => 'عقيدة';
+
+  @override
+  String get courseCategoryArabic => 'عربية';
+
+  @override
+  String get courseCategoryMemorization => 'حفظ';
+
+  @override
+  String get courseCategorySpirituality => 'روحانية';
+
+  @override
+  String get courseCategoryOther => 'أخرى';
+
+  @override
   String homeRamadanPillFr(int day) {
     return 'رمضان · يوم $day من 30';
   }

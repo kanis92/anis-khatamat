@@ -25,7 +25,12 @@ class SettingsScreen extends ConsumerWidget {
         title: Text(l10n.settings),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          16 + MediaQuery.of(context).padding.bottom,
+        ),
         children: [
           if (user != null) ...[
             Card(
