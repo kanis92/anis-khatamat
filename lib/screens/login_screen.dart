@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/bootstrap/firebase_bootstrap.dart';
+import '../core/extensions/l10n_extensions.dart';
 import '../core/providers/auth_provider.dart';
 import '../design_system/anis_design_system.dart';
 
@@ -125,145 +126,149 @@ class _LoginAuthSheet extends StatelessWidget {
           AnisSpacing.page,
           bottomInset > 0 ? AnisSpacing.lg : AnisSpacing.xl,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Bienvenue',
-              style: text.titleLarge.copyWith(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-                color: AnisPalette.green800,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: AnisSpacing.xs),
-            Text(
-              'Connectez-vous pour poursuivre votre Khatma',
-              style: text.bodySecondary.copyWith(
-                fontSize: 15,
-                color: colors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: AnisSpacing.xl),
-            SizedBox(
-              height: fieldHeight,
-              child: TextFormField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autocorrect: false,
-                autofillHints: const [AutofillHints.email],
-                style: text.body.copyWith(color: colors.textPrimary),
-                decoration: inputDecoration(
-                  label: 'Email',
-                  prefixIcon: Icons.email_outlined,
-                ),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Email requis';
-                  if (!v.contains('@')) return 'Email invalide';
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: AnisSpacing.md),
-            SizedBox(
-              height: fieldHeight,
-              child: TextFormField(
-                controller: passwordController,
-                obscureText: obscurePassword,
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.password],
-                onFieldSubmitted: (_) {
-                  if (!isLoading) onLogin();
-                },
-                style: text.body.copyWith(color: colors.textPrimary),
-                decoration: inputDecoration(
-                  label: 'Mot de passe',
-                  prefixIcon: Icons.lock_outline,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      size: AnisIconSize.md,
-                      color: colors.textSecondary,
-                    ),
-                    onPressed: onTogglePassword,
+        child: Builder(
+          builder: (context) {
+            final l10n = context.l10n;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.loginWelcome,
+                  style: text.titleLarge.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: AnisPalette.green800,
+                    height: 1.2,
                   ),
                 ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Mot de passe requis';
-                  if (v.length < 6) return 'Minimum 6 caractères';
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: AnisSpacing.xl),
-            FilledButton(
-              onPressed: isLoading ? null : onLogin,
-              style: primaryButtonStyle,
-              child:
-                  isLoading
-                      ? SizedBox(
-                        height: AnisIconSize.lg,
-                        width: AnisIconSize.lg,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colors.textOnAction,
+                const SizedBox(height: AnisSpacing.xs),
+                Text(
+                  l10n.loginSubtitle,
+                  style: text.bodySecondary.copyWith(
+                    fontSize: 15,
+                    color: colors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: AnisSpacing.xl),
+                SizedBox(
+                  height: fieldHeight,
+                  child: TextFormField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    autofillHints: const [AutofillHints.email],
+                    style: text.body.copyWith(color: colors.textPrimary),
+                    decoration: inputDecoration(
+                      label: 'Email',
+                      prefixIcon: Icons.email_outlined,
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return l10n.loginEmailRequired;
+                      if (!v.contains('@')) return l10n.loginEmailInvalid;
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: AnisSpacing.md),
+                SizedBox(
+                  height: fieldHeight,
+                  child: TextFormField(
+                    controller: passwordController,
+                    obscureText: obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    autofillHints: const [AutofillHints.password],
+                    onFieldSubmitted: (_) {
+                      if (!isLoading) onLogin();
+                    },
+                    style: text.body.copyWith(color: colors.textPrimary),
+                    decoration: inputDecoration(
+                      label: l10n.password,
+                      prefixIcon: Icons.lock_outline,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          size: AnisIconSize.md,
+                          color: colors.textSecondary,
                         ),
-                      )
-                      : const Text('Se connecter'),
-            ),
-            const SizedBox(height: AnisSpacing.sm),
-            TextButton(
-              onPressed: onRegister,
-              style: TextButton.styleFrom(
-                foregroundColor: colors.actionSecondaryText,
-                minimumSize: const Size(
-                  double.infinity,
-                  AnisIconSize.minTapTarget,
+                        onPressed: onTogglePassword,
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return l10n.loginPasswordRequired;
+                      return null;
+                    },
+                  ),
                 ),
-                padding: const EdgeInsetsDirectional.symmetric(
-                  vertical: AnisSpacing.xs,
+                const SizedBox(height: AnisSpacing.xl),
+                FilledButton(
+                  onPressed: isLoading ? null : onLogin,
+                  style: primaryButtonStyle,
+                  child:
+                      isLoading
+                          ? SizedBox(
+                            height: AnisIconSize.lg,
+                            width: AnisIconSize.lg,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.textOnAction,
+                            ),
+                          )
+                          : Text(l10n.loginButton),
                 ),
-                textStyle: text.label.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: colors.actionSecondaryText,
+                const SizedBox(height: AnisSpacing.sm),
+                TextButton(
+                  onPressed: onRegister,
+                  style: TextButton.styleFrom(
+                    foregroundColor: colors.actionSecondaryText,
+                    minimumSize: const Size(
+                      double.infinity,
+                      AnisIconSize.minTapTarget,
+                    ),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      vertical: AnisSpacing.xs,
+                    ),
+                    textStyle: text.label.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: colors.actionSecondaryText,
+                    ),
+                  ),
+                  child: Text(l10n.createAccount),
                 ),
-              ),
-              child: const Text('Créer un compte'),
-            ),
-            const SizedBox(height: AnisSpacing.lg),
-            const _LoginDividerLabel(label: 'Continuer autrement'),
-            const SizedBox(height: AnisSpacing.sm),
-            TextButton.icon(
-              onPressed: onDemo,
-              style: TextButton.styleFrom(
-                foregroundColor: colors.textSecondary,
-                minimumSize: const Size(
-                  double.infinity,
-                  AnisIconSize.minTapTarget,
+                const SizedBox(height: AnisSpacing.lg),
+                _LoginDividerLabel(label: l10n.loginContinueOtherwise),
+                const SizedBox(height: AnisSpacing.sm),
+                TextButton.icon(
+                  onPressed: onDemo,
+                  style: TextButton.styleFrom(
+                    foregroundColor: colors.textSecondary,
+                    minimumSize: const Size(
+                      double.infinity,
+                      AnisIconSize.minTapTarget,
+                    ),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      vertical: AnisSpacing.xs,
+                    ),
+                    textStyle: text.bodySecondary.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.play_circle_outline,
+                    size: AnisIconSize.md,
+                    color: colors.actionSecondaryText,
+                  ),
+                  label: Text(l10n.loginDiscoverDemo),
                 ),
-                padding: const EdgeInsetsDirectional.symmetric(
-                  vertical: AnisSpacing.xs,
-                ),
-                textStyle: text.bodySecondary.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: colors.textSecondary,
-                ),
-              ),
-              icon: Icon(
-                Icons.play_circle_outline,
-                size: AnisIconSize.md,
-                color: colors.actionSecondaryText,
-              ),
-              label: const Text('Découvrir en mode démo'),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
@@ -334,10 +339,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final auth = tryFirebaseAuth();
     if (auth == null) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Firebase indisponible. Utilisez le mode démo ou relancez l’app.',
+              l10n.loginFirebaseUnavailable,
             ),
             backgroundColor: Colors.red,
           ),
@@ -355,11 +361,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) context.go('/');
     } on FirebaseAuthException catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         final message = switch (e.code) {
-          'user-not-found' => 'Aucun compte associé à cet email.',
-          'wrong-password' => 'Mot de passe incorrect.',
-          'invalid-email' => 'Email invalide.',
-          _ => e.message ?? 'Erreur de connexion.',
+          'user-not-found' => l10n.loginUserNotFound,
+          'wrong-password' => l10n.loginWrongPassword,
+          'invalid-email' => l10n.loginInvalidEmail,
+          _ => l10n.loginErrorGeneric(e.message ?? e.code),
         };
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -367,8 +374,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(l10n.loginErrorGeneric(e.toString())),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
