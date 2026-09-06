@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../api/anis_api_client.dart';
+import '../api/api_exception.dart';
 import '../constants/hizb_definitions.dart';
 import '../models/khatma.dart';
 import '../models/khatma_creation_failure.dart';
@@ -24,19 +25,19 @@ abstract interface class KhatmaCreator {
   });
 }
 
-/// Server-authoritative Khatma creation via Firebase callable Functions.
+/// Server-authoritative Khatma creation via ANIS REST API.
 class KhatmaCreationService implements KhatmaCreator {
   KhatmaCreationService({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
-    FirebaseFunctions? functions,
+    AnisApiClient? apiClient,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _auth = auth ?? FirebaseAuth.instance,
-        _functions = functions ?? FirebaseFunctions.instance;
+        _apiClient = apiClient ?? AnisApiClient();
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  final FirebaseFunctions _functions;
+  final AnisApiClient _apiClient;
 
   CollectionReference<Map<String, dynamic>> get _khatmat =>
       _firestore.collection('khatmat');
@@ -66,11 +67,10 @@ class KhatmaCreationService implements KhatmaCreator {
     }
 
     try {
-      _logStage('call_function', null);
+      _logStage('call_rest_api', null);
 
-      // Call server-authoritative function
-      final callable = _functions.httpsCallable('createCollaborativeKhatma');
-      final result = await callable.call<Map<String, dynamic>>({
+      // Call server-authoritative REST API
+      final response = await _apiClient.post('/khatmat', body: {
         'title': title,
         'isGroup': isGroup,
         'isPublic': isPublic,
@@ -80,17 +80,17 @@ class KhatmaCreationService implements KhatmaCreator {
         if (members.isNotEmpty) 'members': members,
       });
 
-      final khatmaId = result.data['khatmaId'] as String;
-      _logStage('function_success', khatmaId);
+      final khatmaId = response['data']['khatmaId'] as String;
+      _logStage('api_success', khatmaId);
 
       // Load created Khatma
       final khatma = await _loadKhatma(khatmaId);
       _logStage('loaded', khatmaId);
 
       return khatma;
-    } on FirebaseFunctionsException catch (e) {
-      _logStage('function_error_${e.code}', null);
-      throw _mapFunctionsException(e);
+    } on ApiException catch (e) {
+      _logStage('api_error_${e.code}', null);
+      throw _mapApiException(e);
     } on FirebaseException catch (e) {
       _logStage('firebase_${e.code}', null);
       throw fromFirebaseException(e, khatmaId: null);
@@ -128,22 +128,26 @@ class KhatmaCreationService implements KhatmaCreator {
     return Khatma.fromMap({...doc.data()!, 'id': doc.id});
   }
 
-  KhatmaCreationFailure _mapFunctionsException(FirebaseFunctionsException e) {
+  KhatmaCreationFailure _mapApiException(ApiException e) {
     switch (e.code) {
-      case 'unauthenticated':
+      case ApiErrorCode.authRequired:
+      case ApiErrorCode.authInvalid:
         return const AuthenticationRequired();
-      case 'permission-denied':
+      case ApiErrorCode.forbidden:
         return const PermissionDenied();
-      case 'invalid-argument':
+      case ApiErrorCode.invalidArgument:
         return InitializationFailed(e.message ?? 'Invalid request');
-      case 'failed-precondition':
-        return InitializationFailed(e.message ?? 'Precondition failed');
-      case 'unavailable':
-      case 'deadline-exceeded':
+      case ApiErrorCode.conflict:
+        return InitializationFailed(e.message ?? 'State conflict');
+      case ApiErrorCode.networkError:
+      case ApiErrorCode.timeout:
+      case ApiErrorCode.rateLimited:
         return NetworkError();
+      case ApiErrorCode.internal:
+      case ApiErrorCode.unknown:
       default:
         return UnknownCreationError(
-          '${e.code}: ${e.message}',
+          '${e.code}: ${e.message ?? ''}',
           khatmaId: null,
         );
     }

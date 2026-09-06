@@ -60,7 +60,7 @@ export function loadEnvironment(): EnvironmentConfig {
 
   const config: EnvironmentConfig = {
     nodeEnv,
-    port: parseInt(getOptionalEnv('PORT', '8080'), 10),
+    port: parseInt(getOptionalEnv('PORT', '3000'), 10), // Default 3000 to match Flutter dev config
     firebaseProjectId,
     allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS),
     rateLimitWindowMs: parseInt(getOptionalEnv('RATE_LIMIT_WINDOW_MS', '60000'), 10),

@@ -1,7 +1,8 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../api/anis_api_client.dart';
+import '../api/api_exception.dart';
 import '../constants/reservation_config.dart';
 import '../models/assignee_kind.dart';
 import '../models/khatma.dart';
@@ -30,13 +31,15 @@ class ReservationException implements Exception {
   ReservationException(this.code, this.message, [this.hizbNumber]);
 }
 
-/// Service de réservation avec mutations server-authoritative via Functions.
+/// Service de réservation avec mutations server-authoritative via REST API.
 class ReservationService {
   final _readingService = ReadingService();
   final _historyService = ReadingHistoryService();
+  final AnisApiClient _apiClient;
   static const _idempotencyPrefix = 'anis_idem_';
 
-  FirebaseFunctions get _functions => FirebaseFunctions.instance;
+  ReservationService({AnisApiClient? apiClient})
+      : _apiClient = apiClient ?? AnisApiClient();
 
   int maxHizbPerUser(Khatma khatma) {
     final completed = khatma.completedReservationCount;
@@ -127,10 +130,7 @@ class ReservationService {
     }
 
     try {
-      final callable = _functions.httpsCallable('reserveHizb');
-      await callable.call<Map<String, dynamic>>({
-        'khatmaId': khatmaId,
-        'hizbNumber': hizbNumber,
+      await _apiClient.post('/khatmat/$khatmaId/hizb/$hizbNumber/reserve', body: {
         'assigneeKind': assigneeKind.value,
         if (assigneeKind == AssigneeKind.offline && reservedForName != null)
           'assigneeDisplayName': reservedForName.trim(),
@@ -139,8 +139,8 @@ class ReservationService {
       });
 
       if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
-    } on FirebaseFunctionsException catch (e) {
-      throw _mapFunctionsException(e, hizbNumber);
+    } on ApiException catch (e) {
+      throw _mapApiException(e, hizbNumber);
     } catch (e) {
       // Fallback for local Khatma
       final khatma = await _getKhatma(khatmaId);
@@ -183,15 +183,11 @@ class ReservationService {
     }
 
     try {
-      final callable = _functions.httpsCallable('releaseHizb');
-      await callable.call<Map<String, dynamic>>({
-        'khatmaId': khatmaId,
-        'hizbNumber': hizbNumber,
-      });
+      await _apiClient.post('/khatmat/$khatmaId/hizb/$hizbNumber/release', body: {});
 
       if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
-    } on FirebaseFunctionsException catch (e) {
-      throw _mapFunctionsException(e, hizbNumber);
+    } on ApiException catch (e) {
+      throw _mapApiException(e, hizbNumber);
     } catch (e) {
       throw ReservationException(
         ReservationErrorCode.networkError,
@@ -226,11 +222,7 @@ class ReservationService {
     }
 
     try {
-      final callable = _functions.httpsCallable('completeHizb');
-      await callable.call<Map<String, dynamic>>({
-        'khatmaId': khatmaId,
-        'hizbNumber': hizbNumber,
-      });
+      await _apiClient.post('/khatmat/$khatmaId/hizb/$hizbNumber/complete', body: {});
 
       if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
 
@@ -250,8 +242,8 @@ class ReservationService {
         lastUpdated: now,
         authUid: authUid ?? progress.authUid,
       ));
-    } on FirebaseFunctionsException catch (e) {
-      throw _mapFunctionsException(e, hizbNumber);
+    } on ApiException catch (e) {
+      throw _mapApiException(e, hizbNumber);
     } catch (e) {
       // Fallback for local Khatma
       final khatma = await _getKhatma(khatmaId);
@@ -291,15 +283,11 @@ class ReservationService {
     int hizbNumber,
     String adminUserId,
   ) async {
-    // This could use releaseHizb function with organizer permissions
+    // Use releaseHizb REST API with organizer permissions
     try {
-      final callable = _functions.httpsCallable('releaseHizb');
-      await callable.call<Map<String, dynamic>>({
-        'khatmaId': khatmaId,
-        'hizbNumber': hizbNumber,
-      });
-    } on FirebaseFunctionsException catch (e) {
-      throw _mapFunctionsException(e, hizbNumber);
+      await _apiClient.post('/khatmat/$khatmaId/hizb/$hizbNumber/release', body: {});
+    } on ApiException catch (e) {
+      throw _mapApiException(e, hizbNumber);
     } catch (e) {
       throw ReservationException(
         ReservationErrorCode.networkError,
@@ -309,52 +297,56 @@ class ReservationService {
     }
   }
 
-  ReservationException _mapFunctionsException(
-    FirebaseFunctionsException e,
+  ReservationException _mapApiException(
+    ApiException e,
     int? hizbNumber,
   ) {
     switch (e.code) {
-      case 'unauthenticated':
+      case ApiErrorCode.authRequired:
+      case ApiErrorCode.authInvalid:
         return ReservationException(
           ReservationErrorCode.invalidState,
           'Authentification requise',
           hizbNumber,
         );
-      case 'permission-denied':
+      case ApiErrorCode.forbidden:
         return ReservationException(
           ReservationErrorCode.permissionDenied,
-          'Permission refusée: ${e.message}',
+          'Permission refusée: ${e.message ?? ''}',
           hizbNumber,
         );
-      case 'not-found':
+      case ApiErrorCode.notFound:
         return ReservationException(
           ReservationErrorCode.invalidState,
           'Khatma ou Hizb introuvable',
           hizbNumber,
         );
-      case 'conflict':
+      case ApiErrorCode.conflict:
         return ReservationException(
           ReservationErrorCode.alreadyReserved,
           e.message ?? 'Hizb déjà réservé',
           hizbNumber,
         );
-      case 'failed-precondition':
+      case ApiErrorCode.invalidArgument:
         return ReservationException(
           ReservationErrorCode.invalidState,
-          e.message ?? 'Précondition non respectée',
+          e.message ?? 'Requête invalide',
           hizbNumber,
         );
-      case 'unavailable':
-      case 'deadline-exceeded':
+      case ApiErrorCode.networkError:
+      case ApiErrorCode.timeout:
+      case ApiErrorCode.rateLimited:
         return ReservationException(
           ReservationErrorCode.networkError,
           'Serveur indisponible',
           hizbNumber,
         );
+      case ApiErrorCode.internal:
+      case ApiErrorCode.unknown:
       default:
         return ReservationException(
           ReservationErrorCode.networkError,
-          'Erreur: ${e.code} - ${e.message}',
+          'Erreur: ${e.code} - ${e.message ?? ''}',
           hizbNumber,
         );
     }
