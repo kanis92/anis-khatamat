@@ -56,3 +56,21 @@ private/firebase/
 private/
 **/dart_defines.json
 **/dart_defines.prod.json
+
+
+# Temporary QA/report files - STEP 2 Backend Migration
+ANIS_BACKEND_ARCHITECTURE_CONTRACT.md
+STEP_2A_*.md
+STEP_2B_*.md
+STEP_2C_*.md
+STEP_2D_*.md
+ERROR_CODE_CONTRACT.md
+FINAL_*.md
+FUNCTIONS_DEPLOYMENT_REPORT.md
+PRE_DEPLOY_*.md
+SERVER_AUTHORITATIVE_*.md
+qa_hero/
+run_app.sh
+start_app.sh
+wird_*.png
+test/visual_qa/

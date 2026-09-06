@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+# package-lock.json tracked for reproducible builds
+
+# Build output
+lib/
+dist/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Secrets - NEVER commit
+*.json
+!package.json
+!tsconfig.json
+!jest.config.js
+!src/data/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
