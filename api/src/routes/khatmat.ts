@@ -63,14 +63,14 @@ router.post(
         throw ApiError.invalidArgument("hizbNumber must be an integer");
       }
 
-      const data: ReserveHizbRequest = {
-        khatmaId: req.params.khatmaId,
-        hizbNumber,
-        ...req.body,
-      };
-
       // Validate that client is not sending trusted fields
-      const forbidden = ['reservedBy', 'completedBy', 'completedAt'];
+      const forbidden = [
+        'reservedBy',
+        'assigneeUserId',
+        'assignedByUserId',
+        'completedBy',
+        'completedAt',
+      ];
       for (const field of forbidden) {
         if (field in req.body) {
           throw ApiError.invalidArgument(
@@ -78,6 +78,12 @@ router.post(
           );
         }
       }
+
+      const data: ReserveHizbRequest = {
+        khatmaId: req.params.khatmaId,
+        hizbNumber,
+        ...req.body,
+      };
 
       const result = await business.reserveHizb(authReq.auth, data);
       res.json(result);

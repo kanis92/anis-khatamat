@@ -124,13 +124,12 @@ describe('E2E: Release Hizb', () => {
     it('should allow organizer to release participant reservation', async () => {
       const creatorHeaders = await getAuthHeaders('creator');
       
-      // Organizer assigns to participant
+      // Organizer assigns to participant via /assign
       await request(app)
-        .post(`/v1/khatmat/${khatmaId}/hizb/1/reserve`)
+        .post(`/v1/khatmat/${khatmaId}/hizb/1/assign`)
         .set(creatorHeaders)
         .send({
-          assigneeKind: 'participant',
-          assigneeUserId: TEST_USERS.participantA.email,
+          participantUserId: TEST_USERS.participantA.email,
         });
 
       // Organizer releases

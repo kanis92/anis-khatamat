@@ -153,15 +153,14 @@ describe('E2E: Reserve Hizb', () => {
   });
 
   describe('Participant Assignment', () => {
-    it('should allow organizer to assign to participant', async () => {
+    it('should allow organizer to assign to participant via /assign', async () => {
       const headers = await getAuthHeaders('creator');
       
       const response = await request(app)
-        .post(`/v1/khatmat/${khatmaId}/hizb/3/reserve`)
+        .post(`/v1/khatmat/${khatmaId}/hizb/3/assign`)
         .set(headers)
         .send({
-          assigneeKind: 'participant',
-          assigneeUserId: TEST_USERS.participantA.email,
+          participantUserId: TEST_USERS.participantA.email,
         });
 
       expect(response.status).toBe(200);
@@ -182,30 +181,28 @@ describe('E2E: Reserve Hizb', () => {
       expect(hizbData?.assignedByUserId).toBe(TEST_USERS.creator.email);
     });
 
-    it('should reject normal participant assigning', async () => {
+    it('should reject normal participant trying to assign via /assign', async () => {
       const headers = await getAuthHeaders('participantA');
       
       const response = await request(app)
-        .post(`/v1/khatmat/${khatmaId}/hizb/3/reserve`)
+        .post(`/v1/khatmat/${khatmaId}/hizb/3/assign`)
         .set(headers)
         .send({
-          assigneeKind: 'participant',
-          assigneeUserId: TEST_USERS.participantB.email,
+          participantUserId: TEST_USERS.participantB.email,
         });
 
       expect(response.status).toBe(403);
       expect(response.body.error.code).toBe('FORBIDDEN');
     });
 
-    it('should reject outsider assignment', async () => {
+    it('should reject outsider trying to assign via /assign', async () => {
       const headers = await getAuthHeaders('outsider');
       
       const response = await request(app)
-        .post(`/v1/khatmat/${khatmaId}/hizb/3/reserve`)
+        .post(`/v1/khatmat/${khatmaId}/hizb/3/assign`)
         .set(headers)
         .send({
-          assigneeKind: 'participant',
-          assigneeUserId: TEST_USERS.participantA.email,
+          participantUserId: TEST_USERS.participantA.email,
         });
 
       expect(response.status).toBe(403);

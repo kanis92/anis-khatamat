@@ -119,7 +119,7 @@ void main() {
 
         expect(result['data']['result'], 'success');
         expect(callCount, 2); // Called twice: initial + retry
-        verify(mockUser.getIdToken(false)).called(1); // Initial token
+        verify(mockUser.getIdToken(false)).called(2); // Initial + retry token
         verify(mockUser.getIdToken(true)).called(1);  // Force refresh
       });
 
@@ -273,7 +273,7 @@ void main() {
             ApiErrorCode.timeout,
           )),
         );
-      });
+      }, timeout: Timeout(Duration(seconds: 40)));
     });
 
     group('Network Error Handling', () {

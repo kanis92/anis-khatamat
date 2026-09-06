@@ -68,5 +68,27 @@ describe('CORS Middleware', () => {
       expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
       expect(response.headers['access-control-allow-methods']).toContain('POST');
     });
+
+    it('should allow Authorization header in preflight', async () => {
+      const response = await request(app)
+        .options('/v1/khatmat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Access-Control-Request-Method', 'POST')
+        .set('Access-Control-Request-Headers', 'Authorization, Content-Type');
+      
+      expect(response.status).toBe(204);
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+      expect(response.headers['access-control-allow-headers']).toMatch(/authorization/i);
+    });
+
+    it('should not require credentials (no cookies)', async () => {
+      const response = await request(app)
+        .options('/v1/khatmat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Access-Control-Request-Method', 'POST');
+      
+      // Should NOT set Access-Control-Allow-Credentials
+      expect(response.headers['access-control-allow-credentials']).toBeUndefined();
+    });
   });
 });

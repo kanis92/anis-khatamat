@@ -343,7 +343,6 @@ class ReservationService {
         );
       case ApiErrorCode.internal:
       case ApiErrorCode.unknown:
-      default:
         return ReservationException(
           ReservationErrorCode.networkError,
           'Erreur: ${e.code} - ${e.message ?? ''}',
