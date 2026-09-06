@@ -976,4 +976,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quickActionNotificationsSubtitle => 'إدارة التنبيهات';
+
+  @override
+  String get loginWelcome => 'مرحباً';
+
+  @override
+  String get loginSubtitle => 'سجل الدخول لمتابعة ختمتك';
+
+  @override
+  String get loginContinueOtherwise => 'المتابعة بطريقة أخرى';
+
+  @override
+  String get loginDiscoverDemo => 'استكشاف الوضع التجريبي';
+
+  @override
+  String get loginFirebaseUnavailable =>
+      'Firebase غير متاح. استخدم الوضع التجريبي أو أعد تشغيل التطبيق.';
+
+  @override
+  String get loginEmailRequired => 'البريد الإلكتروني مطلوب';
+
+  @override
+  String get loginEmailInvalid => 'بريد إلكتروني غير صالح';
+
+  @override
+  String get loginPasswordRequired => 'كلمة المرور مطلوبة';
+
+  @override
+  String get loginUserNotFound => 'لا يوجد حساب مرتبط بهذا البريد الإلكتروني.';
+
+  @override
+  String get loginWrongPassword => 'كلمة مرور غير صحيحة.';
+
+  @override
+  String get loginInvalidEmail => 'بريد إلكتروني غير صالح.';
+
+  @override
+  String loginErrorGeneric(String error) {
+    return 'خطأ: $error';
+  }
 }

@@ -632,5 +632,24 @@
   "quickActionKhatmaSubtitle": "My Khatmat",
   "quickActionFormationsTitle": "Training",
   "quickActionFormationsSubtitle": "My courses",
-  "quickActionNotificationsSubtitle": "Manage alerts"
+  "quickActionNotificationsSubtitle": "Manage alerts",
+  "loginWelcome": "Welcome",
+  "loginSubtitle": "Sign in to continue your Khatma",
+  "loginContinueOtherwise": "Continue otherwise",
+  "loginDiscoverDemo": "Explore demo mode",
+  "loginFirebaseUnavailable": "Firebase unavailable. Use demo mode or restart the app.",
+  "loginEmailRequired": "Email required",
+  "loginEmailInvalid": "Invalid email",
+  "loginPasswordRequired": "Password required",
+  "loginUserNotFound": "No account associated with this email.",
+  "loginWrongPassword": "Incorrect password.",
+  "loginInvalidEmail": "Invalid email.",
+  "loginErrorGeneric": "Error: {error}",
+  "@loginErrorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -138,6 +138,14 @@ class _HomeHero extends StatelessWidget {
       320.0,
     );
 
+    // RTL-aware focal positioning: shift image left in RTL to expose ANIS logo
+    // and provide clear readable zone for right-aligned greeting
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
+    final imageAlignment = isArabic
+        ? const Alignment(-0.35, -0.15) // Shift left: logo visible, greeting zone clear (Arabic/RTL)
+        : const Alignment(0, -0.15);    // Center: approved LTR layout
+
     return SizedBox(
       height: heroHeight,
       child: Stack(
@@ -146,7 +154,7 @@ class _HomeHero extends StatelessWidget {
           Image.asset(
             _heroAsset,
             fit: BoxFit.cover,
-            alignment: const Alignment(0, -0.15),
+            alignment: imageAlignment,
             semanticLabel: l10n.home,
           ),
           DecoratedBox(

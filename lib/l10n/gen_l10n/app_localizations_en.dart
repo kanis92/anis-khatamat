@@ -985,4 +985,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickActionNotificationsSubtitle => 'Manage alerts';
+
+  @override
+  String get loginWelcome => 'Welcome';
+
+  @override
+  String get loginSubtitle => 'Sign in to continue your Khatma';
+
+  @override
+  String get loginContinueOtherwise => 'Continue otherwise';
+
+  @override
+  String get loginDiscoverDemo => 'Explore demo mode';
+
+  @override
+  String get loginFirebaseUnavailable =>
+      'Firebase unavailable. Use demo mode or restart the app.';
+
+  @override
+  String get loginEmailRequired => 'Email required';
+
+  @override
+  String get loginEmailInvalid => 'Invalid email';
+
+  @override
+  String get loginPasswordRequired => 'Password required';
+
+  @override
+  String get loginUserNotFound => 'No account associated with this email.';
+
+  @override
+  String get loginWrongPassword => 'Incorrect password.';
+
+  @override
+  String get loginInvalidEmail => 'Invalid email.';
+
+  @override
+  String loginErrorGeneric(String error) {
+    return 'Error: $error';
+  }
 }

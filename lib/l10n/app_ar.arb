@@ -632,5 +632,24 @@
   "quickActionKhatmaSubtitle": "ختماتي",
   "quickActionFormationsTitle": "التدريب",
   "quickActionFormationsSubtitle": "دوراتي",
-  "quickActionNotificationsSubtitle": "إدارة التنبيهات"
+  "quickActionNotificationsSubtitle": "إدارة التنبيهات",
+  "loginWelcome": "مرحباً",
+  "loginSubtitle": "سجل الدخول لمتابعة ختمتك",
+  "loginContinueOtherwise": "المتابعة بطريقة أخرى",
+  "loginDiscoverDemo": "استكشاف الوضع التجريبي",
+  "loginFirebaseUnavailable": "Firebase غير متاح. استخدم الوضع التجريبي أو أعد تشغيل التطبيق.",
+  "loginEmailRequired": "البريد الإلكتروني مطلوب",
+  "loginEmailInvalid": "بريد إلكتروني غير صالح",
+  "loginPasswordRequired": "كلمة المرور مطلوبة",
+  "loginUserNotFound": "لا يوجد حساب مرتبط بهذا البريد الإلكتروني.",
+  "loginWrongPassword": "كلمة مرور غير صحيحة.",
+  "loginInvalidEmail": "بريد إلكتروني غير صالح.",
+  "loginErrorGeneric": "خطأ: {error}",
+  "@loginErrorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

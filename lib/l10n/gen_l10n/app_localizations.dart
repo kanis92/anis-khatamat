@@ -1827,6 +1827,78 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Gérer mes alertes'**
   String get quickActionNotificationsSubtitle;
+
+  /// No description provided for @loginWelcome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue'**
+  String get loginWelcome;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour poursuivre votre Khatma'**
+  String get loginSubtitle;
+
+  /// No description provided for @loginContinueOtherwise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer autrement'**
+  String get loginContinueOtherwise;
+
+  /// No description provided for @loginDiscoverDemo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir en mode démo'**
+  String get loginDiscoverDemo;
+
+  /// No description provided for @loginFirebaseUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Firebase indisponible. Utilisez le mode démo ou relancez l\'app.'**
+  String get loginFirebaseUnavailable;
+
+  /// No description provided for @loginEmailRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email requis'**
+  String get loginEmailRequired;
+
+  /// No description provided for @loginEmailInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide'**
+  String get loginEmailInvalid;
+
+  /// No description provided for @loginPasswordRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe requis'**
+  String get loginPasswordRequired;
+
+  /// No description provided for @loginUserNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte associé à cet email.'**
+  String get loginUserNotFound;
+
+  /// No description provided for @loginWrongPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe incorrect.'**
+  String get loginWrongPassword;
+
+  /// No description provided for @loginInvalidEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide.'**
+  String get loginInvalidEmail;
+
+  /// No description provided for @loginErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur: {error}'**
+  String loginErrorGeneric(String error);
 }
 
 class _AppLocalizationsDelegate
