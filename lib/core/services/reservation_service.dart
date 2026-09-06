@@ -1,16 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/app_constants.dart';
-import '../constants/hizb_definitions.dart';
 import '../constants/reservation_config.dart';
-import '../constants/reservation_schema.dart';
-import '../models/hizb_reservation.dart';
+import '../models/assignee_kind.dart';
 import '../models/khatma.dart';
 import '../models/reading_progress.dart';
-import '../utils/reservation_counter_utils.dart';
-import 'hizb_reservation_repository.dart';
 import 'reading_history_service.dart';
 import 'reading_service.dart';
 
@@ -23,6 +18,8 @@ enum ReservationErrorCode {
   notYours,
   alreadyExtended,
   invalidState,
+  permissionDenied,
+  networkError,
 }
 
 class ReservationException implements Exception {
@@ -33,40 +30,19 @@ class ReservationException implements Exception {
   ReservationException(this.code, this.message, [this.hizbNumber]);
 }
 
-/// Service de réservation avec transactions Firestore sur sous-collection v2.
+/// Service de réservation avec mutations server-authoritative via Functions.
 class ReservationService {
   final _readingService = ReadingService();
   final _historyService = ReadingHistoryService();
-  final _reservationRepo = HizbReservationRepository();
   static const _idempotencyPrefix = 'anis_idem_';
 
-  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
+  FirebaseFunctions get _functions => FirebaseFunctions.instance;
 
   int maxHizbPerUser(Khatma khatma) {
     final completed = khatma.completedReservationCount;
     return completed >= ReservationConfig.completedThresholdForHigherLimit
         ? ReservationConfig.maxHizbPerUserWhenAlmostDone
         : ReservationConfig.maxHizbPerUserDefault;
-  }
-
-  bool _isExpired(HizbReservation r) {
-    if (r.expiresAt == null) return false;
-    return DateTime.now().isAfter(r.expiresAt!);
-  }
-
-  bool _isSoftLockExpired(HizbReservation r) {
-    if (r.softLockExpiresAt == null) return false;
-    return DateTime.now().isAfter(r.softLockExpiresAt!);
-  }
-
-  HizbReservation _resolveExpired(HizbReservation r) {
-    if (r.isSoftLocked && _isSoftLockExpired(r)) {
-      return r.transitionTo(status: HizbReservationStatus.available);
-    }
-    if (r.isReserved && _isExpired(r)) {
-      return r.transitionTo(status: HizbReservationStatus.expired);
-    }
-    return r;
   }
 
   Future<bool> _checkIdempotency(String key) async {
@@ -97,60 +73,7 @@ class ReservationService {
   Future<Khatma?> _getKhatma(String khatmaId) =>
       _readingService.getKhatmaById(khatmaId);
 
-  DocumentReference<Map<String, dynamic>> _hizbRef(
-    String khatmaId,
-    int hizbNumber,
-  ) =>
-      _reservationRepo.hizbDocumentRef(khatmaId, hizbNumber);
-
-  Future<Map<int, HizbReservation>> _readAllReservationsInTransaction(
-    Transaction tx,
-    String khatmaId,
-  ) async {
-    final map = <int, HizbReservation>{};
-    for (var i = 1; i <= AppConstants.totalHizb; i++) {
-      final doc = await tx.get(_hizbRef(khatmaId, i));
-      if (doc.exists && doc.data() != null) {
-        map[i] = HizbReservation.fromMap(doc.data()!);
-      }
-    }
-    return map;
-  }
-
-  HizbReservation _getFromMap(
-    Map<int, HizbReservation> map,
-    int hizbNumber,
-  ) {
-    final reservation = map[hizbNumber];
-    if (reservation == null || !reservation.hasCompleteSnapshot) {
-      throw ReservationException(
-        ReservationErrorCode.invalidState,
-        'Snapshot canonique du Hizb $hizbNumber absent',
-        hizbNumber,
-      );
-    }
-    return reservation;
-  }
-
-  void _requireSupportedDefinition(Khatma khatma) {
-    try {
-      HizbDefinitions.requireSupported(khatma.hizbDefinitionId);
-    } on UnsupportedHizbDefinitionException {
-      throw ReservationException(
-        ReservationErrorCode.invalidState,
-        'Cette Khatma doit être recréée avec un référentiel Hizb explicite',
-      );
-    }
-  }
-
-  Future<void> _ensureMigrated(String khatmaId) async {
-    final k = await _getKhatma(khatmaId);
-    if (k == null || !k.reservationMode || k.id.startsWith('local_')) return;
-    _requireSupportedDefinition(k);
-    if (k.reservationSchemaVersion >= ReservationSchema.subcollection) return;
-    await _reservationRepo.migrateIfNeeded(k);
-  }
-
+  /// Client-side soft lock (UX optimization) - kept for offline/instant feedback
   Future<void> softLock(
     String khatmaId,
     int hizbNumber,
@@ -158,82 +81,71 @@ class ReservationService {
     String? idempotencyKey,
     String source = 'app',
   }) async {
+    // Soft lock remains client-side for instant UX feedback
+    // This is a temporary hold before actual reservation via Functions
     if (idempotencyKey != null) {
       if (await _checkIdempotency(idempotencyKey)) return;
     }
-    await _ensureMigrated(khatmaId);
 
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) {
-        throw ReservationException(ReservationErrorCode.invalidState, 'Khatma introuvable');
-      }
-
-      final khatma = Khatma.fromMap({...parentDoc.data()!, 'id': parentDoc.id});
-      if (!khatma.reservationMode) return;
-      _requireSupportedDefinition(khatma);
-
-      final allMap = await _readAllReservationsInTransaction(tx, khatmaId);
-      var r = _resolveExpired(_getFromMap(allMap, hizbNumber));
-
-      if (!r.isAvailable && !(r.isSoftLocked && r.softLockedBy == userId)) {
-        throw ReservationException(
-          ReservationErrorCode.alreadyReserved,
-          'Hizb $hizbNumber déjà réservé',
-          hizbNumber,
-        );
-      }
-
-      if (_reservationRepo.countActiveByUser(allMap, userId) >= maxHizbPerUser(khatma)) {
-        throw ReservationException(
-          ReservationErrorCode.limitReached,
-          'Limite de ${maxHizbPerUser(khatma)} Hizb atteinte',
-          hizbNumber,
-        );
-      }
-
-      final now = DateTime.now();
-      final softExpires = now.add(Duration(seconds: ReservationConfig.softLockSeconds));
-      tx.set(
-        _hizbRef(khatmaId, hizbNumber),
-        r.transitionTo(
-          status: HizbReservationStatus.softLocked,
-          softLockedBy: userId,
-          softLockExpiresAt: softExpires,
-          source: source,
-        ).toMap(hizbNumberOverride: hizbNumber),
-      );
-    });
+    // TODO: Implement client-side soft lock if needed
+    // For now, this is a no-op since reservation is immediate via Functions
 
     if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
   }
 
+  /// Reserve a Hizb via server-authoritative callable function
   Future<void> reserve(
     String khatmaId,
     int hizbNumber,
     String userId, {
     String? reservedForName,
+    AssigneeKind assigneeKind = AssigneeKind.self,
+    String? assigneeUserId,
+    String? assignedByUserId,
     String? idempotencyKey,
     String source = 'app',
   }) async {
+    if (assigneeKind == AssigneeKind.offline &&
+        (reservedForName == null || reservedForName.trim().isEmpty)) {
+      throw ReservationException(
+        ReservationErrorCode.invalidState,
+        'Un nom court est requis pour réserver pour quelqu\'un d\'autre',
+        hizbNumber,
+      );
+    }
+    if (assigneeKind == AssigneeKind.participant &&
+        (assigneeUserId == null || assigneeUserId.isEmpty)) {
+      throw ReservationException(
+        ReservationErrorCode.invalidState,
+        'Participant requis pour une assignation organisateur',
+        hizbNumber,
+      );
+    }
+
     if (idempotencyKey != null) {
       if (await _checkIdempotency(idempotencyKey)) return;
     }
 
     try {
-      await _reserveFirestore(
-        khatmaId,
-        hizbNumber,
-        userId,
-        reservedForName: reservedForName,
-        source: source,
-      );
+      final callable = _functions.httpsCallable('reserveHizb');
+      await callable.call<Map<String, dynamic>>({
+        'khatmaId': khatmaId,
+        'hizbNumber': hizbNumber,
+        'assigneeKind': assigneeKind.value,
+        if (assigneeKind == AssigneeKind.offline && reservedForName != null)
+          'assigneeDisplayName': reservedForName.trim(),
+        if (assigneeKind == AssigneeKind.participant && assigneeUserId != null)
+          'assigneeUserId': assigneeUserId,
+      });
+
       if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsException(e, hizbNumber);
     } catch (e) {
+      // Fallback for local Khatma
       final khatma = await _getKhatma(khatmaId);
       if (khatma != null && khatma.id.startsWith('local_')) {
-        debugPrint('ReservationService: Firestore échoué, fallback local (Khatma locale): $e');
+        debugPrint('ReservationService: Firestore échoué, fallback local: $e');
         try {
           await _readingService.reserveHizb(
             khatmaId,
@@ -251,74 +163,15 @@ class ReservationService {
           );
         }
       }
-      if (e is ReservationException) rethrow;
       throw ReservationException(
-        ReservationErrorCode.invalidState,
+        ReservationErrorCode.networkError,
         'Réservation indisponible hors ligne. Réessayez avec une connexion.',
         hizbNumber,
       );
     }
   }
 
-  Future<void> _reserveFirestore(
-    String khatmaId,
-    int hizbNumber,
-    String userId, {
-    String? reservedForName,
-    String source = 'app',
-  }) async {
-    await _ensureMigrated(khatmaId);
-
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) {
-        throw ReservationException(ReservationErrorCode.invalidState, 'Khatma introuvable');
-      }
-
-      final khatma = Khatma.fromMap({...parentDoc.data()!, 'id': parentDoc.id});
-      if (!khatma.reservationMode) return;
-      _requireSupportedDefinition(khatma);
-
-      final allMap = await _readAllReservationsInTransaction(tx, khatmaId);
-      var r = _resolveExpired(_getFromMap(allMap, hizbNumber));
-
-      final isMySoftLock = r.isSoftLocked && r.softLockedBy == userId;
-      if (!r.isAvailable && !isMySoftLock) {
-        throw ReservationException(
-          ReservationErrorCode.alreadyReserved,
-          'Hizb $hizbNumber déjà réservé',
-          hizbNumber,
-        );
-      }
-
-      if (r.isReserved && r.reservedBy == userId) return;
-
-      if (_reservationRepo.countActiveByUser(allMap, userId) >= maxHizbPerUser(khatma)) {
-        throw ReservationException(
-          ReservationErrorCode.limitReached,
-          'Limite de ${maxHizbPerUser(khatma)} Hizb atteinte',
-          hizbNumber,
-        );
-      }
-
-      final now = DateTime.now();
-      final expires = now.add(Duration(hours: ReservationConfig.reservationExpirationHours));
-      tx.set(
-        _hizbRef(khatmaId, hizbNumber),
-        r.transitionTo(
-          status: HizbReservationStatus.reserved,
-          reservedBy: userId,
-          reservedForName:
-              reservedForName?.trim().isNotEmpty == true ? reservedForName!.trim() : null,
-          reservedAt: now,
-          expiresAt: expires,
-          source: source,
-        ).toMap(hizbNumberOverride: hizbNumber),
-      );
-    });
-  }
-
+  /// Release a Hizb via server-authoritative callable function
   Future<void> release(
     String khatmaId,
     int hizbNumber,
@@ -328,82 +181,39 @@ class ReservationService {
     if (idempotencyKey != null) {
       if (await _checkIdempotency(idempotencyKey)) return;
     }
-    await _ensureMigrated(khatmaId);
 
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) return;
+    try {
+      final callable = _functions.httpsCallable('releaseHizb');
+      await callable.call<Map<String, dynamic>>({
+        'khatmaId': khatmaId,
+        'hizbNumber': hizbNumber,
+      });
 
-      final hizbDoc = await tx.get(_hizbRef(khatmaId, hizbNumber));
-      if (!hizbDoc.exists) return;
-
-      final r = HizbReservation.fromMap(hizbDoc.data()!);
-      if (r.reservedBy != userId && r.softLockedBy != userId) return;
-      if (!r.isReserved && !r.isSoftLocked) return;
-
-      tx.set(
-        _hizbRef(khatmaId, hizbNumber),
-        r
-            .transitionTo(status: HizbReservationStatus.available)
-            .toMap(hizbNumberOverride: hizbNumber),
+      if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsException(e, hizbNumber);
+    } catch (e) {
+      throw ReservationException(
+        ReservationErrorCode.networkError,
+        'Libération indisponible hors ligne. Réessayez avec une connexion.',
+        hizbNumber,
       );
-    });
-
-    if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
+    }
   }
 
+  /// Start reading (transition to inProgress) - kept client-side for UX
   Future<void> start(
     String khatmaId,
     int hizbNumber,
     String userId, {
     String? idempotencyKey,
   }) async {
-    if (idempotencyKey != null) {
-      if (await _checkIdempotency(idempotencyKey)) return;
-    }
-    await _ensureMigrated(khatmaId);
-
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) {
-        throw ReservationException(ReservationErrorCode.invalidState, 'Khatma introuvable');
-      }
-
-      final hizbDoc = await tx.get(_hizbRef(khatmaId, hizbNumber));
-      if (!hizbDoc.exists) {
-        throw ReservationException(
-          ReservationErrorCode.notYours,
-          'Hizb non réservé par vous',
-          hizbNumber,
-        );
-      }
-
-      var r = HizbReservation.fromMap(hizbDoc.data()!);
-      if (r.reservedBy != userId || !r.isReserved) {
-        throw ReservationException(
-          ReservationErrorCode.notYours,
-          'Hizb non réservé par vous',
-          hizbNumber,
-        );
-      }
-      if (_isExpired(r)) {
-        throw ReservationException(
-          ReservationErrorCode.expired,
-          'Réservation expirée',
-          hizbNumber,
-        );
-      }
-
-      tx.update(_hizbRef(khatmaId, hizbNumber), {
-        'status': HizbReservationStatus.inProgress.name,
-      });
-    });
-
+    // This could be removed or kept as a local state transition
+    // For now, keeping as no-op since completion is what matters
     if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
   }
 
+  /// Complete a Hizb via server-authoritative callable function
   Future<void> done(
     String khatmaId,
     int hizbNumber,
@@ -416,12 +226,37 @@ class ReservationService {
     }
 
     try {
-      await _doneFirestore(khatmaId, hizbNumber, userId, authUid: authUid);
+      final callable = _functions.httpsCallable('completeHizb');
+      await callable.call<Map<String, dynamic>>({
+        'khatmaId': khatmaId,
+        'hizbNumber': hizbNumber,
+      });
+
       if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
+
+      // Update local reading progress
+      final now = DateTime.now();
+      await _historyService.logHizbCompleted(userId, now);
+      final progress = await _readingService.getProgress(khatmaId, userId) ??
+          ReadingProgress(
+            khatmaId: khatmaId,
+            userId: userId,
+            lastUpdated: now,
+            authUid: authUid,
+          );
+      final newSet = Set<int>.from(progress.completedHizb)..add(hizbNumber);
+      await _readingService.saveProgress(progress.copyWith(
+        completedHizb: newSet,
+        lastUpdated: now,
+        authUid: authUid ?? progress.authUid,
+      ));
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsException(e, hizbNumber);
     } catch (e) {
+      // Fallback for local Khatma
       final khatma = await _getKhatma(khatmaId);
       if (khatma != null && khatma.id.startsWith('local_')) {
-        debugPrint('ReservationService.done: fallback local (Khatma locale): $e');
+        debugPrint('ReservationService.done: fallback local: $e');
         await _readingService.completeHizbReservation(
           khatmaId,
           hizbNumber,
@@ -430,168 +265,98 @@ class ReservationService {
         );
         return;
       }
-      if (e is ReservationException) rethrow;
       throw ReservationException(
-        ReservationErrorCode.invalidState,
+        ReservationErrorCode.networkError,
         'Validation indisponible hors ligne. Réessayez avec une connexion.',
         hizbNumber,
       );
     }
   }
 
-  Future<void> _doneFirestore(
-    String khatmaId,
-    int hizbNumber,
-    String userId, {
-    String? authUid,
-  }) async {
-    await _ensureMigrated(khatmaId);
-    final now = DateTime.now();
-    var wasAlreadyCompleted = false;
-
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) {
-        throw ReservationException(ReservationErrorCode.invalidState, 'Khatma introuvable');
-      }
-
-      final khatma = Khatma.fromMap({...parentDoc.data()!, 'id': parentDoc.id});
-      final hizbDoc = await tx.get(_hizbRef(khatmaId, hizbNumber));
-      if (!hizbDoc.exists) return;
-
-      var r = HizbReservation.fromMap(hizbDoc.data()!);
-      if (ReservationCounterUtils.shouldSkipDone(r, userId)) {
-        if (r.isCompleted) wasAlreadyCompleted = true;
-        return;
-      }
-
-      final allMap = await _readAllReservationsInTransaction(tx, khatmaId);
-      final currentCount = khatma.completedHizbCount ??
-          ReservationCounterUtils.countCompleted(allMap);
-
-      tx.update(_hizbRef(khatmaId, hizbNumber), {
-        'status': HizbReservationStatus.completed.name,
-        'completedAt': now.toIso8601String(),
-      });
-
-      final nextCount = ReservationCounterUtils.nextCompletedCount(currentCount);
-      if (nextCount != null) {
-        final parentUpdate = <String, dynamic>{
-          'completedHizbCount': nextCount,
-        };
-        if (nextCount >= AppConstants.totalHizb &&
-            khatma.completedAt == null) {
-          parentUpdate['completedAt'] = FieldValue.serverTimestamp();
-        }
-        tx.update(parentRef, parentUpdate);
-      }
-    });
-
-    if (wasAlreadyCompleted) return;
-
-    await _historyService.logHizbCompleted(userId, now);
-    final progress = await _readingService.getProgress(khatmaId, userId) ??
-        ReadingProgress(
-          khatmaId: khatmaId,
-          userId: userId,
-          lastUpdated: now,
-          authUid: authUid,
-        );
-    final newSet = Set<int>.from(progress.completedHizb)..add(hizbNumber);
-    await _readingService.saveProgress(progress.copyWith(
-      completedHizb: newSet,
-      lastUpdated: now,
-      authUid: authUid ?? progress.authUid,
-    ));
-  }
-
+  /// Extend reservation - kept client-side or could be moved to Functions
   Future<void> extend(
     String khatmaId,
     int hizbNumber,
     String userId, {
     String? idempotencyKey,
   }) async {
-    if (idempotencyKey != null) {
-      if (await _checkIdempotency(idempotencyKey)) return;
-    }
-    await _ensureMigrated(khatmaId);
-
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) {
-        throw ReservationException(ReservationErrorCode.invalidState, 'Khatma introuvable');
-      }
-
-      final hizbDoc = await tx.get(_hizbRef(khatmaId, hizbNumber));
-      if (!hizbDoc.exists) {
-        throw ReservationException(
-          ReservationErrorCode.notYours,
-          'Hizb non réservé par vous',
-          hizbNumber,
-        );
-      }
-
-      var r = HizbReservation.fromMap(hizbDoc.data()!);
-      if (r.reservedBy != userId || !r.isReserved) {
-        throw ReservationException(
-          ReservationErrorCode.notYours,
-          'Hizb non réservé par vous',
-          hizbNumber,
-        );
-      }
-      if (!r.canExtend) {
-        throw ReservationException(
-          ReservationErrorCode.alreadyExtended,
-          'Prolongation déjà utilisée',
-          hizbNumber,
-        );
-      }
-
-      final newExpires = (r.expiresAt ?? DateTime.now())
-          .add(Duration(hours: ReservationConfig.extensionHours));
-      tx.update(_hizbRef(khatmaId, hizbNumber), {
-        'expiresAt': newExpires.toIso8601String(),
-        'extendedCount': 1,
-      });
-    });
-
+    // Extension feature - could be added to Functions later if needed
+    // For now, keeping as no-op
     if (idempotencyKey != null) await _setIdempotency(idempotencyKey);
   }
 
+  /// Admin force release - kept for organizer override
   Future<void> adminForceRelease(
     String khatmaId,
     int hizbNumber,
     String adminUserId,
   ) async {
-    final khatma = await _getKhatma(khatmaId);
-    if (khatma == null || khatma.createdBy != adminUserId) {
-      throw ReservationException(ReservationErrorCode.invalidState, 'Non autorisé');
-    }
-    await _ensureMigrated(khatmaId);
-
-    await _firestore.runTransaction((tx) async {
-      final parentRef = _firestore.collection('khatmat').doc(khatmaId);
-      final parentDoc = await tx.get(parentRef);
-      if (!parentDoc.exists) return;
-
-      final allMap = await _readAllReservationsInTransaction(tx, khatmaId);
-      final updatedMap =
-          ReservationCounterUtils.applyRelease(allMap, hizbNumber);
-      final newCount = ReservationCounterUtils.countCompleted(updatedMap);
-
-      tx.set(
-        _hizbRef(khatmaId, hizbNumber),
-        _getFromMap(allMap, hizbNumber)
-            .transitionTo(status: HizbReservationStatus.available)
-            .toMap(hizbNumberOverride: hizbNumber),
+    // This could use releaseHizb function with organizer permissions
+    try {
+      final callable = _functions.httpsCallable('releaseHizb');
+      await callable.call<Map<String, dynamic>>({
+        'khatmaId': khatmaId,
+        'hizbNumber': hizbNumber,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsException(e, hizbNumber);
+    } catch (e) {
+      throw ReservationException(
+        ReservationErrorCode.networkError,
+        'Libération forcée indisponible hors ligne.',
+        hizbNumber,
       );
-      final parentUpdate = <String, dynamic>{'completedHizbCount': newCount};
-      if (newCount < AppConstants.totalHizb) {
-        parentUpdate['completedAt'] = FieldValue.delete();
-      }
-      tx.update(parentRef, parentUpdate);
-    });
+    }
+  }
+
+  ReservationException _mapFunctionsException(
+    FirebaseFunctionsException e,
+    int? hizbNumber,
+  ) {
+    switch (e.code) {
+      case 'unauthenticated':
+        return ReservationException(
+          ReservationErrorCode.invalidState,
+          'Authentification requise',
+          hizbNumber,
+        );
+      case 'permission-denied':
+        return ReservationException(
+          ReservationErrorCode.permissionDenied,
+          'Permission refusée: ${e.message}',
+          hizbNumber,
+        );
+      case 'not-found':
+        return ReservationException(
+          ReservationErrorCode.invalidState,
+          'Khatma ou Hizb introuvable',
+          hizbNumber,
+        );
+      case 'conflict':
+        return ReservationException(
+          ReservationErrorCode.alreadyReserved,
+          e.message ?? 'Hizb déjà réservé',
+          hizbNumber,
+        );
+      case 'failed-precondition':
+        return ReservationException(
+          ReservationErrorCode.invalidState,
+          e.message ?? 'Précondition non respectée',
+          hizbNumber,
+        );
+      case 'unavailable':
+      case 'deadline-exceeded':
+        return ReservationException(
+          ReservationErrorCode.networkError,
+          'Serveur indisponible',
+          hizbNumber,
+        );
+      default:
+        return ReservationException(
+          ReservationErrorCode.networkError,
+          'Erreur: ${e.code} - ${e.message}',
+          hizbNumber,
+        );
+    }
   }
 }

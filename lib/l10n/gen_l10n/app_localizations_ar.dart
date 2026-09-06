@@ -1071,4 +1071,72 @@ class AppLocalizationsAr extends AppLocalizations {
   String loginErrorGeneric(String error) {
     return 'خطأ: $error';
   }
+
+  @override
+  String get khatmaCreationAuthRequired => 'تسجيل الدخول مطلوب لإنشاء ختمة';
+
+  @override
+  String get khatmaCreationPermissionDenied => 'تم رفض الإذن. تحقق من اتصالك.';
+
+  @override
+  String get khatmaCreationNetworkError =>
+      'خطأ في الشبكة. تحقق من اتصال الإنترنت.';
+
+  @override
+  String get khatmaCreationInitFailed => 'فشل التهيئة. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get khatmaCreationUnknown =>
+      'خطأ غير متوقع. اتصل بالدعم إذا استمرت المشكلة.';
+
+  @override
+  String get khatmaCreationRetry => 'إعادة المحاولة';
+
+  @override
+  String get khatmaCreated => 'تم إنشاء الختمة بنجاح';
+
+  @override
+  String get khatmaCreationFailed => 'فشل إنشاء الختمة';
+
+  @override
+  String get khatmaCreationSubmitting => 'جاري الإنشاء…';
+
+  @override
+  String get khatmaCreationInitializing => 'تهيئة الـ 60 حزب…';
+
+  @override
+  String get reserveThisHizb => 'احجز هذا الحزب';
+
+  @override
+  String get reserveForMe => 'لي';
+
+  @override
+  String get reserveForSomeoneElse => 'لشخص آخر';
+
+  @override
+  String get reserveForSomeoneElseHint => 'شخص خارج التطبيق (الاسم فقط)';
+
+  @override
+  String get personShortName => 'الاسم';
+
+  @override
+  String reservedForPerson(String name) {
+    return 'محجوز لـ $name';
+  }
+
+  @override
+  String reservedByPerson(String name) {
+    return 'بواسطة $name';
+  }
+
+  @override
+  String get takeNextAvailableHizb => 'أخذ الحزب المتاح التالي';
+
+  @override
+  String collectiveHizbSummary(int completed, int reserved, int available) {
+    return '$completed مكتمل · $reserved محجوز · $available متاح';
+  }
+
+  @override
+  String get noHizbAvailable => 'لا يوجد حزب متاح';
 }

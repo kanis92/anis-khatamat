@@ -28,6 +28,35 @@ class LinkedFeature {
   Map<String, dynamic> toMap() => {'label': label, 'route': route};
 }
 
+class CourseTranslation {
+  const CourseTranslation({
+    required this.title,
+    required this.description,
+    this.linkedFeatures = const [],
+  });
+
+  final String title;
+  final String description;
+  final List<LinkedFeature> linkedFeatures;
+
+  factory CourseTranslation.fromMap(Map<String, dynamic> d) =>
+      CourseTranslation(
+        title: d['title'] as String? ?? '',
+        description: d['description'] as String? ?? '',
+        linkedFeatures:
+            (d['linkedFeatures'] as List<dynamic>? ?? [])
+                .map((e) => LinkedFeature.fromMap(e as Map<String, dynamic>))
+                .toList(),
+      );
+
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'description': description,
+    if (linkedFeatures.isNotEmpty)
+      'linkedFeatures': linkedFeatures.map((f) => f.toMap()).toList(),
+  };
+}
+
 class Course extends Equatable {
   final String id;
   final String title;
@@ -42,6 +71,7 @@ class Course extends Equatable {
   final List<LinkedFeature> linkedFeatures;
   final DateTime createdAt;
   final bool isPublished;
+  final Map<String, CourseTranslation>? translations;
 
   const Course({
     required this.id,
@@ -57,6 +87,7 @@ class Course extends Equatable {
     this.linkedFeatures = const [],
     required this.createdAt,
     this.isPublished = true,
+    this.translations,
   });
 
   factory Course.fromFirestore(String id, Map<String, dynamic> d) => Course(
@@ -82,7 +113,23 @@ class Course extends Equatable {
             .toList(),
     createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     isPublished: (d['isPublished'] as bool?) ?? true,
+    translations: _parseTranslations(d['translations']),
   );
+
+  static Map<String, CourseTranslation>? _parseTranslations(dynamic raw) {
+    if (raw is! Map) return null;
+    final out = <String, CourseTranslation>{};
+    raw.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        out[key.toString()] = CourseTranslation.fromMap(value);
+      } else if (value is Map) {
+        out[key.toString()] = CourseTranslation.fromMap(
+          value.cast<String, dynamic>(),
+        );
+      }
+    });
+    return out.isEmpty ? null : out;
+  }
 
   Map<String, dynamic> toFirestore() => {
     'title': title,
@@ -97,6 +144,8 @@ class Course extends Equatable {
     'linkedFeatures': linkedFeatures.map((f) => f.toMap()).toList(),
     'createdAt': Timestamp.fromDate(createdAt),
     'isPublished': isPublished,
+    if (translations != null)
+      'translations': translations!.map((k, v) => MapEntry(k, v.toMap())),
   };
 
 

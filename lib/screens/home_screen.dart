@@ -8,8 +8,7 @@ import 'package:intl/intl.dart';
 import '../core/constants/app_constants.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/models/home_dashboard_state.dart';
-import '../core/utils/duration_formatter.dart';
-import '../l10n/gen_l10n/app_localizations.dart';
+import '../core/ui/anis_home_hero.dart';
 import '../core/models/khatma_with_status.dart';
 import '../core/utils/auth_diag.dart';
 import '../core/providers/auth_provider.dart';
@@ -22,8 +21,6 @@ import '../core/widgets/anis_icon.dart';
 import '../core/widgets/connectivity_banner.dart' show connectivityProvider;
 import '../core/widgets/mushaf_hizb_indicator.dart' show mushafNumber;
 import '../design_system/anis_design_system.dart';
-
-const _heroAsset = 'assets/images/anis_header.png';
 
 /// Accueil ANIS — présentation premium (hero immersif + progression + actions).
 ///
@@ -93,7 +90,7 @@ class _HomeShell extends ConsumerWidget {
         parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        SliverToBoxAdapter(child: _HomeHero(identity: identity)),
+        SliverToBoxAdapter(child: AnisHomeHero(identity: identity)),
         SliverPadding(
           padding: EdgeInsetsDirectional.fromSTEB(
             AnisSpacing.page,
@@ -116,173 +113,6 @@ class _HomeShell extends ConsumerWidget {
     }
 
     return ColoredBox(color: colors.surfaceBase, child: body);
-  }
-}
-
-// ── Hero ─────────────────────────────────────────────────────────────────────
-
-class _HomeHero extends StatelessWidget {
-  const _HomeHero({required this.identity});
-
-  final ParticipantIdentity? identity;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final text = context.anisText;
-    final hijri = formatHijriDate();
-    final time = DateFormat.Hm().format(DateTime.now());
-    final name = identity?.displayLabel ?? l10n.guestBadge;
-    final initial = identity?.displayInitial ?? '?';
-
-    final heroHeight = (MediaQuery.sizeOf(context).height * 0.34).clamp(
-      228.0,
-      320.0,
-    );
-
-    // RTL-aware focal positioning: shift image left in RTL to expose ANIS logo
-    // and provide clear readable zone for right-aligned greeting
-    final locale = Localizations.localeOf(context);
-    final isArabic = locale.languageCode == 'ar';
-    final imageAlignment = isArabic
-        ? const Alignment(-0.7, -0.15) // Shift left: logo visible, greeting zone clear (Arabic/RTL)
-        : const Alignment(0, -0.15);   // Center: approved LTR layout
-
-    return SizedBox(
-      height: heroHeight,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            _heroAsset,
-            fit: BoxFit.cover,
-            alignment: imageAlignment,
-            semanticLabel: l10n.home,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.18),
-                  Colors.black.withValues(alpha: 0.08),
-                  Colors.black.withValues(alpha: 0.52),
-                ],
-                stops: const [0.0, 0.45, 1.0],
-              ),
-            ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                AnisSpacing.page,
-                AnisSpacing.sm,
-                AnisSpacing.page,
-                AnisSpacing.lg,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      IconButton(
-                        tooltip: l10n.notifications,
-                        onPressed: () => context.go('/notifications'),
-                        icon: AnisIcon(
-                          type: AnisIconType.bell,
-                          size: AnisIconSize.lg,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: AnisSpacing.sm),
-                      Semantics(
-                        label: name,
-                        button: true,
-                        child: InkWell(
-                          onTap: () => context.go('/settings'),
-                          customBorder: const CircleBorder(),
-                          child: AnisAvatar(
-                            initial: initial,
-                            semanticLabel: name,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Text(
-                    l10n.welcomeGreeting,
-                    style: text.titleLarge.copyWith(
-                      color: Colors.white,
-                      shadows: const [
-                        Shadow(
-                          color: Color(0x66000000),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AnisSpacing.xs),
-                  Text(
-                    '$hijri  •  $time',
-                    style: text.bodySecondary.copyWith(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      shadows: const [
-                        Shadow(color: Color(0x55000000), blurRadius: 6),
-                      ],
-                    ),
-                  ),
-                  const _HeroPrayerChip(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroPrayerChip extends ConsumerWidget {
-  const _HeroPrayerChip();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final prayer = ref.watch(nextPrayerProvider);
-    if (prayer == null) return const SizedBox.shrink();
-
-    final l10n = context.l10n;
-    final prayerName = _getPrayerName(l10n, prayer.prayerKey);
-    final durationFormatted = DurationFormatter.format(prayer.duration, context);
-    final timeRemaining = l10n.timeIn(durationFormatted);
-
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(top: AnisSpacing.sm),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: AnisBadge(
-          label: l10n.homePrayerPill(prayerName, timeRemaining),
-          tone: AnisBadgeTone.active,
-          anisIcon: AnisIconType.mihrab,
-          semanticLabel: l10n.homeNextPrayerSemantic(prayerName, timeRemaining),
-        ),
-      ),
-    );
-  }
-
-  String _getPrayerName(AppLocalizations l10n, String key) {
-    return switch (key) {
-      'fajr' => l10n.prayerFajr,
-      'dhuhr' => l10n.prayerDhuhr,
-      'asr' => l10n.prayerAsr,
-      'maghrib' => l10n.prayerMaghrib,
-      'isha' => l10n.prayerIsha,
-      _ => key,
-    };
   }
 }
 

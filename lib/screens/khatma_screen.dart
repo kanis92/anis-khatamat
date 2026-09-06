@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/theme/app_theme.dart';
+import '../core/constants/hizb_definitions.dart';
+import '../core/extensions/khatma_creation_l10n_extension.dart';
 import '../core/models/khatma.dart';
+import '../core/models/khatma_creation_failure.dart';
+import '../core/providers/auth_provider.dart';
+import '../core/providers/khatma_creation_provider.dart';
 import '../core/providers/reading_provider.dart';
-import '../core/services/khatma_link_service.dart';
+import '../core/theme/app_theme.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
 
 class KhatmaScreen extends ConsumerWidget {
@@ -75,7 +79,9 @@ class KhatmaScreen extends ConsumerWidget {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: _CreateKhatmaForm(isGroup: isGroup),
+        child: SafeArea(
+          child: CreateCollaborativeKhatmaForm(isGroup: isGroup),
+        ),
       ),
     );
   }
@@ -162,20 +168,26 @@ class _KhatmaCard extends StatelessWidget {
   }
 }
 
-class _CreateKhatmaForm extends StatefulWidget {
+class CreateCollaborativeKhatmaForm extends ConsumerStatefulWidget {
   final bool isGroup;
 
-  const _CreateKhatmaForm({required this.isGroup});
+  const CreateCollaborativeKhatmaForm({super.key, required this.isGroup});
 
   @override
-  State<_CreateKhatmaForm> createState() => _CreateKhatmaFormState();
+  ConsumerState<CreateCollaborativeKhatmaForm> createState() =>
+      _CreateCollaborativeKhatmaFormState();
 }
 
-class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
+class _CreateCollaborativeKhatmaFormState
+    extends ConsumerState<CreateCollaborativeKhatmaForm> {
   final _titleController = TextEditingController();
   final _objectivesController = TextEditingController();
   final _membersController = TextEditingController();
   final List<String> _members = [];
+  bool _navigated = false;
+  bool _isBusy = false;
+  KhatmaCreationPhase _phase = KhatmaCreationPhase.idle;
+  KhatmaCreationFailure? _failure;
 
   @override
   void dispose() {
@@ -195,15 +207,119 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
     }
   }
 
+  String _ctaLabel(AppLocalizations l10n, KhatmaCreationSession session) {
+    return switch (session.phase) {
+      KhatmaCreationPhase.submitting => l10n.khatmaCreationSubmitting,
+      KhatmaCreationPhase.initializing => l10n.khatmaCreationInitializing,
+      KhatmaCreationPhase.ready => l10n.khatmaCreated,
+      KhatmaCreationPhase.idle =>
+        session.failure != null ? l10n.khatmaCreationRetry : l10n.createKhatma,
+    };
+  }
+
+  Future<void> _submit() async {
+    if (_isBusy || _navigated) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final user = ref.read(currentUserProvider);
+    final createdBy = user?.email?.trim();
+    if (createdBy == null || createdBy.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.khatmaCreationAuthRequired),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final title = _titleController.text.trim().isEmpty
+        ? l10n.myKhatma
+        : _titleController.text.trim();
+    final objectives = _objectivesController.text.trim();
+
+    setState(() {
+      _isBusy = true;
+      _phase = KhatmaCreationPhase.submitting;
+      _failure = null;
+    });
+
+    try {
+      setState(() => _phase = KhatmaCreationPhase.initializing);
+      final ready = await ref
+          .read(khatmaCreationControllerProvider.notifier)
+          .submit(
+            title: title,
+            createdBy: createdBy,
+            isGroup: widget.isGroup,
+            isPublic: false,
+            hizbDefinitionId: HizbDefinitions.quranFoundationHafsV1,
+            objectives: objectives.isEmpty ? null : objectives,
+            members: List<String>.from(_members),
+          );
+
+      if (!mounted || _navigated) return;
+      setState(() => _phase = KhatmaCreationPhase.ready);
+      if (ready.id != ref.read(khatmaCreationControllerProvider).khatmaId) {
+        throw InitializationFailed(
+          'Route id mismatch',
+          khatmaId: ready.id,
+        );
+      }
+
+      ref.invalidate(khatmatProvider);
+      ref.invalidate(khatmatWithStatusProvider);
+      ref.invalidate(totalCompletedHizbProvider);
+      ref.invalidate(khatmaLoadProvider(ready.id));
+      ref.invalidate(khatmaByIdProvider(ready.id));
+
+      if (!mounted) return;
+      final router = GoRouter.of(context);
+      final nav = Navigator.of(context);
+      _navigated = true;
+      if (nav.canPop()) {
+        nav.pop();
+      }
+      router.push('/khatma/${ready.id}', extra: {'khatma': ready});
+    } on KhatmaCreationFailure catch (failure) {
+      if (!mounted) return;
+      setState(() {
+        _isBusy = false;
+        _phase = KhatmaCreationPhase.idle;
+        _failure = failure;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.translateKhatmaCreationKey(failure.userMessageKey()),
+          ),
+          backgroundColor: Colors.red,
+          action: SnackBarAction(
+            label: l10n.khatmaCreationRetry,
+            onPressed: _submit,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final busy = _isBusy || _navigated;
+    final session = KhatmaCreationSession(
+      phase: _phase,
+      failure: _failure,
+    );
+
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           Text(
             l10n.createCollaborativeKhatma,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -213,6 +329,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
           const SizedBox(height: 20),
           TextField(
             controller: _titleController,
+            enabled: !busy,
             decoration: InputDecoration(
               labelText: l10n.khatmaTitle,
               hintText: l10n.khatmaExampleTitle,
@@ -221,6 +338,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
           const SizedBox(height: 16),
           TextField(
             controller: _objectivesController,
+            enabled: !busy,
             maxLines: 2,
             decoration: InputDecoration(
               labelText: l10n.objectives,
@@ -234,6 +352,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
                 Expanded(
                   child: TextField(
                     controller: _membersController,
+                    enabled: !busy,
                     decoration: InputDecoration(
                       labelText: l10n.inviteMembers,
                       hintText: l10n.memberEmail,
@@ -242,7 +361,7 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
                   ),
                 ),
                 IconButton(
-                  onPressed: _addMember,
+                  onPressed: busy ? null : _addMember,
                   icon: const Icon(Icons.add_circle),
                 ),
               ],
@@ -254,31 +373,30 @@ class _CreateKhatmaFormState extends State<_CreateKhatmaForm> {
                 children: _members
                     .map((m) => Chip(
                           label: Text(m),
-                          onDeleted: () =>
-                              setState(() => _members.remove(m)),
+                          onDeleted: busy
+                              ? null
+                              : () => setState(() => _members.remove(m)),
                         ))
                     .toList(),
               ),
             ],
           ],
+          if (session.failure != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              l10n.translateKhatmaCreationKey(
+                session.failure!.userMessageKey(),
+              ),
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ],
           const SizedBox(height: 24),
           FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.push(KhatmaLinkService.distributePath, extra: {
-                'title': _titleController.text.trim().isEmpty
-                    ? l10n.myKhatma
-                    : _titleController.text.trim(),
-                'objectives': _objectivesController.text.trim().isEmpty
-                    ? null
-                    : _objectivesController.text.trim(),
-                'isGroup': widget.isGroup,
-                'members': _members,
-              });
-            },
-            child: Text(l10n.nextDistribution),
+            onPressed: busy ? null : _submit,
+            child: Text(_ctaLabel(l10n, session)),
           ),
         ],
+        ),
       ),
     );
   }

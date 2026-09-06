@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'assignee_kind.dart';
+
 /// Statuts possibles d'un Hizb en mode réservation collaborative
 enum HizbReservationStatus {
   available,
@@ -37,6 +39,10 @@ class HizbReservation extends Equatable {
   final String? endVerseKey;
   final int? startPageHafs;
   final int? endPageHafs;
+  final AssigneeKind? assigneeKind;
+  final String? assigneeUserId;
+  final String? assigneeDisplayName;
+  final String? assignedByUserId;
 
   const HizbReservation({
     this.status = HizbReservationStatus.available,
@@ -55,6 +61,10 @@ class HizbReservation extends Equatable {
     this.endVerseKey,
     this.startPageHafs,
     this.endPageHafs,
+    this.assigneeKind,
+    this.assigneeUserId,
+    this.assigneeDisplayName,
+    this.assignedByUserId,
   });
 
   bool get isAvailable =>
@@ -89,6 +99,10 @@ class HizbReservation extends Equatable {
     DateTime? softLockExpiresAt,
     int extendedCount = 0,
     String? source,
+    AssigneeKind? assigneeKind,
+    String? assigneeUserId,
+    String? assigneeDisplayName,
+    String? assignedByUserId,
   }) {
     return HizbReservation(
       status: status,
@@ -107,6 +121,10 @@ class HizbReservation extends Equatable {
       endVerseKey: endVerseKey,
       startPageHafs: startPageHafs,
       endPageHafs: endPageHafs,
+      assigneeKind: assigneeKind,
+      assigneeUserId: assigneeUserId,
+      assigneeDisplayName: assigneeDisplayName,
+      assignedByUserId: assignedByUserId,
     );
   }
 
@@ -127,6 +145,10 @@ class HizbReservation extends Equatable {
     String? endVerseKey,
     int? startPageHafs,
     int? endPageHafs,
+    AssigneeKind? assigneeKind,
+    String? assigneeUserId,
+    String? assigneeDisplayName,
+    String? assignedByUserId,
   }) {
     return HizbReservation(
       status: status ?? this.status,
@@ -145,6 +167,10 @@ class HizbReservation extends Equatable {
       endVerseKey: endVerseKey ?? this.endVerseKey,
       startPageHafs: startPageHafs ?? this.startPageHafs,
       endPageHafs: endPageHafs ?? this.endPageHafs,
+      assigneeKind: assigneeKind ?? this.assigneeKind,
+      assigneeUserId: assigneeUserId ?? this.assigneeUserId,
+      assigneeDisplayName: assigneeDisplayName ?? this.assigneeDisplayName,
+      assignedByUserId: assignedByUserId ?? this.assignedByUserId,
     );
   }
 
@@ -178,6 +204,10 @@ class HizbReservation extends Equatable {
       endVerseKey: map['endVerseKey'] as String?,
       startPageHafs: (map['startPageHafs'] as num?)?.toInt(),
       endPageHafs: (map['endPageHafs'] as num?)?.toInt(),
+      assigneeKind: AssigneeKind.fromString(map['assigneeKind'] as String?),
+      assigneeUserId: map['assigneeUserId'] as String?,
+      assigneeDisplayName: map['assigneeDisplayName'] as String?,
+      assignedByUserId: map['assignedByUserId'] as String?,
     );
   }
 
@@ -201,6 +231,11 @@ class HizbReservation extends Equatable {
         'softLockExpiresAt': softLockExpiresAt!.toIso8601String(),
       if (extendedCount > 0) 'extendedCount': extendedCount,
       if (source != null) 'source': source,
+      if (assigneeKind != null) 'assigneeKind': assigneeKind!.name,
+      if (assigneeUserId != null) 'assigneeUserId': assigneeUserId,
+      if (assigneeDisplayName != null)
+        'assigneeDisplayName': assigneeDisplayName,
+      if (assignedByUserId != null) 'assignedByUserId': assignedByUserId,
     };
   }
 
@@ -222,5 +257,9 @@ class HizbReservation extends Equatable {
         endVerseKey,
         startPageHafs,
         endPageHafs,
+        assigneeKind,
+        assigneeUserId,
+        assigneeDisplayName,
+        assignedByUserId,
       ];
 }

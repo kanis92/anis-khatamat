@@ -676,5 +676,42 @@
         "type": "String"
       }
     }
-  }
+  },
+  "khatmaCreationAuthRequired": "تسجيل الدخول مطلوب لإنشاء ختمة",
+  "khatmaCreationPermissionDenied": "تم رفض الإذن. تحقق من اتصالك.",
+  "khatmaCreationNetworkError": "خطأ في الشبكة. تحقق من اتصال الإنترنت.",
+  "khatmaCreationInitFailed": "فشل التهيئة. يرجى المحاولة مرة أخرى.",
+  "khatmaCreationUnknown": "خطأ غير متوقع. اتصل بالدعم إذا استمرت المشكلة.",
+  "khatmaCreationRetry": "إعادة المحاولة",
+  "khatmaCreated": "تم إنشاء الختمة بنجاح",
+  "khatmaCreationFailed": "فشل إنشاء الختمة",
+  "khatmaCreationSubmitting": "جاري الإنشاء…",
+  "khatmaCreationInitializing": "تهيئة الـ 60 حزب…",
+  "reserveThisHizb": "احجز هذا الحزب",
+  "reserveForMe": "لي",
+  "reserveForSomeoneElse": "لشخص آخر",
+  "reserveForSomeoneElseHint": "شخص خارج التطبيق (الاسم فقط)",
+  "personShortName": "الاسم",
+  "reservedForPerson": "محجوز لـ {name}",
+  "@reservedForPerson": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "reservedByPerson": "بواسطة {name}",
+  "@reservedByPerson": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "takeNextAvailableHizb": "أخذ الحزب المتاح التالي",
+  "collectiveHizbSummary": "{completed} مكتمل · {reserved} محجوز · {available} متاح",
+  "@collectiveHizbSummary": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "reserved": { "type": "int" },
+      "available": { "type": "int" }
+    }
+  },
+  "noHizbAvailable": "لا يوجد حزب متاح"
 }

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../constants/app_constants.dart';
 import '../constants/hizb_definitions.dart';
 import 'hizb_reservation.dart';
+import 'khatma_creation_state.dart';
 
 /// Représente une Khatma (individuelle ou groupe)
 class Khatma extends Equatable {
@@ -38,6 +39,8 @@ class Khatma extends Equatable {
   /// Version sémantique du découpage Hizb. Null signifie « non déterminée »,
   /// jamais « canonique par défaut ».
   final String? hizbDefinitionId;
+  /// État de création (V2 only). Null/absent pour legacy = ready.
+  final KhatmaCreationState? creationState;
 
   const Khatma({
     required this.id,
@@ -57,6 +60,7 @@ class Khatma extends Equatable {
     this.completedHizbCount,
     this.completedAt,
     this.hizbDefinitionId,
+    this.creationState,
   });
 
   bool get isCollectivelyCompleted =>
@@ -74,6 +78,10 @@ class Khatma extends Equatable {
 
   bool get hasSupportedHizbDefinition =>
       HizbDefinitions.isSupported(hizbDefinitionId);
+
+  /// Legacy sans champ = ready. Ne jamais filtrer les listes sur ce champ seul.
+  bool get isReadyForUse =>
+      creationState == null || creationState == KhatmaCreationState.ready;
 
   /// Nombre de Hizb réservés par un utilisateur
   int reservedByUser(String userId) =>
@@ -109,6 +117,7 @@ class Khatma extends Equatable {
       completedHizbCount: (map['completedHizbCount'] as num?)?.toInt(),
       completedAt: _parseDateTime(map['completedAt']),
       hizbDefinitionId: map['hizbDefinitionId'] as String?,
+      creationState: KhatmaCreationState.fromString(map['creationState'] as String?),
     );
   }
 
@@ -138,6 +147,7 @@ class Khatma extends Equatable {
       if (completedHizbCount != null) 'completedHizbCount': completedHizbCount,
       if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
       if (hizbDefinitionId != null) 'hizbDefinitionId': hizbDefinitionId,
+      if (creationState != null) 'creationState': creationState!.value,
     };
   }
 
@@ -159,6 +169,7 @@ class Khatma extends Equatable {
     int? completedHizbCount,
     DateTime? completedAt,
     String? hizbDefinitionId,
+    KhatmaCreationState? creationState,
   }) {
     return Khatma(
       id: id ?? this.id,
@@ -179,6 +190,7 @@ class Khatma extends Equatable {
       completedHizbCount: completedHizbCount ?? this.completedHizbCount,
       completedAt: completedAt ?? this.completedAt,
       hizbDefinitionId: hizbDefinitionId ?? this.hizbDefinitionId,
+      creationState: creationState ?? this.creationState,
     );
   }
 

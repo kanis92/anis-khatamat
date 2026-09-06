@@ -479,8 +479,10 @@ class ReadingService {
             'rules require auth+email+createdBy==token.email',
           );
         }
+        rethrow;
       } catch (e) {
         debugPrint('ReadingService.saveKhatma Firestore: $e');
+        rethrow;
       }
     }
     return toSave;

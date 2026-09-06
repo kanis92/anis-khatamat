@@ -8,9 +8,13 @@ import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
 import '../core/constants/hizb_definitions.dart';
 import '../core/models/khatma.dart';
+import '../core/models/khatma_creation_failure.dart';
 import '../core/data/quran_hizb_data.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/reading_provider.dart';
+import '../core/providers/khatma_creation_provider.dart';
+import '../core/extensions/khatma_creation_l10n_extension.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 
 class HizbDistributionScreen extends ConsumerStatefulWidget {
   final String khatmaTitle;
@@ -33,6 +37,7 @@ class HizbDistributionScreen extends ConsumerStatefulWidget {
 
 class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen> {
   final Map<int, String> _assignments = {};
+  bool _isBusy = false;
 
   List<String> get _participants {
     if (!widget.isGroup || widget.members.isEmpty) {
@@ -81,6 +86,77 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
   }
 
   Future<void> _confirmDistribution() async {
+    if (_isBusy) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final user = ref.read(currentUserProvider);
+    final userId = user?.email;
+
+    if (_isGroup) {
+      if (userId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.khatmaCreationAuthRequired),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      setState(() => _isBusy = true);
+      try {
+        final readyKhatma = await ref
+            .read(khatmaCreationControllerProvider.notifier)
+            .submit(
+              title: _khatmaTitle,
+              createdBy: userId,
+              isGroup: true,
+              isPublic: false,
+              hizbDefinitionId: HizbDefinitions.quranFoundationHafsV1,
+            );
+
+        if (!readyKhatma.isReadyForUse) return;
+
+        ref.invalidate(khatmatProvider);
+        ref.invalidate(totalCompletedHizbProvider);
+        ref.invalidate(khatmaLoadProvider(readyKhatma.id));
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.khatmaCreated),
+              backgroundColor: Colors.green,
+            ),
+          );
+          context.pop();
+          context.push(
+            '/khatma/${readyKhatma.id}',
+            extra: {'khatma': readyKhatma},
+          );
+        }
+      } on KhatmaCreationFailure catch (failure) {
+        if (mounted) {
+          setState(() => _isBusy = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                l10n.translateKhatmaCreationKey(failure.userMessageKey()),
+              ),
+              backgroundColor: Colors.red,
+              action: SnackBarAction(
+                label: l10n.khatmaCreationRetry,
+                onPressed: _retryCreation,
+              ),
+            ),
+          );
+        }
+      }
+      return;
+    }
+
+    // Flux V1 pour Khatmas personnelles (legacy)
     final unassigned = List.generate(AppConstants.totalHizb, (i) => i + 1)
         .where((n) => !_assignments.containsKey(n) || _assignments[n]!.isEmpty)
         .length;
@@ -119,8 +195,6 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
       });
     }
 
-    final user = ref.read(currentUserProvider);
-    final userId = user?.email ?? 'demo';
     final khatma = Khatma(
       id: 'local_${const Uuid().v4()}',
       title: _khatmaTitle,
@@ -128,9 +202,9 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
       isGroup: _isGroup,
       members: _members,
       hizbAssignments: Map.from(_assignments),
-      createdBy: userId,
+      createdBy: userId ?? 'demo',
       createdAt: DateTime.now(),
-      participantIds: [userId],
+      participantIds: [userId ?? 'demo'],
       hizbDefinitionId: HizbDefinitions.quranFoundationHafsV1,
     );
 
@@ -163,6 +237,10 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
       context.pop();
       context.push('/khatma/${saved.id}', extra: {'khatma': saved});
     }
+  }
+
+  void _retryCreation() {
+    _confirmDistribution();
   }
 
   void _sendReminder() {
@@ -339,11 +417,29 @@ class _HizbDistributionScreenState extends ConsumerState<HizbDistributionScreen>
                       ),
                     ),
                   FilledButton(
-                    onPressed: () => _confirmDistribution(),
+                    onPressed: _isBusy ? null : _confirmDistribution,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),
                     ),
-                    child: const Text('Confirmer la distribution'),
+                    child: _isBusy
+                        ? const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text('Création en cours...'),
+                            ],
+                          )
+                        : const Text('Confirmer la distribution'),
                   ),
                 ],
               ),

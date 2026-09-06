@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quran/flutter_quran.dart';
@@ -13,8 +11,11 @@ import '../core/constants/hizb_definitions.dart';
 import '../core/data/quran_hizb_data.dart';
 import '../core/repositories/hizb_index_repository.dart';
 import '../core/models/hizb_display_metadata.dart';
+import '../core/models/assignee_kind.dart';
 import '../core/models/hizb_reservation.dart';
 import '../core/models/khatma.dart';
+import '../core/utils/khatma_collective.dart';
+import '../core/utils/reservation_assignee_label.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/reading_provider.dart';
 import '../core/services/khatma_completion_seen_service.dart';
@@ -205,24 +206,53 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
         : (user?.email?.split('@').first ?? 'Anonyme');
   }
 
+  String _actorDisplayName(HizbReservation r) {
+    if (r.reservedBy == _userId) return _myDisplayName;
+    final by = r.reservedBy;
+    if (by == null || by.isEmpty) return _myDisplayName;
+    return _khatma.guestParticipants[by] ?? by.split('@').first;
+  }
+
   Future<void> _showReserveForDialog(
     int hizbNum, {
-    required void Function(String? name) onConfirm,
+    required void Function(
+      AssigneeKind kind,
+      String? name, {
+      String? assigneeUserId,
+    })
+    onConfirm,
   }) async {
     if (!mounted) return;
-    final name = await showDialog<String?>(
+    final others = _khatma.participantIds
+        .where((id) => id.isNotEmpty && id != _userId)
+        .toList();
+    final choice = await showDialog<_ReserveChoice?>(
       context: context,
       builder:
           (ctx) => _ReserveForDialog(
             hizbNum: hizbNum,
             myDisplayName: _myDisplayName,
-            onConfirm: (n) => Navigator.pop(ctx, n),
+            canAssignParticipant:
+                _khatma.createdBy == _userId && others.isNotEmpty,
+            participants: others,
+            onConfirm: (c) => Navigator.pop(ctx, c),
           ),
     );
-    onConfirm(name);
+    if (choice != null) {
+      onConfirm(
+        choice.kind,
+        choice.name,
+        assigneeUserId: choice.assigneeUserId,
+      );
+    }
   }
 
-  Future<void> _reserve(int hizbNum, {String? reservedForName}) async {
+  Future<void> _reserve(
+    int hizbNum, {
+    String? reservedForName,
+    AssigneeKind assigneeKind = AssigneeKind.self,
+    String? assigneeUserId,
+  }) async {
     if (_isLoading) return;
     final service = ref.read(reservationServiceProvider);
     final idempotencyKey = 'reserve_${_khatma.id}_$hizbNum';
@@ -239,12 +269,23 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
         _khatma.id,
         hizbNum,
         _userId,
-        reservedForName: reservedForName ?? _myDisplayName,
+        reservedForName: assigneeKind == AssigneeKind.offline
+            ? reservedForName
+            : null,
+        assigneeKind: assigneeKind,
+        assigneeUserId: assigneeKind == AssigneeKind.participant
+            ? assigneeUserId
+            : null,
+        assignedByUserId: assigneeKind == AssigneeKind.participant
+            ? _userId
+            : null,
         idempotencyKey: idempotencyKey,
         source: widget.guestId != null ? 'webGuest' : 'app',
       );
       if (mounted) {
-        final name = reservedForName ?? _myDisplayName;
+        final name = assigneeKind == AssigneeKind.offline
+            ? reservedForName
+            : null;
         setState(() {
           _optimisticReserved.remove(hizbNum);
           _optimisticReservedNames.remove(hizbNum);
@@ -258,6 +299,10 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
                 reservedForName: name,
                 reservedAt: DateTime.now(),
                 expiresAt: DateTime.now().add(const Duration(hours: 48)),
+                assigneeKind: assigneeKind,
+                assigneeUserId:
+                    assigneeKind == AssigneeKind.offline ? null : _userId,
+                assigneeDisplayName: name,
               ),
             },
           );
@@ -586,13 +631,7 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
     final service = ref.read(reservationServiceProvider);
     final limit = service.maxHizbPerUser(_khatma);
     if (_khatma.reservedByUser(_userId) >= limit) return null;
-    final available = <int>[];
-    for (var i = 1; i <= AppConstants.totalHizb; i++) {
-      final r = _getReservation(i);
-      if (r.isAvailable) available.add(i);
-    }
-    if (available.isEmpty) return null;
-    return available[Random().nextInt(available.length)];
+    return findNextAvailableHizb(_khatma.hizbReservations);
   }
 
   Future<void> _autoReserve() async {
@@ -600,15 +639,20 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
     if (hizb != null) {
       _showReserveForDialog(
         hizb,
-        onConfirm: (name) async {
-          if (name != null) await _reserve(hizb, reservedForName: name);
+        onConfirm: (kind, name, {assigneeUserId}) async {
+          await _reserve(
+            hizb,
+            reservedForName: name,
+            assigneeKind: kind,
+            assigneeUserId: assigneeUserId,
+          );
         },
       );
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Aucun Hizb disponible ou limite atteinte'),
+          SnackBar(
+            content: Text(context.l10n.noHizbAvailable),
             backgroundColor: Colors.orange,
           ),
         );
@@ -653,12 +697,15 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
 
     final metadata = _metadataFor(hizbNum);
     final range = metadata?.rangeLabel ?? '—';
-    final displayName =
-        !isAvailable &&
-                r.reservedForName != null &&
-                r.reservedForName!.isNotEmpty
-            ? r.reservedForName!
-            : null;
+    final assigneeLabel = ReservationAssigneeLabel.fromReservation(
+      r,
+      actorDisplayName: _actorDisplayName(r),
+      reservedForPerson: context.l10n.reservedForPerson,
+      reservedByPerson: context.l10n.reservedByPerson,
+      selfLabel: 'Moi',
+      reservedFallback: 'Réservé',
+    );
+    final displayName = assigneeLabel.offlineName;
 
     if (isGrid) {
       return Material(
@@ -719,7 +766,11 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
     final statusText =
         isAvailable
             ? 'Non assigné'
-            : (isMine ? (displayName ?? 'Moi') : (displayName ?? 'Réservé'));
+            : (isCompleted
+                ? 'Terminé'
+                : assigneeLabel.secondary == null
+                    ? assigneeLabel.primary
+                    : '${assigneeLabel.primary}\n${assigneeLabel.secondary}');
     final surah = metadata?.localizedSurahLabel ?? '—';
     final badgeColor =
         isAvailable || (!isMine && !isCompleted)
@@ -959,8 +1010,13 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
     if (r.isAvailable) {
       _showReserveForDialog(
         hizbNum,
-        onConfirm: (name) {
-          if (name != null) _reserve(hizbNum, reservedForName: name);
+        onConfirm: (kind, name, {assigneeUserId}) {
+          _reserve(
+            hizbNum,
+            reservedForName: name,
+            assigneeKind: kind,
+            assigneeUserId: assigneeUserId,
+          );
         },
       );
       return;
@@ -1188,7 +1244,7 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
                       child: OutlinedButton.icon(
                         onPressed: _isLoading ? null : _autoReserve,
                         icon: const Icon(Icons.auto_awesome, size: 18),
-                        label: const Text('Attribue-moi un Hizb'),
+                        label: Text(context.l10n.takeNextAvailableHizb),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryGreen,
                         ),
@@ -1276,6 +1332,23 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
                           'Liste des 60 Hizb',
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Builder(
+                          builder: (context) {
+                            final c = KhatmaCollectiveCounters.fromReservations(
+                              _khatma.hizbReservations,
+                            );
+                            return Text(
+                              context.l10n.collectiveHizbSummary(
+                                c.completed,
+                                c.reserved,
+                                c.available,
+                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            );
+                          },
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -1434,16 +1507,27 @@ class _LateMembersCard extends StatelessWidget {
   }
 }
 
+class _ReserveChoice {
+  const _ReserveChoice(this.kind, this.name, {this.assigneeUserId});
+  final AssigneeKind kind;
+  final String? name;
+  final String? assigneeUserId;
+}
+
 /// Dialogue pour choisir « Pour moi » ou « Pour quelqu'un d'autre » avant réservation
 class _ReserveForDialog extends StatefulWidget {
   final int hizbNum;
   final String myDisplayName;
-  final void Function(String?) onConfirm;
+  final bool canAssignParticipant;
+  final List<String> participants;
+  final void Function(_ReserveChoice?) onConfirm;
 
   const _ReserveForDialog({
     required this.hizbNum,
     required this.myDisplayName,
     required this.onConfirm,
+    this.canAssignParticipant = false,
+    this.participants = const [],
   });
 
   @override
@@ -1452,13 +1536,15 @@ class _ReserveForDialog extends StatefulWidget {
 
 class _ReserveForDialogState extends State<_ReserveForDialog> {
   bool _isForOther = false;
+  bool _isForParticipant = false;
+  String? _selectedParticipant;
   late TextEditingController _controller;
   String? _errorText;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.myDisplayName);
+    _controller = TextEditingController();
   }
 
   @override
@@ -1468,55 +1554,85 @@ class _ReserveForDialogState extends State<_ReserveForDialog> {
   }
 
   void _onReserve() {
-    final name = _isForOther ? _controller.text.trim() : widget.myDisplayName;
-    if (_isForOther && name.isEmpty) {
-      setState(() => _errorText = 'Veuillez saisir le nom de la personne');
+    if (_isForParticipant) {
+      final id = _selectedParticipant;
+      if (id == null || id.isEmpty) {
+        setState(() => _errorText = context.l10n.khatmaCreationUnknown);
+        return;
+      }
+      widget.onConfirm(
+        _ReserveChoice(AssigneeKind.participant, null, assigneeUserId: id),
+      );
       return;
     }
-    setState(() => _errorText = null);
-    widget.onConfirm(name.isEmpty ? widget.myDisplayName : name);
+    if (_isForOther) {
+      final name = _controller.text.trim();
+      if (name.isEmpty) {
+        setState(() => _errorText = context.l10n.personShortName);
+        return;
+      }
+      widget.onConfirm(_ReserveChoice(AssigneeKind.offline, name));
+      return;
+    }
+    widget.onConfirm(const _ReserveChoice(AssigneeKind.self, null));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: Text('Hizb ${widget.hizbNum} — Pour qui réserver ?'),
+      title: Text('${l10n.reserveThisHizb} — Hizb ${widget.hizbNum}'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            RadioListTile<bool>(
-              title: Text('Pour moi (${widget.myDisplayName})'),
-              value: false,
-              groupValue: _isForOther,
-              onChanged:
-                  (v) => setState(() {
-                    _isForOther = false;
-                    _errorText = null;
-                  }),
+            RadioListTile<String>(
+              title: Text('${l10n.reserveForMe} (${widget.myDisplayName})'),
+              value: 'self',
+              groupValue: _isForParticipant
+                  ? 'participant'
+                  : (_isForOther ? 'offline' : 'self'),
+              onChanged: (_) => setState(() {
+                _isForOther = false;
+                _isForParticipant = false;
+                _errorText = null;
+              }),
             ),
-            RadioListTile<bool>(
-              title: const Text('Pour quelqu\'un d\'autre'),
-              subtitle: const Text(
-                'Personne hors de l\'app (ex: grand-parent, ami)',
+            RadioListTile<String>(
+              title: Text(l10n.reserveForSomeoneElse),
+              subtitle: Text(l10n.reserveForSomeoneElseHint),
+              value: 'offline',
+              groupValue: _isForParticipant
+                  ? 'participant'
+                  : (_isForOther ? 'offline' : 'self'),
+              onChanged: (_) => setState(() {
+                _isForOther = true;
+                _isForParticipant = false;
+                _errorText = null;
+              }),
+            ),
+            if (widget.canAssignParticipant)
+              RadioListTile<String>(
+                title: Text(l10n.inviteMembers),
+                value: 'participant',
+                groupValue: _isForParticipant
+                    ? 'participant'
+                    : (_isForOther ? 'offline' : 'self'),
+                onChanged: (_) => setState(() {
+                  _isForOther = false;
+                  _isForParticipant = true;
+                  _selectedParticipant ??= widget.participants.first;
+                  _errorText = null;
+                }),
               ),
-              value: true,
-              groupValue: _isForOther,
-              onChanged:
-                  (v) => setState(() {
-                    _isForOther = true;
-                    _errorText = null;
-                  }),
-            ),
             if (_isForOther) ...[
               const SizedBox(height: 12),
               TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  labelText: 'Nom de la personne',
-                  hintText:
-                      'Ex: Ahmed, Fatima... (pas besoin d\'être dans l\'app)',
+                  labelText: l10n.personShortName,
+                  hintText: 'Fatima',
                   errorText: _errorText,
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -1524,15 +1640,25 @@ class _ReserveForDialogState extends State<_ReserveForDialog> {
                 onChanged: (_) => setState(() => _errorText = null),
               ),
             ],
+            if (_isForParticipant)
+              DropdownButton<String>(
+                value: _selectedParticipant ?? widget.participants.first,
+                isExpanded: true,
+                items: [
+                  for (final p in widget.participants)
+                    DropdownMenuItem(value: p, child: Text(p)),
+                ],
+                onChanged: (v) => setState(() => _selectedParticipant = v),
+              ),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => widget.onConfirm(null),
-          child: const Text('Annuler'),
+          child: Text(l10n.cancel),
         ),
-        FilledButton(onPressed: _onReserve, child: const Text('Réserver')),
+        FilledButton(onPressed: _onReserve, child: Text(l10n.reserveThisHizb)),
       ],
     );
   }

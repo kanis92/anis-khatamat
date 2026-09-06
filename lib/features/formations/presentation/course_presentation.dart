@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../models/course.dart';
 import '../../../l10n/gen_l10n/app_localizations.dart';
+import 'course_content_resolver.dart';
 
 /// Presentation layer for Course localization.
 /// 
@@ -43,4 +44,16 @@ extension CoursePresentationExtension on Course {
     final l10n = AppLocalizations.of(context)!;
     return CoursePresentationLabels.category(category, l10n);
   }
+
+  ResolvedCourseContent resolvedContent(BuildContext context) {
+    return CourseContentResolver.resolve(
+      this,
+      Localizations.localeOf(context),
+    );
+  }
+
+  String localizedTitle(BuildContext context) => resolvedContent(context).title;
+
+  String localizedDescription(BuildContext context) =>
+      resolvedContent(context).description;
 }

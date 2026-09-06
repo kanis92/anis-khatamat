@@ -2007,6 +2007,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur: {error}'**
   String loginErrorGeneric(String error);
+
+  /// No description provided for @khatmaCreationAuthRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour créer une Khatma'**
+  String get khatmaCreationAuthRequired;
+
+  /// No description provided for @khatmaCreationPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission refusée. Vérifiez votre connexion.'**
+  String get khatmaCreationPermissionDenied;
+
+  /// No description provided for @khatmaCreationNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur réseau. Vérifiez votre connexion internet.'**
+  String get khatmaCreationNetworkError;
+
+  /// No description provided for @khatmaCreationInitFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec d\'initialisation. Veuillez réessayer.'**
+  String get khatmaCreationInitFailed;
+
+  /// No description provided for @khatmaCreationUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inattendue. Contactez le support si le problème persiste.'**
+  String get khatmaCreationUnknown;
+
+  /// No description provided for @khatmaCreationRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get khatmaCreationRetry;
+
+  /// No description provided for @khatmaCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Khatma créée avec succès'**
+  String get khatmaCreated;
+
+  /// No description provided for @khatmaCreationFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de création de la Khatma'**
+  String get khatmaCreationFailed;
+
+  /// No description provided for @khatmaCreationSubmitting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Création…'**
+  String get khatmaCreationSubmitting;
+
+  /// No description provided for @khatmaCreationInitializing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Initialisation des 60 Hizb…'**
+  String get khatmaCreationInitializing;
+
+  /// No description provided for @reserveThisHizb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserver ce Hizb'**
+  String get reserveThisHizb;
+
+  /// No description provided for @reserveForMe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour moi'**
+  String get reserveForMe;
+
+  /// No description provided for @reserveForSomeoneElse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour quelqu\'un d\'autre'**
+  String get reserveForSomeoneElse;
+
+  /// No description provided for @reserveForSomeoneElseHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne hors de l\'app (prénom uniquement)'**
+  String get reserveForSomeoneElseHint;
+
+  /// No description provided for @personShortName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom'**
+  String get personShortName;
+
+  /// No description provided for @reservedForPerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé pour {name}'**
+  String reservedForPerson(String name);
+
+  /// No description provided for @reservedByPerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'par {name}'**
+  String reservedByPerson(String name);
+
+  /// No description provided for @takeNextAvailableHizb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre le prochain Hizb disponible'**
+  String get takeNextAvailableHizb;
+
+  /// No description provided for @collectiveHizbSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{completed} terminés · {reserved} réservés · {available} disponibles'**
+  String collectiveHizbSummary(int completed, int reserved, int available);
+
+  /// No description provided for @noHizbAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun Hizb disponible'**
+  String get noHizbAvailable;
 }
 
 class _AppLocalizationsDelegate

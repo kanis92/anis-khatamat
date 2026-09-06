@@ -1,131 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/extensions/l10n_extensions.dart';
 import '../core/theme/app_theme.dart';
+import '../features/formations/presentation/course_presentation.dart';
+import '../features/formations/providers/formations_providers.dart';
 
-class TrainingScreen extends StatelessWidget {
+class TrainingScreen extends ConsumerWidget {
   const TrainingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final coursesAsync = ref.watch(publishedCoursesProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Formation'),
+        title: Text(l10n.formations),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.school, color: AppTheme.primaryGreen, size: 32),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Ateliers de formation',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Gérez vos projets de formation : inscription des participants, partage de ressources, sessions Zoom/Meet.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                    ),
-                    const SizedBox(height: 20),
-                    FilledButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Création d\'atelier à implémenter'),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Créer un atelier'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
             Text(
-              'Ateliers à venir',
+              l10n.myTraining,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 16),
-            _EmptyWorkshopCard(),
-            const SizedBox(height: 24),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.calendar_today, color: AppTheme.primaryGreen),
-                    title: const Text('Calendrier partagé'),
-                    subtitle: const Text('Consultez les sessions planifiées'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {},
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.video_library, color: AppTheme.primaryGreen),
-                    title: const Text('Sessions Zoom / Meet'),
-                    subtitle: const Text('Rejoignez les formations en direct'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {},
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.folder, color: AppTheme.primaryGreen),
-                    title: const Text('Ressources éducatives'),
-                    subtitle: const Text('PDF, vidéos, audio'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyWorkshopCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'Aucun atelier programmé',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Créez votre premier atelier pour commencer.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[500],
-                  ),
+            coursesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, _) => const SizedBox.shrink(),
+              data: (courses) {
+                if (courses.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  children: [
+                    for (final course in courses)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.school,
+                            color: AppTheme.primaryGreen,
+                          ),
+                          title: Text(course.localizedTitle(context)),
+                          subtitle: Text(
+                            course.localizedDescription(context),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: Text(course.localizedLevel(context)),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
           ],
         ),

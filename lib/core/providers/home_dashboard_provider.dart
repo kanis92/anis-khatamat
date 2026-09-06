@@ -1,11 +1,15 @@
+import 'dart:ui';
+
 import 'package:adhan/adhan.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/home_dashboard_state.dart';
 import '../services/guest_service.dart';
 import '../utils/home_dashboard_utils.dart';
+import '../../features/formations/presentation/course_content_resolver.dart';
 import '../../features/formations/providers/formations_providers.dart';
 import 'auth_provider.dart';
+import 'locale_provider.dart';
 import 'prayer_times_provider.dart';
 import 'reading_provider.dart';
 
@@ -163,8 +167,10 @@ final formationProgressProvider = FutureProvider<FormationProgressInfo?>((
           } catch (_) {}
         }
       }
+      final locale = ref.watch(localeProvider) ?? const Locale('fr');
+      final resolved = CourseContentResolver.resolve(c, locale);
       return FormationProgressInfo(
-        courseTitle: c.title,
+        courseTitle: resolved.title,
         lessonTitle: lessonTitle,
       );
     }

@@ -676,5 +676,42 @@
         "type": "String"
       }
     }
-  }
+  },
+  "khatmaCreationAuthRequired": "Login required to create a Khatma",
+  "khatmaCreationPermissionDenied": "Permission denied. Check your connection.",
+  "khatmaCreationNetworkError": "Network error. Check your internet connection.",
+  "khatmaCreationInitFailed": "Initialization failed. Please try again.",
+  "khatmaCreationUnknown": "Unexpected error. Contact support if the problem persists.",
+  "khatmaCreationRetry": "Retry",
+  "khatmaCreated": "Khatma created successfully",
+  "khatmaCreationFailed": "Failed to create Khatma",
+  "khatmaCreationSubmitting": "Creating…",
+  "khatmaCreationInitializing": "Initializing 60 Hizb…",
+  "reserveThisHizb": "Reserve this Hizb",
+  "reserveForMe": "For me",
+  "reserveForSomeoneElse": "For someone else",
+  "reserveForSomeoneElseHint": "Someone outside the app (first name only)",
+  "personShortName": "First name",
+  "reservedForPerson": "Reserved for {name}",
+  "@reservedForPerson": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "reservedByPerson": "by {name}",
+  "@reservedByPerson": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "takeNextAvailableHizb": "Take the next available Hizb",
+  "collectiveHizbSummary": "{completed} completed · {reserved} reserved · {available} available",
+  "@collectiveHizbSummary": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "reserved": { "type": "int" },
+      "available": { "type": "int" }
+    }
+  },
+  "noHizbAvailable": "No Hizb available"
 }

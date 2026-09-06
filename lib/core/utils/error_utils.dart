@@ -49,6 +49,10 @@ class ErrorUtils {
           return error.message;
         case ReservationErrorCode.softLockExpired:
           return 'Délai de confirmation dépassé. Réessayez.';
+        case ReservationErrorCode.permissionDenied:
+          return error.message;
+        case ReservationErrorCode.networkError:
+          return error.message;
       }
     }
     return userMessage(error, fallback: 'Erreur lors de la réservation. Réessayez.');

@@ -1080,4 +1080,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String loginErrorGeneric(String error) {
     return 'Error: $error';
   }
+
+  @override
+  String get khatmaCreationAuthRequired => 'Login required to create a Khatma';
+
+  @override
+  String get khatmaCreationPermissionDenied =>
+      'Permission denied. Check your connection.';
+
+  @override
+  String get khatmaCreationNetworkError =>
+      'Network error. Check your internet connection.';
+
+  @override
+  String get khatmaCreationInitFailed =>
+      'Initialization failed. Please try again.';
+
+  @override
+  String get khatmaCreationUnknown =>
+      'Unexpected error. Contact support if the problem persists.';
+
+  @override
+  String get khatmaCreationRetry => 'Retry';
+
+  @override
+  String get khatmaCreated => 'Khatma created successfully';
+
+  @override
+  String get khatmaCreationFailed => 'Failed to create Khatma';
+
+  @override
+  String get khatmaCreationSubmitting => 'Creating…';
+
+  @override
+  String get khatmaCreationInitializing => 'Initializing 60 Hizb…';
+
+  @override
+  String get reserveThisHizb => 'Reserve this Hizb';
+
+  @override
+  String get reserveForMe => 'For me';
+
+  @override
+  String get reserveForSomeoneElse => 'For someone else';
+
+  @override
+  String get reserveForSomeoneElseHint =>
+      'Someone outside the app (first name only)';
+
+  @override
+  String get personShortName => 'First name';
+
+  @override
+  String reservedForPerson(String name) {
+    return 'Reserved for $name';
+  }
+
+  @override
+  String reservedByPerson(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String get takeNextAvailableHizb => 'Take the next available Hizb';
+
+  @override
+  String collectiveHizbSummary(int completed, int reserved, int available) {
+    return '$completed completed · $reserved reserved · $available available';
+  }
+
+  @override
+  String get noHizbAvailable => 'No Hizb available';
 }
