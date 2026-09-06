@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>409015429474-ec23sbfhn8p261pnpbhbevelsnni98ls.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.409015429474-ec23sbfhn8p261pnpbhbevelsnni98ls</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDfuh9mmre82R46eOUmUGipi1D74BiY6yI</string>
 	<key>GCM_SENDER_ID</key>
@@ -9,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>anis</string>
+	<string>com.aniskhatamat.app</string>
 	<key>PROJECT_ID</key>
 	<string>anis-437c3</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:409015429474:ios:4574c0dad5cd4208c6a43b</string>
+	<string>1:409015429474:ios:775849ba6e69aafcc6a43b</string>
 </dict>
 </plist>
