@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
-import 'firebase_options_loader.dart';
+import '../../firebase_options.dart';
 
 /// État bas niveau du bootstrap Firebase Core.
 enum FirebaseRuntimeState { configured, unavailable, failed }
@@ -35,6 +35,37 @@ class FirebaseBootstrapResult {
   }
 
   bool get isConfigured => state == FirebaseRuntimeState.configured;
+
+  /// Production-safe diagnostic message (no sensitive data).
+  String get diagnosticMessage {
+    return switch (state) {
+      FirebaseRuntimeState.configured => 'Firebase configured',
+      FirebaseRuntimeState.unavailable => 
+        'Firebase configuration missing (no firebase_options.dart or --dart-define)',
+      FirebaseRuntimeState.failed => _sanitizeErrorMessage(error),
+    };
+  }
+
+  static String _sanitizeErrorMessage(Object? error) {
+    if (error == null) return 'Firebase initialization failed';
+    
+    final errorStr = error.toString();
+    // Extract error type and code without exposing sensitive data
+    if (errorStr.contains('duplicate-app')) {
+      return 'Firebase error: duplicate-app';
+    }
+    if (errorStr.contains('FirebaseException')) {
+      // Try to extract plugin and code
+      final pluginMatch = RegExp(r'plugin:\s*(\w+)').firstMatch(errorStr);
+      final codeMatch = RegExp(r'code:\s*([a-z-]+)').firstMatch(errorStr);
+      if (pluginMatch != null && codeMatch != null) {
+        return 'Firebase error: ${pluginMatch.group(1)}/${codeMatch.group(1)}';
+      }
+      return 'Firebase error: initialization-failed';
+    }
+    // Generic sanitized message
+    return 'Firebase error: ${error.runtimeType}';
+  }
 }
 
 /// Résultat global du bootstrap — injecté via [ProviderScope.overrides] dans [main].
@@ -49,39 +80,31 @@ Future<FirebaseBootstrapResult> bootstrapFirebase() async {
     );
   }
 
-  final options = resolveFirebaseOptionsFromEnvironment();
-  if (options == null) {
-    if (kDebugMode) {
-      debugPrint(
-        '[FirebaseBootstrap] CONFIG_MISSING on ${firebasePlatformLabel} — '
-        'demo/unconfigured mode',
-      );
-    }
-    return const FirebaseBootstrapResult(
-      state: FirebaseRuntimeState.unavailable,
-    );
-  }
-
   try {
-    await Firebase.initializeApp(options: options);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     await installCrashlyticsHandlers();
-    if (kDebugMode) {
-      debugPrint('[FirebaseBootstrap] CONFIGURED on ${firebasePlatformLabel}');
-    }
+    debugPrint('[FirebaseBootstrap] CONFIGURED');
     return const FirebaseBootstrapResult(
       state: FirebaseRuntimeState.configured,
     );
   } catch (error, stackTrace) {
-    if (kDebugMode) {
-      debugPrint(
-        '[FirebaseBootstrap] FAILED on ${firebasePlatformLabel}: $error',
-      );
-      debugPrint('$stackTrace');
-    }
-    return FirebaseBootstrapResult(
+    // Always log failures (production-safe diagnostic)
+    final result = FirebaseBootstrapResult(
       state: FirebaseRuntimeState.failed,
       error: error,
     );
+    debugPrint(
+      '[FirebaseBootstrap] FAILED\n'
+      'Diagnostic: ${result.diagnosticMessage}\n'
+      'Error type: ${error.runtimeType}',
+    );
+    if (kDebugMode) {
+      debugPrint('Full error: $error');
+      debugPrint('Stack trace: $stackTrace');
+    }
+    return result;
   }
 }
 

@@ -50,7 +50,7 @@ android/upload-key.jks
 *.jks
 
 # Firebase — config privée (B8 HYBRID policy)
-lib/firebase_options.dart
+# lib/firebase_options.dart now tracked (contains only public identifiers)
 android/app/google-services.json
 private/firebase/
 private/
