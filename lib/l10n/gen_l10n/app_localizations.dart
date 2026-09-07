@@ -2127,6 +2127,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun Hizb disponible'**
   String get noHizbAvailable;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créée par'**
+  String get createdBy;
 }
 
 class _AppLocalizationsDelegate

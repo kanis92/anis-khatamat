@@ -744,5 +744,6 @@
       "available": { "type": "int" }
     }
   },
-  "noHizbAvailable": "Aucun Hizb disponible"
+  "noHizbAvailable": "Aucun Hizb disponible",
+  "createdBy": "Créée par"
 }

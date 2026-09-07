@@ -1139,4 +1139,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noHizbAvailable => 'لا يوجد حزب متاح';
+
+  @override
+  String get createdBy => 'أنشأها';
 }

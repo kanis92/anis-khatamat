@@ -1151,4 +1151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noHizbAvailable => 'No Hizb available';
+
+  @override
+  String get createdBy => 'Created by';
 }

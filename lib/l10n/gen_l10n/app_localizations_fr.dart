@@ -1157,4 +1157,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noHizbAvailable => 'Aucun Hizb disponible';
+
+  @override
+  String get createdBy => 'Créée par';
 }

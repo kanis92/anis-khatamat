@@ -713,5 +713,6 @@
       "available": { "type": "int" }
     }
   },
-  "noHizbAvailable": "لا يوجد حزب متاح"
+  "noHizbAvailable": "لا يوجد حزب متاح",
+  "createdBy": "أنشأها"
 }

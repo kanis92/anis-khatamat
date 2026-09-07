@@ -469,7 +469,7 @@ class _HizbListItem extends StatelessWidget {
   final bool isNext;
   final List<String> khatmaMembers;
   final VoidCallback? onToggle;
-  final dynamic l10n;
+  final AppLocalizations l10n;
 
   const _HizbListItem({
     required this.hizbNum,
@@ -864,7 +864,7 @@ class _KhatmaInfoCard extends StatelessWidget {
   final String currentUserEmail;
   final DateTime? lastActivity;
   final DateTime? estimatedCompletion;
-  final dynamic l10n;
+  final AppLocalizations l10n;
 
   const _KhatmaInfoCard({
     required this.khatma,
