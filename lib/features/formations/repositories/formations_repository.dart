@@ -63,6 +63,18 @@ class FormationsRepository {
         );
   }
 
+  /// V1: Filter by pedagogical pillar
+  Stream<List<Course>> watchCoursesByPillar(String pillarId) {
+    return _courses
+        .where('isPublished', isEqualTo: true)
+        .where('pillarId', isEqualTo: pillarId)
+        .snapshots()
+        .map(
+          (s) =>
+              s.docs.map((d) => Course.fromFirestore(d.id, d.data())).toList(),
+        );
+  }
+
   Future<Course?> getCourse(String courseId) async {
     final doc = await _courses.doc(courseId).get();
     if (!doc.exists) return null;

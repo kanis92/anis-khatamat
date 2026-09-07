@@ -6,6 +6,7 @@ import '../models/course.dart';
 import '../models/course_module.dart';
 import '../models/lesson.dart';
 import '../models/user_progress.dart';
+import '../models/pedagogical_pillar.dart';
 import '../repositories/formations_repository.dart';
 import '../services/formations_api_service.dart';
 
@@ -34,6 +35,13 @@ final coursesByCategoryProvider =
       return ref
           .watch(formationsRepositoryProvider)
           .watchCoursesByCategory(category);
+    });
+
+final coursesByPillarProvider =
+    StreamProvider.family<List<Course>, String>((ref, pillarId) {
+      return ref
+          .watch(formationsRepositoryProvider)
+          .watchCoursesByPillar(pillarId);
     });
 
 final courseDetailProvider = FutureProvider.family<Course?, String>((
@@ -105,18 +113,18 @@ final allProgressProvider = FutureProvider<List<UserCourseProgress>>((
   return ref.watch(formationsRepositoryProvider).getAllProgress(uid);
 });
 
-// ─── Selected category filter ─────────────────────────────────────────────────
+// ─── Selected pillar filter (V1 taxonomy) ─────────────────────────────────────
 
-final selectedCategoryProvider = StateProvider<CourseCategory?>((ref) => null);
+final selectedPillarProvider = StateProvider<PedagogicalPillar?>((ref) => null);
 
 // ─── Filtered courses (catalogue) ────────────────────────────────────────────
 
 final filteredCoursesProvider = Provider<AsyncValue<List<Course>>>((ref) {
-  final category = ref.watch(selectedCategoryProvider);
-  if (category == null) {
+  final pillar = ref.watch(selectedPillarProvider);
+  if (pillar == null) {
     return ref.watch(publishedCoursesProvider);
   }
-  return ref.watch(coursesByCategoryProvider(category));
+  return ref.watch(coursesByPillarProvider(pillar.id));
 });
 
 // ─── Actions ─────────────────────────────────────────────────────────────────

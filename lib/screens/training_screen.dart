@@ -6,6 +6,7 @@ import '../core/extensions/l10n_extensions.dart';
 import '../core/theme/app_theme.dart';
 import '../features/formations/models/course.dart';
 import '../features/formations/models/user_progress.dart';
+import '../features/formations/models/pedagogical_pillar.dart';
 import '../features/formations/presentation/course_presentation.dart';
 import '../features/formations/providers/formations_providers.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
@@ -18,7 +19,7 @@ class TrainingScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final coursesAsync = ref.watch(filteredCoursesProvider);
     final progressAsync = ref.watch(allProgressProvider);
-    final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedPillar = ref.watch(selectedPillarProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,13 +69,13 @@ class TrainingScreen extends ConsumerWidget {
               },
             ),
             
-            // Category filter
+            // Pillar filter (V1 pedagogical taxonomy)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: _CategoryFilter(
-                selectedCategory: selectedCategory,
-                onCategorySelected: (category) {
-                  ref.read(selectedCategoryProvider.notifier).state = category;
+              child: _PillarFilter(
+                selectedPillar: selectedPillar,
+                onPillarSelected: (pillar) {
+                  ref.read(selectedPillarProvider.notifier).state = pillar;
                 },
               ),
             ),
@@ -240,14 +241,14 @@ class _ResumeCard extends ConsumerWidget {
   }
 }
 
-class _CategoryFilter extends StatelessWidget {
-  const _CategoryFilter({
-    required this.selectedCategory,
-    required this.onCategorySelected,
+class _PillarFilter extends StatelessWidget {
+  const _PillarFilter({
+    required this.selectedPillar,
+    required this.onPillarSelected,
   });
 
-  final CourseCategory? selectedCategory;
-  final ValueChanged<CourseCategory?> onCategorySelected;
+  final PedagogicalPillar? selectedPillar;
+  final ValueChanged<PedagogicalPillar?> onPillarSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -259,20 +260,20 @@ class _CategoryFilter extends StatelessWidget {
         children: [
           _CategoryChip(
             label: l10n.all,
-            isSelected: selectedCategory == null,
-            onTap: () => onCategorySelected(null),
+            isSelected: selectedPillar == null,
+            onTap: () => onPillarSelected(null),
           ),
           const SizedBox(width: 8),
-          ...CourseCategory.values.map((category) {
+          ...PedagogicalPillar.values.map((pillar) {
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: _CategoryChip(
-                label: CoursePresentationLabels.category(
-                  category,
+                label: CoursePresentationLabels.pillar(
+                  pillar,
                   AppLocalizations.of(context)!,
                 ),
-                isSelected: selectedCategory == category,
-                onTap: () => onCategorySelected(category),
+                isSelected: selectedPillar == pillar,
+                onTap: () => onPillarSelected(pillar),
               ),
             );
           }),
