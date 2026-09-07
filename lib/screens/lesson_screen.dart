@@ -123,11 +123,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   _QuranReferenceSection(quranRef: lesson.quranRef!),
                 ],
 
-                // Quiz (if present)
-                if (lesson.quiz.isNotEmpty) ...[
-                  const SizedBox(height: 24),
-                  _QuizSection(quiz: lesson.quiz),
-                ],
+                // Quiz (if present) - Note: Quiz data exists but interactive UI deferred
+                // Hiding for now to avoid broken promise
+                // if (lesson.quiz.isNotEmpty) ...[
+                //   const SizedBox(height: 24),
+                //   _QuizSection(quiz: lesson.quiz),
+                // ],
 
                 // Completion button
                 const SizedBox(height: 32),
