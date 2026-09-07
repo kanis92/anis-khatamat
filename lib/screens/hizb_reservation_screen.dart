@@ -1184,246 +1184,251 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Réservation collaborative',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+      body: CustomScrollView(
+        slivers: [
+          // Header: Collaborative reservation summary (scrolls away)
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Réservation collaborative',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                if (widget.guestId != null) ...[
+                  if (widget.guestId != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Connecté en tant que : ${_khatma.guestParticipants[widget.guestId] ?? 'Anonyme'}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[700],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Text(
-                    'Connecté en tant que : ${_khatma.guestParticipants[widget.guestId] ?? 'Anonyme'}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700],
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                Text(
-                  'Découpage Hizb: ${QuranHizbData.hizbConventionLabel}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$completed / $total Hizb complétés',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.primaryGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: total > 0 ? completed / total : 0,
-                  backgroundColor: Colors.grey[300],
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryGreen,
-                  ),
-                  borderRadius: BorderRadius.circular(4),
-                  minHeight: 6,
-                ),
-                if (_khatma.createdBy == _userId && widget.guestId == null) ...[
-                  _LateMembersCard(khatma: _khatma),
-                  const SizedBox(height: 12),
-                ],
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _isLoading ? null : _autoReserve,
-                        icon: const Icon(Icons.auto_awesome, size: 18),
-                        label: Text(context.l10n.takeNextAvailableHizb),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.primaryGreen,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    FilledButton.icon(
-                      onPressed: () async {
-                        final completed = _khatma.completedReservationCount;
-                        final total = AppConstants.totalHizb;
-                        final text = KhatmaLinkService.joinInviteMessage(
-                          _khatma,
-                          bodyPrefix:
-                              '🕌 Rejoignez ma Khatma "${_khatma.title}" !\n\n'
-                              'Progression : $completed/$total Hizb\n\n',
-                        );
-                        final uri = Uri.parse(
-                          'https://wa.me/?text=${Uri.encodeComponent(text)}',
-                        );
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
-                            uri,
-                            mode: LaunchMode.platformDefault,
-                          );
-                        } else {
-                          Share.share(text);
-                        }
-                      },
-                      icon: const Icon(Icons.chat, color: Colors.white),
-                      label: const Text('WhatsApp'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF25D366),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: [
-                    _LegendItem(
-                      color: Colors.grey,
-                      icon: Icons.circle_outlined,
-                      label: 'Disponible',
-                    ),
-                    _LegendItem(
-                      color: AppTheme.primaryGreen,
-                      icon: Icons.person,
-                      label: 'Réservé par moi',
-                    ),
-                    _LegendItem(
-                      color: Colors.orange,
-                      icon: Icons.lock,
-                      label: 'Réservé par un autre',
-                    ),
-                    _LegendItem(
-                      color: AppTheme.primaryGreen,
-                      icon: Icons.check_circle,
-                      label: 'Terminé',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Appuyez sur un Hizb disponible pour le réserver (pour vous ou pour quelqu\'un hors de l\'app). Appuyez sur vos Hizb réservés pour les terminer ou les libérer.',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!_isGridView) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Liste des 60 Hizb',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Builder(
-                          builder: (context) {
-                            final c = KhatmaCollectiveCounters.fromReservations(
-                              _khatma.hizbReservations,
-                            );
-                            return Text(
-                              context.l10n.collectiveHizbSummary(
-                                c.completed,
-                                c.reserved,
-                                c.available,
-                              ),
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Découpage Hizb: ${QuranHizbData.hizbConventionLabel}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600], fontSize: 11),
-                        ),
-                      ],
+                    'Découpage Hizb: ${QuranHizbData.hizbConventionLabel}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontSize: 11,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryGreen.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.info_outline,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Format Sourate:Verset — ex. 1:1 = Sourate 1 verset 1, 2:74 = Sourate 2 verset 74',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey[700]),
-                          ),
-                        ),
-                      ],
+                  Text(
+                    '$completed / $total Hizb complétés',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.primaryGreen,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                ],
-                Expanded(
-                  child:
-                      _isGridView
-                          ? GridView.builder(
-                            padding: const EdgeInsets.all(16),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 6,
-                                  mainAxisSpacing: 8,
-                                  crossAxisSpacing: 8,
-                                  childAspectRatio: 0.85,
-                                ),
-                            itemCount: total,
-                            // hizbNum = i + 1 = identifiant réel (1..60), pas l'index
-                            itemBuilder:
-                                (context, i) =>
-                                    _buildHizbItem(context, i + 1, i, true),
-                          )
-                          : ListView.builder(
-                            padding: const EdgeInsets.only(top: 8, bottom: 16),
-                            itemCount: total,
-                            // hizbNum = i + 1 = identifiant réel (1..60), pas l'index
-                            itemBuilder:
-                                (context, i) =>
-                                    _buildHizbItem(context, i + 1, i, false),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: total > 0 ? completed / total : 0,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppTheme.primaryGreen,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                    minHeight: 6,
+                  ),
+                  if (_khatma.createdBy == _userId && widget.guestId == null) ...[
+                    _LateMembersCard(khatma: _khatma),
+                    const SizedBox(height: 12),
+                  ],
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _isLoading ? null : _autoReserve,
+                          icon: const Icon(Icons.auto_awesome, size: 18),
+                          label: Text(context.l10n.takeNextAvailableHizb),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.primaryGreen,
                           ),
-                ),
-              ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      FilledButton.icon(
+                        onPressed: () async {
+                          final completed = _khatma.completedReservationCount;
+                          final total = AppConstants.totalHizb;
+                          final text = KhatmaLinkService.joinInviteMessage(
+                            _khatma,
+                            bodyPrefix:
+                                '🕌 Rejoignez ma Khatma "${_khatma.title}" !\n\n'
+                                'Progression : $completed/$total Hizb\n\n',
+                          );
+                          final uri = Uri.parse(
+                            'https://wa.me/?text=${Uri.encodeComponent(text)}',
+                          );
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.platformDefault,
+                            );
+                          } else {
+                            Share.share(text);
+                          }
+                        },
+                        icon: const Icon(Icons.chat, color: Colors.white),
+                        label: const Text('WhatsApp'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF25D366),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: [
+                      _LegendItem(
+                        color: Colors.grey,
+                        icon: Icons.circle_outlined,
+                        label: 'Disponible',
+                      ),
+                      _LegendItem(
+                        color: AppTheme.primaryGreen,
+                        icon: Icons.person,
+                        label: 'Réservé par moi',
+                      ),
+                      _LegendItem(
+                        color: Colors.orange,
+                        icon: Icons.lock,
+                        label: 'Réservé par un autre',
+                      ),
+                      _LegendItem(
+                        color: AppTheme.primaryGreen,
+                        icon: Icons.check_circle,
+                        label: 'Terminé',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Appuyez sur un Hizb disponible pour le réserver (pour vous ou pour quelqu\'un hors de l\'app). Appuyez sur vos Hizb réservés pour les terminer ou les libérer.',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                  ),
+                ],
+              ),
             ),
           ),
+
+          // List header section (also scrolls away if in list view)
+          if (!_isGridView) ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Liste des 60 Hizb',
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Builder(
+                      builder: (context) {
+                        final c = KhatmaCollectiveCounters.fromReservations(
+                          _khatma.hizbReservations,
+                        );
+                        return Text(
+                          context.l10n.collectiveHizbSummary(
+                            c.completed,
+                            c.reserved,
+                            c.available,
+                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Découpage Hizb: ${QuranHizbData.hizbConventionLabel}',
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: Colors.grey[600], fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              sliver: SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Format Sourate:Verset — ex. 1:1 = Sourate 1 verset 1, 2:74 = Sourate 2 verset 74',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[700]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Hizb list (grid or list view)
+          _isGridView
+              ? SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 6,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 0.85,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) => _buildHizbItem(context, i + 1, i, true),
+                      childCount: total,
+                    ),
+                  ),
+                )
+              : SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) => _buildHizbItem(context, i + 1, i, false),
+                      childCount: total,
+                    ),
+                  ),
+                ),
+
+          // Bottom spacing
+          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
       ),
     );
