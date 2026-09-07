@@ -1648,6 +1648,30 @@ abstract class AppLocalizations {
   /// **'Autre'**
   String get courseCategoryOther;
 
+  /// No description provided for @continueLearning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer ma formation'**
+  String get continueLearning;
+
+  /// No description provided for @all.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get all;
+
+  /// No description provided for @noFormationsAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune formation disponible pour le moment'**
+  String get noFormationsAvailable;
+
+  /// No description provided for @errorLoadingFormations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du chargement des formations'**
+  String get errorLoadingFormations;
+
   /// No description provided for @homeRamadanPillFr.
   ///
   /// In fr, this message translates to:

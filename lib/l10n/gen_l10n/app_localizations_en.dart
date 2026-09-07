@@ -869,6 +869,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get courseCategoryOther => 'Other';
 
   @override
+  String get continueLearning => 'Continue Learning';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get noFormationsAvailable => 'No courses available at the moment';
+
+  @override
+  String get errorLoadingFormations => 'Error loading courses';
+
+  @override
   String homeRamadanPillFr(int day) {
     return 'Ramadan · Day $day of 30';
   }

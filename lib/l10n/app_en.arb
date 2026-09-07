@@ -510,6 +510,10 @@
   "courseCategoryMemorization": "Memorization",
   "courseCategorySpirituality": "Spirituality",
   "courseCategoryOther": "Other",
+  "continueLearning": "Continue Learning",
+  "all": "All",
+  "noFormationsAvailable": "No courses available at the moment",
+  "errorLoadingFormations": "Error loading courses",
   "homeRamadanPillFr": "Ramadan · Day {day} of 30",
   "@homeRamadanPillFr": {
     "placeholders": {

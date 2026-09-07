@@ -510,6 +510,10 @@
   "courseCategoryMemorization": "حفظ",
   "courseCategorySpirituality": "روحانية",
   "courseCategoryOther": "أخرى",
+  "continueLearning": "مواصلة التعلم",
+  "all": "الكل",
+  "noFormationsAvailable": "لا توجد دورات متاحة في الوقت الحالي",
+  "errorLoadingFormations": "خطأ في تحميل الدورات",
   "homeRamadanPillFr": "رمضان · يوم {day} من 30",
   "@homeRamadanPillFr": {
     "placeholders": {

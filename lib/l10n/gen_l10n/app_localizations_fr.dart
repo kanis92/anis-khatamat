@@ -872,6 +872,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get courseCategoryOther => 'Autre';
 
   @override
+  String get continueLearning => 'Continuer ma formation';
+
+  @override
+  String get all => 'Tous';
+
+  @override
+  String get noFormationsAvailable =>
+      'Aucune formation disponible pour le moment';
+
+  @override
+  String get errorLoadingFormations =>
+      'Erreur lors du chargement des formations';
+
+  @override
   String homeRamadanPillFr(int day) {
     return 'Ramadan · Jour $day sur 30';
   }
