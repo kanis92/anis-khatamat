@@ -4,7 +4,7 @@
  */
 
 import * as admin from 'firebase-admin';
-import { AuthContext } from '../domain/auth';
+import { AuthContext } from '../middleware/auth';
 import { ApiError } from '../errors/api-error';
 
 export async function completeFormationLesson(

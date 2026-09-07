@@ -4,7 +4,7 @@
  */
 
 import * as admin from 'firebase-admin';
-import { AuthContext } from '../domain/auth';
+import { AuthContext } from '../middleware/auth';
 import { FormationProgress, FormationProgressResponse } from '../domain/formations';
 
 export async function getFormationProgress(
