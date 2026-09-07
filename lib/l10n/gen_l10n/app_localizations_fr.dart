@@ -130,6 +130,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get myKhatmat => 'Vos Khatmat en cours';
 
   @override
+  String get viewMyKhatmat => 'Voir mes Khatmat';
+
+  @override
   String get noKhatma => 'Aucune Khatma en cours';
 
   @override
@@ -214,6 +217,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String completionParticipantsCount(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String get participantSingular => '1 participant';
+
+  @override
+  String participantPlural(int count) {
     return '$count participants';
   }
 
@@ -1160,4 +1171,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get createdBy => 'Créée par';
+
+  @override
+  String get createdOn => 'Créée le';
 }

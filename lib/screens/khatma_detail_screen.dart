@@ -15,6 +15,7 @@ import '../core/extensions/l10n_extensions.dart';
 import '../core/widgets/anis_button.dart';
 import '../core/widgets/empty_state.dart';
 import '../design_system/components/anis_surface.dart';
+import '../l10n/gen_l10n/app_localizations.dart';
 
 bool _isCustomName(String name, List<String> members) =>
     name != 'Moi' && !members.contains(name);

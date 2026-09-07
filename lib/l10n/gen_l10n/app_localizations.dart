@@ -334,6 +334,12 @@ abstract class AppLocalizations {
   /// **'Vos Khatmat en cours'**
   String get myKhatmat;
 
+  /// No description provided for @viewMyKhatmat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes Khatmat'**
+  String get viewMyKhatmat;
+
   /// No description provided for @noKhatma.
   ///
   /// In fr, this message translates to:
@@ -483,6 +489,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{count} participants'**
   String completionParticipantsCount(int count);
+
+  /// No description provided for @participantSingular.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 participant'**
+  String get participantSingular;
+
+  /// No description provided for @participantPlural.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} participants'**
+  String participantPlural(int count);
 
   /// No description provided for @completionDurationDays.
   ///
@@ -2133,6 +2151,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Créée par'**
   String get createdBy;
+
+  /// No description provided for @createdOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créée le'**
+  String get createdOn;
 }
 
 class _AppLocalizationsDelegate

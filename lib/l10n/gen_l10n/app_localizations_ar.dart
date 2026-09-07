@@ -128,6 +128,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myKhatmat => 'ختماتك قيد التنفيذ';
 
   @override
+  String get viewMyKhatmat => 'عرض ختماتي';
+
+  @override
   String get noKhatma => 'لا توجد ختمة قيد التنفيذ';
 
   @override
@@ -211,6 +214,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String completionParticipantsCount(int count) {
+    return '$count مشاركين';
+  }
+
+  @override
+  String get participantSingular => 'مشارك واحد';
+
+  @override
+  String participantPlural(int count) {
     return '$count مشاركين';
   }
 
@@ -1142,4 +1153,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get createdBy => 'أنشأها';
+
+  @override
+  String get createdOn => 'أُنشئت في';
 }

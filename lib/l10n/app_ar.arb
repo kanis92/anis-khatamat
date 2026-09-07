@@ -46,6 +46,7 @@
   "chooseKhatmaType": "اختر نوع الختمة",
   "createNewKhatma": "إنشاء ختمة جديدة",
   "myKhatmat": "ختماتك قيد التنفيذ",
+  "viewMyKhatmat": "عرض ختماتي",
   "noKhatma": "لا توجد ختمة قيد التنفيذ",
   "readingOptions": "خيارات القراءة",
   "mushafHafs": "مصحف حفص",
@@ -79,6 +80,15 @@
   },
   "completionParticipantsCount": "{count} مشاركين",
   "@completionParticipantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "participantSingular": "مشارك واحد",
+  "participantPlural": "{count} مشاركين",
+  "@participantPlural": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -714,5 +724,6 @@
     }
   },
   "noHizbAvailable": "لا يوجد حزب متاح",
-  "createdBy": "أنشأها"
+  "createdBy": "أنشأها",
+  "createdOn": "أُنشئت في"
 }

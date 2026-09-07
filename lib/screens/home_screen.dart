@@ -9,7 +9,6 @@ import '../core/constants/app_constants.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/models/home_dashboard_state.dart';
 import '../core/ui/anis_home_hero.dart';
-import '../core/models/khatma_with_status.dart';
 import '../core/utils/auth_diag.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/home_dashboard_provider.dart';
@@ -574,11 +573,6 @@ class _HomeDashboardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final formation = ref.watch(formationProgressProvider).valueOrNull;
-    final others =
-        dashboard.activeKhatmas
-            .where((s) => s.khatma.id != dashboard.primary?.status.khatma.id)
-            .take(3)
-            .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -588,19 +582,27 @@ class _HomeDashboardBody extends ConsumerWidget {
           _RamadanSummaryCard(day: HijriDateTime.now().day),
         _QuranProgressCard(dashboard: dashboard),
         const _QuickActionsGrid(),
-        if (!dashboard.isEmpty) ...[
-          const SizedBox(height: AnisSpacing.blockGap),
-          _SummaryRow(summary: dashboard.summary),
-        ],
         if (dashboard.primary != null) ...[
           const SizedBox(height: AnisSpacing.sectionGap),
           AnisSectionHeader(title: l10n.khatmaInProgress),
           const SizedBox(height: AnisSpacing.md),
-          _PrimaryKhatmaCard(highlight: dashboard.primary!),
-        ],
-        if (dashboard.lastActivity != null) ...[
-          const SizedBox(height: AnisSpacing.blockGap),
-          _LastActivityTile(activity: dashboard.lastActivity!),
+          _PrimaryKhatmaCard(
+            highlight: dashboard.primary!,
+            lastActivity: dashboard.lastActivity,
+          ),
+          if (dashboard.activeKhatmas.length > 1) ...[
+            const SizedBox(height: AnisSpacing.md),
+            Center(
+              child: TextButton.icon(
+                onPressed: () => context.go('/khatma'),
+                icon: const Icon(Icons.list_rounded, size: 18),
+                label: Text(l10n.viewMyKhatmat),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.anisColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
         ],
         if (formation != null) ...[
           const SizedBox(height: AnisSpacing.blockGap),
@@ -613,72 +615,26 @@ class _HomeDashboardBody extends ConsumerWidget {
                 '${l10n.myTraining} : ${formation.courseTitle}. ${formation.lessonTitle}',
           ),
         ],
-        if (others.isNotEmpty) ...[
-          const SizedBox(height: AnisSpacing.sectionGap),
-          AnisSectionHeader(
-            title: l10n.myKhatmat,
-            actionLabel: l10n.seeAll,
-            onAction: () => context.go('/khatma'),
-            actionIcon: Icons.arrow_forward_rounded,
-          ),
-          for (var i = 0; i < others.length; i++) ...[
-            if (i > 0) const SizedBox(height: AnisSpacing.sm),
-            _KhatmaRow(status: others[i]),
-          ],
-        ],
       ],
     );
   }
 }
 
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.summary});
-
-  final HomeDashboardSummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.activeCount}',
-              label: l10n.inProgress,
-              emphasize: true,
-            ),
-          ),
-          const SizedBox(width: AnisSpacing.sm),
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.completedCount}',
-              label: l10n.completed,
-            ),
-          ),
-          const SizedBox(width: AnisSpacing.sm),
-          Expanded(
-            child: AnisMetricTile(
-              value: '${summary.userCompletedHizb}',
-              label: l10n.hizbCompleted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _PrimaryKhatmaCard extends StatelessWidget {
-  const _PrimaryKhatmaCard({required this.highlight});
+  const _PrimaryKhatmaCard({
+    required this.highlight,
+    this.lastActivity,
+  });
 
   final PrimaryKhatmaHighlight highlight;
+  final HomeLastActivity? lastActivity;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final text = context.anisText;
+    final colors = context.anisColors;
     final khatma = highlight.status.khatma;
     final reservation = highlight.userReservation;
     final isCollective = khatma.reservationMode;
@@ -690,6 +646,11 @@ class _PrimaryKhatmaCard extends StatelessWidget {
             ? highlight.globalCompletedHizb
             : (highlight.userPersonalCompleted ?? 0);
     final value = isCollective ? highlight.globalPercent / 100.0 : done / 60.0;
+
+    // Format participant count with proper singular/plural
+    final participantText = highlight.participantCount == 1
+        ? l10n.participantSingular
+        : l10n.participantPlural(highlight.participantCount);
 
     return AnisSurface(
       level: AnisSurfaceLevel.raised,
@@ -723,10 +684,17 @@ class _PrimaryKhatmaCard extends StatelessWidget {
                     if (khatma.isGroup || isCollective) ...[
                       const SizedBox(height: AnisSpacing.xxs),
                       Text(
-                        l10n.completionParticipantsCount(
-                          highlight.participantCount,
-                        ),
+                        participantText,
                         style: text.caption,
+                      ),
+                    ],
+                    if (lastActivity != null) ...[
+                      const SizedBox(height: AnisSpacing.xxs),
+                      Text(
+                        '${l10n.lastActivity} · ${_formatShortDate(context, lastActivity!.at)}',
+                        style: text.caption.copyWith(
+                          color: colors.textTertiary,
+                        ),
                       ),
                     ],
                   ],
@@ -774,24 +742,6 @@ class _PrimaryKhatmaCard extends StatelessWidget {
   }
 }
 
-class _LastActivityTile extends StatelessWidget {
-  const _LastActivityTile({required this.activity});
-
-  final HomeLastActivity activity;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final date = _formatShortDate(context, activity.at);
-
-    return AnisListTile(
-      title: activity.label,
-      subtitle: '${l10n.lastActivity} · $date',
-      leadingIcon: Icons.history_rounded,
-      showChevron: false,
-    );
-  }
-}
 
 String _formatShortDate(BuildContext context, DateTime at) {
   final locale = Localizations.localeOf(context).toString();
@@ -802,28 +752,6 @@ String _formatShortDate(BuildContext context, DateTime at) {
   }
 }
 
-class _KhatmaRow extends StatelessWidget {
-  const _KhatmaRow({required this.status});
-
-  final KhatmaWithStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final khatma = status.khatma;
-
-    return AnisListTile(
-      title: khatma.title,
-      subtitle: l10n.groupKhatma,
-      leading: _homeListLeadingAnis(context, AnisIconType.khatma),
-      onTap:
-          () => context.push(
-            KhatmaLinkService.detailPath(khatma.id),
-            extra: {'khatma': khatma},
-          ),
-    );
-  }
-}
 
 class _OfflineNotice extends ConsumerWidget {
   const _OfflineNotice();

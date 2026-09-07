@@ -46,6 +46,7 @@
   "chooseKhatmaType": "Choose Khatma type",
   "createNewKhatma": "Create a new Khatma",
   "myKhatmat": "Your Khatmat in progress",
+  "viewMyKhatmat": "View my Khatmat",
   "noKhatma": "No Khatma in progress",
   "readingOptions": "Reading options",
   "mushafHafs": "Mushaf Hafs",
@@ -79,6 +80,15 @@
   },
   "completionParticipantsCount": "{count} participants",
   "@completionParticipantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "participantSingular": "1 participant",
+  "participantPlural": "{count} participants",
+  "@participantPlural": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -714,5 +724,6 @@
     }
   },
   "noHizbAvailable": "No Hizb available",
-  "createdBy": "Created by"
+  "createdBy": "Created by",
+  "createdOn": "Created on"
 }

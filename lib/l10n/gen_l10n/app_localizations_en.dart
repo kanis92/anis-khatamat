@@ -129,6 +129,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myKhatmat => 'Your Khatmat in progress';
 
   @override
+  String get viewMyKhatmat => 'View my Khatmat';
+
+  @override
   String get noKhatma => 'No Khatma in progress';
 
   @override
@@ -213,6 +216,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String completionParticipantsCount(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String get participantSingular => '1 participant';
+
+  @override
+  String participantPlural(int count) {
     return '$count participants';
   }
 
@@ -1154,4 +1165,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createdBy => 'Created by';
+
+  @override
+  String get createdOn => 'Created on';
 }
