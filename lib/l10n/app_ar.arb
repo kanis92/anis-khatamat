@@ -729,5 +729,41 @@
   },
   "noHizbAvailable": "لا يوجد حزب متاح",
   "createdBy": "أنشأها",
-  "createdOn": "أُنشئت في"
+  "createdOn": "أُنشئت في",
+  "pillarFoundationsPractice": "الأساسيات والعبادات",
+  "pillarQuranReading": "القرآن والتلاوة",
+  "pillarProphetSeerahSunnah": "النبي ﷺ: السيرة والسنة",
+  "pillarDailyLifeFrance": "الواقع اليومي في فرنسا",
+  "pillarCharacterEthics": "الأخلاق والأدب",
+  "pillarSpiritualityHeart": "التزكية والإيمان",
+  "deliveryModeSelfPaced": "بوتيرتك الخاصة",
+  "deliveryModeCohort": "مجموعة مصحوبة",
+  "startLearningPath": "ابدأ",
+  "continueLearningPath": "تابع",
+  "completedLearningPath": "مكتمل",
+  "lessonSummary": "الخلاصة",
+  "lessonAction": "عمل للتطبيق",
+  "lessonQuran": "ارتباط بالقرآن",
+  "markAsCompleted": "وضع علامة كمكتمل",
+  "previousLesson": "السابق",
+  "nextLesson": "التالي",
+  "programme": "البرنامج",
+  "lessonCount": "{count, plural, =0{لا دروس} =1{درس واحد} other{{count} دروس}}",
+  "@lessonCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "moduleCount": "{count, plural, =0{لا وحدات} =1{وحدة واحدة} other{{count} وحدات}}",
+  "@moduleCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "progressPercent": "{percent}٪ مكتمل",
+  "@progressPercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  }
 }

@@ -1168,4 +1168,87 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get createdOn => 'أُنشئت في';
+
+  @override
+  String get pillarFoundationsPractice => 'الأساسيات والعبادات';
+
+  @override
+  String get pillarQuranReading => 'القرآن والتلاوة';
+
+  @override
+  String get pillarProphetSeerahSunnah => 'النبي ﷺ: السيرة والسنة';
+
+  @override
+  String get pillarDailyLifeFrance => 'الواقع اليومي في فرنسا';
+
+  @override
+  String get pillarCharacterEthics => 'الأخلاق والأدب';
+
+  @override
+  String get pillarSpiritualityHeart => 'التزكية والإيمان';
+
+  @override
+  String get deliveryModeSelfPaced => 'بوتيرتك الخاصة';
+
+  @override
+  String get deliveryModeCohort => 'مجموعة مصحوبة';
+
+  @override
+  String get startLearningPath => 'ابدأ';
+
+  @override
+  String get continueLearningPath => 'تابع';
+
+  @override
+  String get completedLearningPath => 'مكتمل';
+
+  @override
+  String get lessonSummary => 'الخلاصة';
+
+  @override
+  String get lessonAction => 'عمل للتطبيق';
+
+  @override
+  String get lessonQuran => 'ارتباط بالقرآن';
+
+  @override
+  String get markAsCompleted => 'وضع علامة كمكتمل';
+
+  @override
+  String get previousLesson => 'السابق';
+
+  @override
+  String get nextLesson => 'التالي';
+
+  @override
+  String get programme => 'البرنامج';
+
+  @override
+  String lessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دروس',
+      one: 'درس واحد',
+      zero: 'لا دروس',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String moduleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count وحدات',
+      one: 'وحدة واحدة',
+      zero: 'لا وحدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressPercent(int percent) {
+    return '$percent٪ مكتمل';
+  }
 }

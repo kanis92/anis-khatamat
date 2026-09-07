@@ -5,17 +5,25 @@ import '../models/course.dart';
 import '../models/course_module.dart';
 import '../models/lesson.dart';
 import '../models/user_progress.dart';
+import '../services/formations_api_service.dart';
 
 /// Schéma Firestore:
 /// courses/{courseId}
 ///   modules/{moduleId}
 ///   lessons/{lessonId}
-/// users/{userId}/courseProgress/{courseId}
+/// users/{userId}/formationProgress/{pathId}
+/// 
+/// Progress writes are server-authoritative via API.
+/// Progress reads use Firestore streams for real-time updates.
 class FormationsRepository {
   final FirebaseFirestore _db;
+  final FormationsApiService _apiService;
 
-  FormationsRepository({FirebaseFirestore? db})
-    : _db = db ?? FirebaseFirestore.instance;
+  FormationsRepository({
+    FirebaseFirestore? db,
+    required FormationsApiService apiService,
+  }) : _db = db ?? FirebaseFirestore.instance,
+       _apiService = apiService;
 
   // ─── Collections ──────────────────────────────────────────────────────────
 
@@ -29,7 +37,7 @@ class FormationsRepository {
       _courses.doc(courseId).collection('lessons');
 
   CollectionReference<Map<String, dynamic>> _progress(String userId) =>
-      _db.collection('users').doc(userId).collection('courseProgress');
+      _db.collection('users').doc(userId).collection('formationProgress');
 
   // ─── Courses ──────────────────────────────────────────────────────────────
 
@@ -95,6 +103,8 @@ class FormationsRepository {
   }
 
   // ─── Progress ─────────────────────────────────────────────────────────────
+  // Reads use Firestore streams for real-time updates
+  // Writes are server-authoritative via API
 
   Stream<UserCourseProgress?> watchProgress(String userId, String courseId) {
     return _progress(userId).doc(courseId).snapshots().map((d) {
@@ -112,21 +122,24 @@ class FormationsRepository {
     return UserCourseProgress.fromFirestore(doc.data()!);
   }
 
+  /// Mark lesson as completed (server-authoritative)
   Future<void> markLessonCompleted({
-    required String userId,
     required String courseId,
     required String lessonId,
   }) async {
-    final ref = _progress(userId).doc(courseId);
-    await ref.set({
-      'userId': userId,
-      'courseId': courseId,
-      'completedLessonIds': FieldValue.arrayUnion([lessonId]),
-      'currentLessonId': lessonId,
-      'lastAccessedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    await _apiService.completeLesson(courseId, lessonId);
   }
 
+  /// Update current lesson (server-authoritative)
+  Future<void> updateCurrentLesson({
+    required String courseId,
+    required String lessonId,
+  }) async {
+    await _apiService.openLesson(courseId, lessonId);
+  }
+
+  /// Quiz scores still use Firestore (not part of core progress)
+  /// This can be moved to API in a future iteration if needed
   Future<void> saveQuizScore({
     required String userId,
     required String courseId,
@@ -138,19 +151,6 @@ class FormationsRepository {
       'userId': userId,
       'courseId': courseId,
       'quizScores.$lessonId': score,
-      'lastAccessedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
-
-  Future<void> updateCurrentLesson({
-    required String userId,
-    required String courseId,
-    required String lessonId,
-  }) async {
-    await _progress(userId).doc(courseId).set({
-      'userId': userId,
-      'courseId': courseId,
-      'currentLessonId': lessonId,
       'lastAccessedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

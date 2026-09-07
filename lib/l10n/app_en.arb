@@ -729,5 +729,41 @@
   },
   "noHizbAvailable": "No Hizb available",
   "createdBy": "Created by",
-  "createdOn": "Created on"
+  "createdOn": "Created on",
+  "pillarFoundationsPractice": "Foundations & Practice",
+  "pillarQuranReading": "Quran & Recitation",
+  "pillarProphetSeerahSunnah": "Prophet ﷺ: Life & Teachings",
+  "pillarDailyLifeFrance": "Daily Life in France",
+  "pillarCharacterEthics": "Character & Ethics",
+  "pillarSpiritualityHeart": "Spirituality & Heart",
+  "deliveryModeSelfPaced": "Self-paced",
+  "deliveryModeCohort": "Guided cohort",
+  "startLearningPath": "Start",
+  "continueLearningPath": "Continue",
+  "completedLearningPath": "Completed",
+  "lessonSummary": "Summary",
+  "lessonAction": "Action to apply",
+  "lessonQuran": "Quranic connection",
+  "markAsCompleted": "Mark as completed",
+  "previousLesson": "Previous",
+  "nextLesson": "Next",
+  "programme": "Curriculum",
+  "lessonCount": "{count, plural, =0{No lessons} =1{1 lesson} other{{count} lessons}}",
+  "@lessonCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "moduleCount": "{count, plural, =0{No modules} =1{1 module} other{{count} modules}}",
+  "@moduleCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "progressPercent": "{percent}% completed",
+  "@progressPercent": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  }
 }

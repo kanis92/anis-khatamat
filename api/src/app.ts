@@ -13,6 +13,7 @@ import { createRateLimitMiddleware } from './middleware/rate-limit';
 import { errorHandler, notFoundHandler } from './middleware/error-handler';
 import healthRouter from './routes/health';
 import khatmatRouter from './routes/khatmat';
+import formationsRouter from './routes/formations';
 
 export function createApp(): express.Application {
   const app = express();
@@ -43,6 +44,7 @@ export function createApp(): express.Application {
   // Routes
   app.use(healthRouter);
   app.use(khatmatRouter);
+  app.use(formationsRouter);
 
   // 404 handler (must be after all routes)
   app.use(notFoundHandler);

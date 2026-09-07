@@ -1,16 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/api_client_provider.dart';
 import '../models/course.dart';
 import '../models/course_module.dart';
 import '../models/lesson.dart';
 import '../models/user_progress.dart';
 import '../repositories/formations_repository.dart';
+import '../services/formations_api_service.dart';
+
+// ─── Services ────────────────────────────────────────────────────────────────
+
+final formationsApiServiceProvider = Provider<FormationsApiService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return FormationsApiService(apiClient);
+});
 
 // ─── Repository ──────────────────────────────────────────────────────────────
 
 final formationsRepositoryProvider = Provider<FormationsRepository>((ref) {
-  return FormationsRepository();
+  final apiService = ref.watch(formationsApiServiceProvider);
+  return FormationsRepository(apiService: apiService);
 });
 
 // ─── Courses ─────────────────────────────────────────────────────────────────
@@ -119,13 +129,9 @@ class FormationsNotifier extends AsyncNotifier<void> {
     required String courseId,
     required String lessonId,
   }) async {
-    final user = ref.read(currentUserProvider);
-    final uid = user?.uid;
-    if (uid == null) return;
     await ref
         .read(formationsRepositoryProvider)
         .markLessonCompleted(
-          userId: uid,
           courseId: courseId,
           lessonId: lessonId,
         );
@@ -154,13 +160,9 @@ class FormationsNotifier extends AsyncNotifier<void> {
     required String courseId,
     required String lessonId,
   }) async {
-    final user = ref.read(currentUserProvider);
-    final uid = user?.uid;
-    if (uid == null) return;
     await ref
         .read(formationsRepositoryProvider)
         .updateCurrentLesson(
-          userId: uid,
           courseId: courseId,
           lessonId: lessonId,
         );

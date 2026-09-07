@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
+import 'pedagogical_pillar.dart';
+
 enum CourseLevel { beginner, intermediate, advanced }
 
+/// Legacy category enum — preserved for backward compatibility.
+/// New courses should use [PedagogicalPillar] via pillarId field.
 enum CourseCategory {
   tajweed,
   tafsir,
@@ -13,6 +17,11 @@ enum CourseCategory {
   memorization,
   spirituality,
   other,
+}
+
+enum DeliveryMode {
+  selfPaced,
+  cohort,
 }
 
 /// Lien contextuel vers une feature de l'app
@@ -63,7 +72,9 @@ class Course extends Equatable {
   final String description;
   final String? thumbnailUrl;
   final CourseLevel level;
-  final CourseCategory category;
+  final CourseCategory category; // Legacy — use pillarId for new courses
+  final String? pillarId; // Stable pedagogical pillar ID
+  final DeliveryMode deliveryMode;
   final String instructor;
   final int totalLessons;
   final int totalDurationMinutes;
@@ -80,6 +91,8 @@ class Course extends Equatable {
     this.thumbnailUrl,
     this.level = CourseLevel.beginner,
     this.category = CourseCategory.other,
+    this.pillarId,
+    this.deliveryMode = DeliveryMode.selfPaced,
     required this.instructor,
     this.totalLessons = 0,
     this.totalDurationMinutes = 0,
@@ -89,6 +102,9 @@ class Course extends Equatable {
     this.isPublished = true,
     this.translations,
   });
+
+  PedagogicalPillar? get pillar => 
+      pillarId != null ? PedagogicalPillar.fromId(pillarId!) : null;
 
   factory Course.fromFirestore(String id, Map<String, dynamic> d) => Course(
     id: id,
@@ -102,6 +118,11 @@ class Course extends Equatable {
     category: CourseCategory.values.firstWhere(
       (e) => e.name == (d['category'] as String? ?? 'other'),
       orElse: () => CourseCategory.other,
+    ),
+    pillarId: d['pillarId'] as String?,
+    deliveryMode: DeliveryMode.values.firstWhere(
+      (e) => e.name == (d['deliveryMode'] as String? ?? 'selfPaced'),
+      orElse: () => DeliveryMode.selfPaced,
     ),
     instructor: d['instructor'] as String? ?? '',
     totalLessons: (d['totalLessons'] as int?) ?? 0,
@@ -137,6 +158,8 @@ class Course extends Equatable {
     'thumbnailUrl': thumbnailUrl,
     'level': level.name,
     'category': category.name,
+    'pillarId': pillarId,
+    'deliveryMode': deliveryMode.name,
     'instructor': instructor,
     'totalLessons': totalLessons,
     'totalDurationMinutes': totalDurationMinutes,

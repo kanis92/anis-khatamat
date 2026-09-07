@@ -2181,6 +2181,132 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Créée le'**
   String get createdOn;
+
+  /// No description provided for @pillarFoundationsPractice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bases & pratique'**
+  String get pillarFoundationsPractice;
+
+  /// No description provided for @pillarQuranReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qur\'an & lecture'**
+  String get pillarQuranReading;
+
+  /// No description provided for @pillarProphetSeerahSunnah.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prophète ﷺ : modèle et enseignement'**
+  String get pillarProphetSeerahSunnah;
+
+  /// No description provided for @pillarDailyLifeFrance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vie quotidienne en France'**
+  String get pillarDailyLifeFrance;
+
+  /// No description provided for @pillarCharacterEthics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comportement & éthique'**
+  String get pillarCharacterEthics;
+
+  /// No description provided for @pillarSpiritualityHeart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spiritualité & cœur'**
+  String get pillarSpiritualityHeart;
+
+  /// No description provided for @deliveryModeSelfPaced.
+  ///
+  /// In fr, this message translates to:
+  /// **'À votre rythme'**
+  String get deliveryModeSelfPaced;
+
+  /// No description provided for @deliveryModeCohort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Groupe accompagné'**
+  String get deliveryModeCohort;
+
+  /// No description provided for @startLearningPath.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get startLearningPath;
+
+  /// No description provided for @continueLearningPath.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continueLearningPath;
+
+  /// No description provided for @completedLearningPath.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get completedLearningPath;
+
+  /// No description provided for @lessonSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get lessonSummary;
+
+  /// No description provided for @lessonAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action à appliquer'**
+  String get lessonAction;
+
+  /// No description provided for @lessonQuran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien avec le Coran'**
+  String get lessonQuran;
+
+  /// No description provided for @markAsCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme terminé'**
+  String get markAsCompleted;
+
+  /// No description provided for @previousLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précédent'**
+  String get previousLesson;
+
+  /// No description provided for @nextLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get nextLesson;
+
+  /// No description provided for @programme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme'**
+  String get programme;
+
+  /// No description provided for @lessonCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune leçon} =1{1 leçon} other{{count} leçons}}'**
+  String lessonCount(int count);
+
+  /// No description provided for @moduleCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun module} =1{1 module} other{{count} modules}}'**
+  String moduleCount(int count);
+
+  /// No description provided for @progressPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent}% complété'**
+  String progressPercent(int percent);
 }
 
 class _AppLocalizationsDelegate

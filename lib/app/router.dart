@@ -17,9 +17,13 @@ import '../screens/mushaf_hafs_screen.dart';
 import '../screens/mushaf_warsh_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../screens/training_screen.dart';
+import '../screens/course_detail_screen.dart';
+import '../screens/lesson_screen.dart';
 import '../screens/wird_screen.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/auth_provider.dart';
+import '../features/formations/models/course.dart';
+import '../features/formations/providers/formations_providers.dart';
 import '../core/services/khatma_link_service.dart';
 import '../core/constants/hizb_definitions.dart';
 import '../core/models/mushaf_open_target.dart';
@@ -99,6 +103,53 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/achievements',
         builder: (context, state) => const AchievementsScreen(),
+      ),
+      GoRoute(
+        path: '/formations/:courseId',
+        builder: (context, state) {
+          final courseId = state.pathParameters['courseId']!;
+          final extra = state.extra as Map<String, dynamic>?;
+          final course = extra?['course'] as Course?;
+
+          if (course != null) {
+            return CourseDetailScreen(course: course);
+          }
+
+          // Fallback: fetch course by ID
+          return FutureBuilder<Course?>(
+            future: ProviderScope.containerOf(context)
+                .read(courseDetailProvider(courseId).future),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+                return Scaffold(
+                  appBar: AppBar(),
+                  body: const Center(child: Text('Course not found')),
+                );
+              }
+
+              return CourseDetailScreen(course: snapshot.data!);
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/formations/:courseId/lessons/:lessonId',
+        builder: (context, state) {
+          final courseId = state.pathParameters['courseId']!;
+          final lessonId = state.pathParameters['lessonId']!;
+          final extra = state.extra as Map<String, dynamic>?;
+
+          return LessonScreen(
+            courseId: courseId,
+            lessonId: lessonId,
+          );
+        },
       ),
       GoRoute(
         path: '/mushaf',

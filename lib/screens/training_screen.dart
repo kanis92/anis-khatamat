@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../core/extensions/l10n_extensions.dart';
 import '../core/theme/app_theme.dart';
@@ -217,7 +218,10 @@ class _ResumeCard extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // TODO: Navigate to course detail with resume
+                context.push(
+                  '/formations/${course.id}',
+                  extra: {'course': course},
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryGreen,
@@ -339,7 +343,10 @@ class _CourseCard extends ConsumerWidget {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to course detail
+          context.push(
+            '/formations/${course.id}',
+            extra: {'course': course},
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
