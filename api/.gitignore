@@ -19,6 +19,7 @@ coverage/
 # Secrets - NEVER commit
 *.json
 !package.json
+!package-lock.json
 !tsconfig.json
 !jest.config.js
 !src/data/*.json

@@ -42,7 +42,7 @@ export const TEST_USERS = {
 export async function createTestUsers(): Promise<void> {
   const auth = getFirebaseAuth();
 
-  for (const [_key, user] of Object.entries(TEST_USERS)) {
+  for (const [, user] of Object.entries(TEST_USERS)) {
     try {
       const userRecord = await auth.createUser({
         email: user.email,
