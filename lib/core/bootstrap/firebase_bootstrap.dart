@@ -163,40 +163,96 @@ Future<void> installCrashlyticsHandlers() async {
   }
 }
 
-/// Configure Firebase emulators in development mode only.
+/// Configure Firebase emulators in development mode.
 /// 
-/// This allows local preview of Formations and other features without
-/// touching production data.
+/// FAIL-CLOSED SAFETY:
+/// - Production mode (ENV_MODE=production): Uses real Firebase, never emulators
+/// - Development mode (default): Uses emulators ONLY, throws if unavailable
+/// - NO silent fallback to production in development mode
 /// 
-/// Emulators are ONLY used when:
-/// - Running in debug mode (kDebugMode)
-/// - NOT in production mode (ENV_MODE != production)
-/// - NOT on web platform (emulators not needed for web dev)
+/// Platform-aware emulator hosts:
+/// - iOS Simulator: localhost / 127.0.0.1
+/// - Android Emulator: 10.0.2.2 (maps to host machine)
+/// - Flutter Web: localhost (N/A - web doesn't use this code path)
+/// - Physical device: Requires explicit DEV_EMULATOR_HOST override
 Future<void> _configureEmulatorsInDevelopment() async {
-  // Production mode: always use real Firebase
+  // Production mode: always use real Firebase, never emulators
   const envMode = String.fromEnvironment('ENV_MODE', defaultValue: 'development');
   if (envMode == 'production') {
     debugPrint('[FirebaseBootstrap] Production mode - using real Firebase');
     return;
   }
 
-  // Debug mode + development: try to connect to emulators
-  if (kDebugMode && !kIsWeb) {
-    try {
-      // Firestore emulator
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      debugPrint('[FirebaseBootstrap] ✅ Connected to Firestore emulator (localhost:8080)');
-      
-      // Auth emulator
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-      debugPrint('[FirebaseBootstrap] ✅ Connected to Auth emulator (localhost:9099)');
-    } catch (error) {
-      // Emulators not available - fall back to production
-      // This is expected if emulators aren't running
-      debugPrint('[FirebaseBootstrap] ⚠️  Emulators not available: $error');
-      debugPrint('[FirebaseBootstrap] Falling back to production Firebase');
-    }
+  // Web doesn't need emulator configuration (uses different connection method)
+  if (kIsWeb) {
+    debugPrint('[FirebaseBootstrap] Web mode - Firebase config via JS SDK');
+    return;
   }
+
+  // Development mode: MUST use emulators (fail-closed)
+  if (!kDebugMode) {
+    // Release build without ENV_MODE=production is misconfigured
+    throw StateError(
+      'Release build detected without ENV_MODE=production. '
+      'Either run in debug mode or set ENV_MODE=production.',
+    );
+  }
+
+  // Determine emulator host based on platform
+  final emulatorHost = _getEmulatorHost();
+  
+  debugPrint('[FirebaseBootstrap] Development mode - configuring emulators');
+  debugPrint('[FirebaseBootstrap] Emulator host: $emulatorHost');
+
+  // Configure Firestore emulator (MUST succeed in development)
+  try {
+    FirebaseFirestore.instance.useFirestoreEmulator(emulatorHost, 8080);
+    debugPrint('[FirebaseBootstrap] ✅ Firestore emulator configured ($emulatorHost:8080)');
+  } catch (error) {
+    debugPrint('[FirebaseBootstrap] ❌ Firestore emulator configuration failed: $error');
+    throw StateError(
+      'Failed to configure Firestore emulator in development mode. '
+      'Ensure emulators are running: firebase emulators:start --only firestore '
+      'ERROR: $error',
+    );
+  }
+
+  // Configure Auth emulator (MUST succeed in development)
+  try {
+    await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
+    debugPrint('[FirebaseBootstrap] ✅ Auth emulator configured ($emulatorHost:9099)');
+  } catch (error) {
+    debugPrint('[FirebaseBootstrap] ❌ Auth emulator configuration failed: $error');
+    throw StateError(
+      'Failed to configure Auth emulator in development mode. '
+      'Ensure emulators are running: firebase emulators:start --only auth '
+      'ERROR: $error',
+    );
+  }
+
+  debugPrint('[FirebaseBootstrap] ✅ Development emulators configured successfully');
+}
+
+/// Get platform-appropriate emulator host.
+/// 
+/// iOS Simulator: localhost works
+/// Android Emulator: 10.0.2.2 (special alias for host machine)
+/// Physical device: Requires DEV_EMULATOR_HOST env var (LAN IP)
+String _getEmulatorHost() {
+  // Explicit override for physical devices (e.g., --dart-define=DEV_EMULATOR_HOST=192.168.1.100)
+  const explicitHost = String.fromEnvironment('DEV_EMULATOR_HOST');
+  if (explicitHost.isNotEmpty) {
+    return explicitHost;
+  }
+
+  // Platform detection
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    // Android emulator: 10.0.2.2 maps to host machine's localhost
+    return '10.0.2.2';
+  }
+
+  // iOS simulator, macOS, Linux, Windows: localhost works
+  return 'localhost';
 }
 
 bool get isFirebaseCoreReady => Firebase.apps.isNotEmpty;

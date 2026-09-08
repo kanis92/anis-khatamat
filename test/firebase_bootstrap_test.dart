@@ -8,16 +8,26 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('F1 — bootstrap Firebase', () {
-    test('bootstrapFirebase completes without crash', () async {
-      // May succeed or fail depending on test environment
+    test('bootstrapFirebase handles initialization', () async {
+      // Bootstrap will either succeed (if Firebase available) or fail gracefully
+      // In test environment without emulators, it should fail with clear error
       final result = await bootstrapFirebase();
+      
+      // Result should be one of the defined states
       expect(result.state, isIn([
         FirebaseRuntimeState.configured,
         FirebaseRuntimeState.failed,
       ]));
+      
+      // If failed, should have an error
+      if (result.state == FirebaseRuntimeState.failed) {
+        expect(result.error, isNotNull);
+        expect(result.diagnosticMessage, isNotEmpty);
+      }
     });
 
-    test('installCrashlyticsHandlers completes', () async {
+    test('installCrashlyticsHandlers completes gracefully', () async {
+      // Should not crash even if Firebase not initialized
       await expectLater(installCrashlyticsHandlers(), completes);
     });
 
