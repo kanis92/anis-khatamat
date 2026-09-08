@@ -84,6 +84,10 @@ Future<FirebaseBootstrapResult> bootstrapFirebase() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    
+    // Development: Connect to Firebase emulators if available
+    await _configureEmulatorsInDevelopment();
+    
     await installCrashlyticsHandlers();
     debugPrint('[FirebaseBootstrap] CONFIGURED');
     return const FirebaseBootstrapResult(
@@ -155,6 +159,42 @@ Future<void> installCrashlyticsHandlers() async {
     if (kDebugMode) {
       debugPrint('[FirebaseBootstrap] Crashlytics skipped: $error');
       debugPrint('$stackTrace');
+    }
+  }
+}
+
+/// Configure Firebase emulators in development mode only.
+/// 
+/// This allows local preview of Formations and other features without
+/// touching production data.
+/// 
+/// Emulators are ONLY used when:
+/// - Running in debug mode (kDebugMode)
+/// - NOT in production mode (ENV_MODE != production)
+/// - NOT on web platform (emulators not needed for web dev)
+Future<void> _configureEmulatorsInDevelopment() async {
+  // Production mode: always use real Firebase
+  const envMode = String.fromEnvironment('ENV_MODE', defaultValue: 'development');
+  if (envMode == 'production') {
+    debugPrint('[FirebaseBootstrap] Production mode - using real Firebase');
+    return;
+  }
+
+  // Debug mode + development: try to connect to emulators
+  if (kDebugMode && !kIsWeb) {
+    try {
+      // Firestore emulator
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      debugPrint('[FirebaseBootstrap] ✅ Connected to Firestore emulator (localhost:8080)');
+      
+      // Auth emulator
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      debugPrint('[FirebaseBootstrap] ✅ Connected to Auth emulator (localhost:9099)');
+    } catch (error) {
+      // Emulators not available - fall back to production
+      // This is expected if emulators aren't running
+      debugPrint('[FirebaseBootstrap] ⚠️  Emulators not available: $error');
+      debugPrint('[FirebaseBootstrap] Falling back to production Firebase');
     }
   }
 }
