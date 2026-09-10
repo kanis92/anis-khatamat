@@ -2410,6 +2410,36 @@ abstract class AppLocalizations {
   /// **'Retirer'**
   String get unsave;
 
+  /// No description provided for @searchFormations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une formation ou une leçon'**
+  String get searchFormations;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat pour « {query} »'**
+  String searchNoResults(String query);
+
+  /// No description provided for @searchResultTypeCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'FORMATION'**
+  String get searchResultTypeCourse;
+
+  /// No description provided for @searchResultTypeModule.
+  ///
+  /// In fr, this message translates to:
+  /// **'MODULE'**
+  String get searchResultTypeModule;
+
+  /// No description provided for @searchResultTypeLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'LEÇON'**
+  String get searchResultTypeLesson;
+
   /// No description provided for @exploreByTheme.
   ///
   /// In fr, this message translates to:

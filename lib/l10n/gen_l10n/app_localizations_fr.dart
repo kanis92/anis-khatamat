@@ -1331,6 +1331,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unsave => 'Retirer';
 
   @override
+  String get searchFormations => 'Rechercher une formation ou une leçon';
+
+  @override
+  String searchNoResults(String query) {
+    return 'Aucun résultat pour « $query »';
+  }
+
+  @override
+  String get searchResultTypeCourse => 'FORMATION';
+
+  @override
+  String get searchResultTypeModule => 'MODULE';
+
+  @override
+  String get searchResultTypeLesson => 'LEÇON';
+
+  @override
   String get exploreByTheme => 'Explorer par thème';
 
   @override

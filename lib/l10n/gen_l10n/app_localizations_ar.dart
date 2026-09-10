@@ -1305,6 +1305,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unsave => 'إزالة';
 
   @override
+  String get searchFormations => 'ابحث عن دورة أو درس';
+
+  @override
+  String searchNoResults(String query) {
+    return 'لا توجد نتائج لـ \"$query\"';
+  }
+
+  @override
+  String get searchResultTypeCourse => 'دورة';
+
+  @override
+  String get searchResultTypeModule => 'وحدة';
+
+  @override
+  String get searchResultTypeLesson => 'درس';
+
+  @override
   String get exploreByTheme => 'استكشف حسب الموضوع';
 
   @override

@@ -18,6 +18,8 @@ import '../features/formations/providers/formation_learning_providers.dart';
 import '../features/formations/presentation/formations_state_views.dart';
 import '../features/formations/providers/formations_providers.dart';
 import '../features/formations/providers/saved_formations_providers.dart';
+import '../features/formations/providers/formation_search_providers.dart';
+import '../features/formations/models/formation_search_result.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
 
 /// ANIS Formations V1 — Premium learning hub
@@ -39,11 +41,15 @@ class TrainingScreen extends ConsumerStatefulWidget {
 class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _tabsSectionKey = GlobalKey();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   PedagogicalPillar? _previousPillar;
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -51,6 +57,10 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   Widget build(BuildContext context) {
     final coursesAsync = ref.watch(filteredCoursesProvider);
     final selectedPillar = ref.watch(selectedPillarProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
+    final searchResults = searchQuery.trim().isNotEmpty
+        ? ref.watch(formationSearchResultsProvider)
+        : <FormationSearchResult>[];
 
     // Detect pillar change and scroll to tabs
     if (_previousPillar != selectedPillar && selectedPillar != null) {
@@ -78,57 +88,358 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
             children: [
               // ═══ 1. PREMIUM HERO HEADER ═══
               _PremiumHero(),
-
               const SizedBox(height: 24),
 
-              // ═══ 2. MON APPRENTISSAGE (Tous tab only) ═══
-              if (selectedPillar == null)
-                _MyLearningSection(tabsSectionKey: _tabsSectionKey),
-                const SizedBox(height: 32),
-                const _SavedForLaterSection(),
-
-              // ═══ 3. EXPLORER PAR THÈME ═══
-              Container(
-                key: _tabsSectionKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _SectionTitle(
-                      title: context.l10n.exploreByTheme,
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: SizedBox(
-                        height: 42,
-                        child: _PillarFilter(
-                          selectedPillar: selectedPillar,
-                          onPillarSelected: (pillar) {
-                            ref.read(selectedPillarProvider.notifier).state = pillar;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+              // ═══ 2. SEARCH BAR ═══
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _SearchBar(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  onChanged: (value) {
+                    ref.read(searchQueryProvider.notifier).state = value;
+                  },
+                  onClear: () {
+                    _searchController.clear();
+                    ref.read(searchQueryProvider.notifier).state = '';
+                    _searchFocusNode.unfocus();
+                  },
                 ),
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 28),
+              // ═══ 3. SEARCH RESULTS OR NORMAL CONTENT ═══
+              if (searchQuery.trim().isNotEmpty)
+                _SearchResults(
+                  query: searchQuery,
+                  results: searchResults,
+                  onResultTap: () {
+                    _searchFocusNode.unfocus();
+                  },
+                )
+              else ...[
+                // ═══ MON APPRENTISSAGE (Tous tab only) ═══
+                if (selectedPillar == null) ...[
+                  _MyLearningSection(tabsSectionKey: _tabsSectionKey),
+                  const SizedBox(height: 32),
+                  const _SavedForLaterSection(),
+                ],
 
-              // ═══ DYNAMIC CONTENT BASED ON SELECTED TAB ═══
-              if (selectedPillar == null)
-                // "Tous" overview
-                _TousOverview(coursesAsync: coursesAsync)
-              else
-                // Specific pillar modules
-                _PillarModulesView(
-                  pillar: selectedPillar,
-                  coursesAsync: coursesAsync,
+                // ═══ 4. EXPLORER PAR THÈME ═══
+                Container(
+                  key: _tabsSectionKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _SectionTitle(
+                        title: context.l10n.exploreByTheme,
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: SizedBox(
+                          height: 42,
+                          child: _PillarFilter(
+                            selectedPillar: selectedPillar,
+                            onPillarSelected: (pillar) {
+                              ref.read(selectedPillarProvider.notifier).state = pillar;
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+
+                const SizedBox(height: 28),
+
+                // ═══ 5. DYNAMIC CONTENT BASED ON SELECTED TAB ═══
+                if (selectedPillar == null)
+                  // "Tous" overview
+                  _TousOverview(coursesAsync: coursesAsync)
+                else
+                  // Specific pillar modules
+                  _PillarModulesView(
+                    pillar: selectedPillar,
+                    coursesAsync: coursesAsync,
+                  ),
+              ],
 
               const SizedBox(height: 100), // Bottom nav clearance
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SEARCH BAR
+// ═════════════════════════════════════════════════════════════════════════════
+
+class _SearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _SearchBar({
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          onChanged: onChanged,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+            height: 1.4,
+          ),
+          decoration: InputDecoration(
+            hintText: l10n.searchFormations,
+            hintStyle: TextStyle(
+              color: Colors.black.withOpacity(0.4),
+              fontSize: 16,
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              color: Colors.black.withOpacity(0.4),
+              size: 22,
+            ),
+            suffixIcon: value.text.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.black.withOpacity(0.6),
+                      size: 20,
+                    ),
+                    onPressed: onClear,
+                  )
+                : null,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.black.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.black.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: AppTheme.primaryGreen,
+                width: 1.5,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SEARCH RESULTS
+// ═════════════════════════════════════════════════════════════════════════════
+
+class _SearchResults extends ConsumerWidget {
+  final String query;
+  final List<FormationSearchResult> results;
+  final VoidCallback onResultTap;
+
+  const _SearchResults({
+    required this.query,
+    required this.results,
+    required this.onResultTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
+    if (results.isEmpty) {
+      // No results
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+        child: Column(
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.black.withOpacity(0.2),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.searchNoResults(query),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black.withOpacity(0.6),
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: results.map((result) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _SearchResultCard(
+              result: result,
+              onTap: () {
+                onResultTap();
+                _navigateToResult(context, ref, result);
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _navigateToResult(
+    BuildContext context,
+    WidgetRef ref,
+    FormationSearchResult result,
+  ) {
+    switch (result.type) {
+      case FormationSearchResultType.course:
+        context.go('/training/course/${result.targetId}');
+        break;
+      case FormationSearchResultType.lesson:
+        if (result.courseId != null) {
+          context.go(
+            '/training/course/${result.courseId}/lesson/${result.targetId}',
+          );
+        }
+        break;
+      case FormationSearchResultType.module:
+        // Navigate to course and let user explore the module
+        if (result.courseId != null) {
+          context.go('/training/course/${result.courseId}');
+        }
+        break;
+    }
+  }
+}
+
+class _SearchResultCard extends StatelessWidget {
+  final FormationSearchResult result;
+  final VoidCallback onTap;
+
+  const _SearchResultCard({
+    required this.result,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    String resultTypeLabel;
+    switch (result.type) {
+      case FormationSearchResultType.course:
+        resultTypeLabel = l10n.searchResultTypeCourse;
+        break;
+      case FormationSearchResultType.module:
+        resultTypeLabel = l10n.searchResultTypeModule;
+        break;
+      case FormationSearchResultType.lesson:
+        resultTypeLabel = l10n.searchResultTypeLesson;
+        break;
+    }
+
+    // Build context line (e.g., "Bases & pratique · Se préparer à la prière")
+    final contextParts = <String>[];
+    if (result.courseTitle != null) {
+      contextParts.add(result.courseTitle!);
+    }
+    if (result.moduleTitle != null) {
+      contextParts.add(result.moduleTitle!);
+    }
+    final contextLine = contextParts.join(' · ');
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.black.withOpacity(0.08),
+            width: 1,
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Result type badge
+            Text(
+              resultTypeLabel,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+                color: Colors.black.withOpacity(0.5),
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            // Title
+            Text(
+              result.title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+                height: 1.4,
+              ),
+            ),
+
+            // Context
+            if (contextLine.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                contextLine,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black.withOpacity(0.6),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

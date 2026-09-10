@@ -814,6 +814,18 @@
   "saveForLater": "Enregistrer pour plus tard",
   "saved": "Enregistré",
   "unsave": "Retirer",
+  "searchFormations": "Rechercher une formation ou une leçon",
+  "searchNoResults": "Aucun résultat pour « {query} »",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchResultTypeCourse": "FORMATION",
+  "searchResultTypeModule": "MODULE",
+  "searchResultTypeLesson": "LEÇON",
   "exploreByTheme": "Explorer par thème",
   "formationsSignInRequiredTitle": "Connexion requise",
   "formationsSignInRequiredBody": "Connectez-vous pour accéder aux formations.",
