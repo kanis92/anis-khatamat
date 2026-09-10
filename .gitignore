@@ -74,3 +74,7 @@ run_app.sh
 start_app.sh
 wird_*.png
 test/visual_qa/
+
+# Firebase Emulator local state (dev only, never commit)
+.firebase-emulator-state/
+firebase-debug.log
