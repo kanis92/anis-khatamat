@@ -286,7 +286,7 @@ describe('E2E: Saved Formation Items API', () => {
       expect(res.status).toBe(200);
     });
 
-    it('prevents deleting another user saved item', async () => {
+    it('cannot access another user saved item (path isolation)', async () => {
       // User A saves an item
       const saveRes = await request(app)
         .post('/v1/formations/saved')
@@ -299,12 +299,22 @@ describe('E2E: Saved Formation Items API', () => {
 
       const savedId = saveRes.body.data.id;
 
-      // User B attempts to delete it
+      // User B attempts to delete it using creator's saved ID
+      // Path-based isolation means B looks in their own collection
+      // The item doesn't exist there, so it's a no-op (idempotent)
       const deleteRes = await request(app)
         .delete(`/v1/formations/saved/${savedId}`)
         .set('Authorization', `Bearer ${TEST_USERS.participantB.token}`);
 
-      expect(deleteRes.status).toBe(403);
+      expect(deleteRes.status).toBe(200); // Idempotent - not found in B's collection
+
+      // Verify creator's item is still there (B couldn't touch it)
+      const getRes = await request(app)
+        .get('/v1/formations/saved')
+        .set('Authorization', `Bearer ${TEST_USERS.creator.token}`);
+
+      expect(getRes.body.data).toHaveLength(1);
+      expect(getRes.body.data[0].id).toBe(savedId);
     });
   });
 

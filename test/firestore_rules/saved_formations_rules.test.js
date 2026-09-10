@@ -1,110 +1,220 @@
 /**
  * Firestore Rules Tests: Saved Formation Items
  * Verify client cannot directly read/write savedFormations (server-authoritative only)
+ *
+ * Run: cd test/firestore_rules && node saved_formations_rules.test.js
  */
 
-const { assertFails, assertSucceeds } = require('@firebase/rules-unit-testing');
+const fs = require('fs');
+const path = require('path');
 const {
-  getTestEnv,
-  withAuthContext,
-  withAdminContext,
-} = require('./test-helpers');
+  initializeTestEnvironment,
+  assertFails,
+  assertSucceeds,
+} = require('@firebase/rules-unit-testing');
 
+const PROJECT_ID = 'anis-saved-formations-rules';
+const rulesPath = path.resolve(__dirname, '../../firestore.rules');
 const TEST_USER_UID = 'test-user-uid';
 const OTHER_USER_UID = 'other-user-uid';
 
-describe('Firestore Rules: Saved Formation Items', () => {
-  let testEnv;
+async function runTest(name, fn) {
+  process.stdout.write(`  ${name} ... `);
+  try {
+    await fn();
+    console.log('PASS');
+    return true;
+  } catch (err) {
+    console.log('FAIL');
+    console.error(err);
+    throw err;
+  }
+}
 
-  beforeAll(async () => {
-    testEnv = await getTestEnv();
+async function main() {
+  console.log('\nFirestore Rules: Saved Formation Items');
+  console.log('========================================\n');
+
+  const testEnv = await initializeTestEnvironment({
+    projectId: PROJECT_ID,
+    firestore: {
+      rules: fs.readFileSync(rulesPath, 'utf8'),
+      host: '127.0.0.1',
+      port: 8080,
+    },
   });
 
-  afterAll(async () => {
-    await testEnv.cleanup();
+  const userDb = testEnv
+    .authenticatedContext(TEST_USER_UID, { email: 'test@test.com' })
+    .firestore();
+  const otherUserDb = testEnv
+    .authenticatedContext(OTHER_USER_UID, { email: 'other@test.com' })
+    .firestore();
+  const anonDb = testEnv.unauthenticatedContext().firestore();
+
+  // Client access tests (must be denied)
+  console.log('\nClient access (must be denied):');
+
+  await runTest('authenticated user cannot read own savedFormations collection', async () => {
+    await assertFails(
+      userDb
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .get()
+    );
   });
 
-  describe('Client access (must be denied)', () => {
-    test('authenticated user cannot read own savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .get()
-      );
-    });
-
-    test('authenticated user cannot read specific saved item', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .doc('saved-1')
-          .get()
-      );
-    });
-
-    test('authenticated user cannot write own savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .add({
-            userId: TEST_USER_UID,
-            type: 'course',
-            targetId: 'test-course',
-            courseId: null,
-            savedAt: new Date(),
-          })
-      );
-    });
-
-    test('authenticated user cannot update saved item', async () => {
-      // First, create via admin
-      const adminDb = testEnv.authenticatedContext(TEST_USER_UID, { admin: true }).firestore();
-      await adminDb
+  await runTest('authenticated user cannot read specific saved item', async () => {
+    await assertFails(
+      userDb
         .collection('users')
         .doc(TEST_USER_UID)
         .collection('savedFormations')
         .doc('saved-1')
-        .set({
-          userId: TEST_USER_UID,
-          type: 'course',
-          targetId: 'test-course',
-          courseId: null,
-          savedAt: new Date(),
-        });
+        .get()
+    );
+  });
 
-      // Try to update as regular user
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .doc('saved-1')
-          .update({ type: 'lesson' })
-      );
-    });
-
-    test('authenticated user cannot delete saved item', async () => {
-      // First, create via admin
-      const adminDb = testEnv.authenticatedContext(TEST_USER_UID, { admin: true }).firestore();
-      await adminDb
+  await runTest('authenticated user cannot create saved item', async () => {
+    await assertFails(
+      userDb
         .collection('users')
         .doc(TEST_USER_UID)
         .collection('savedFormations')
-        .doc('saved-2')
+        .add({
+          userId: TEST_USER_UID,
+          type: 'course',
+          targetId: 'test-course',
+          courseId: null,
+          savedAt: new Date(),
+        })
+    );
+  });
+
+  await runTest('authenticated user cannot update saved item', async () => {
+    // Create via server context
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await db
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('saved-update-test')
+        .set({
+          userId: TEST_USER_UID,
+          type: 'course',
+          targetId: 'test-course',
+          courseId: null,
+          savedAt: new Date(),
+        });
+    });
+
+    // Try to update as client
+    await assertFails(
+      userDb
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('saved-update-test')
+        .update({ type: 'lesson' })
+    );
+  });
+
+  await runTest('authenticated user cannot delete saved item', async () => {
+    // Create via server context
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await db
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('saved-delete-test')
+        .set({
+          userId: TEST_USER_UID,
+          type: 'course',
+          targetId: 'test-course',
+          courseId: null,
+          savedAt: new Date(),
+        });
+    });
+
+    // Try to delete as client
+    await assertFails(
+      userDb
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('saved-delete-test')
+        .delete()
+    );
+  });
+
+  await runTest('authenticated user cannot read another user savedFormations', async () => {
+    await assertFails(
+      userDb
+        .collection('users')
+        .doc(OTHER_USER_UID)
+        .collection('savedFormations')
+        .get()
+    );
+  });
+
+  await runTest('authenticated user cannot write to another user savedFormations', async () => {
+    await assertFails(
+      userDb
+        .collection('users')
+        .doc(OTHER_USER_UID)
+        .collection('savedFormations')
+        .add({
+          userId: OTHER_USER_UID,
+          type: 'course',
+          targetId: 'test-course',
+          courseId: null,
+          savedAt: new Date(),
+        })
+    );
+  });
+
+  await runTest('unauthenticated user cannot read savedFormations', async () => {
+    await assertFails(
+      anonDb
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .get()
+    );
+  });
+
+  await runTest('unauthenticated user cannot write savedFormations', async () => {
+    await assertFails(
+      anonDb
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .add({
+          userId: TEST_USER_UID,
+          type: 'course',
+          targetId: 'test-course',
+          courseId: null,
+          savedAt: new Date(),
+        })
+    );
+  });
+
+  // Server access tests
+  console.log('\nServer access (with rules disabled):');
+
+  await runTest('server can read and write savedFormations', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+
+      // Server/Admin SDK bypasses all rules
+      await db
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('server-created')
         .set({
           userId: TEST_USER_UID,
           type: 'course',
@@ -113,111 +223,26 @@ describe('Firestore Rules: Saved Formation Items', () => {
           savedAt: new Date(),
         });
 
-      // Try to delete as regular user
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
+      const doc = await db
+        .collection('users')
+        .doc(TEST_USER_UID)
+        .collection('savedFormations')
+        .doc('server-created')
+        .get();
 
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .doc('saved-2')
-          .delete()
-      );
-    });
-
-    test('authenticated user cannot read another user savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(OTHER_USER_UID)
-          .collection('savedFormations')
-          .get()
-      );
-    });
-
-    test('authenticated user cannot write to another user savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID).firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(OTHER_USER_UID)
-          .collection('savedFormations')
-          .add({
-            userId: OTHER_USER_UID,
-            type: 'course',
-            targetId: 'test-course',
-            courseId: null,
-            savedAt: new Date(),
-          })
-      );
-    });
-
-    test('unauthenticated user cannot read savedFormations', async () => {
-      const db = testEnv.unauthenticatedContext().firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .get()
-      );
-    });
-
-    test('unauthenticated user cannot write savedFormations', async () => {
-      const db = testEnv.unauthenticatedContext().firestore();
-
-      await assertFails(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .add({
-            userId: TEST_USER_UID,
-            type: 'course',
-            targetId: 'test-course',
-            courseId: null,
-            savedAt: new Date(),
-          })
-      );
+      if (!doc.exists) {
+        throw new Error('Server-created document should exist');
+      }
     });
   });
 
-  describe('Admin/Server access (allowed)', () => {
-    test('admin can read savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID, { admin: true }).firestore();
+  await testEnv.cleanup();
 
-      // Admin access via server SDK is unrestricted
-      // This test verifies rules don't block admin token (though server uses Admin SDK)
-      await assertSucceeds(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .get()
-      );
-    });
+  console.log('\n✓ All Saved Formations Rules tests passed\n');
+  process.exit(0);
+}
 
-    test('admin can write savedFormations', async () => {
-      const db = testEnv.authenticatedContext(TEST_USER_UID, { admin: true }).firestore();
-
-      await assertSucceeds(
-        db
-          .collection('users')
-          .doc(TEST_USER_UID)
-          .collection('savedFormations')
-          .add({
-            userId: TEST_USER_UID,
-            type: 'course',
-            targetId: 'test-course',
-            courseId: null,
-            savedAt: new Date(),
-          })
-      );
-    });
-  });
+main().catch((error) => {
+  console.error('\n✗ Tests failed:', error);
+  process.exit(1);
 });

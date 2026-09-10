@@ -52,9 +52,9 @@ export async function createTestUsers(): Promise<void> {
       });
       user.uid = userRecord.uid;
       
-      // Generate custom token for authentication
+      // Generate custom token and exchange for ID token
       const customToken = await auth.createCustomToken(user.uid);
-      user.token = customToken;
+      user.token = await getIdToken(customToken);
     } catch (error: any) {
       if (error.code !== 'auth/email-already-exists') {
         throw error;
@@ -63,7 +63,7 @@ export async function createTestUsers(): Promise<void> {
       const userRecord = await auth.getUserByEmail(user.email);
       user.uid = userRecord.uid;
       const customToken = await auth.createCustomToken(user.uid);
-      user.token = customToken;
+      user.token = await getIdToken(customToken);
     }
   }
 }

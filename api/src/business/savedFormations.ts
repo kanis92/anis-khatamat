@@ -142,16 +142,11 @@ export async function removeSavedFormation(
   const doc = await docRef.get();
 
   if (!doc.exists) {
-    // Already removed - idempotent
+    // Already removed or never existed in this user's collection - idempotent
     return;
   }
 
-  // Verify ownership
-  const data = doc.data() as SavedFormationItem;
-  if (data.userId !== auth.uid) {
-    throw ApiError.forbidden('Cannot delete another user saved item');
-  }
-
+  // Path-based isolation ensures we can only access our own items
   await docRef.delete();
 }
 
