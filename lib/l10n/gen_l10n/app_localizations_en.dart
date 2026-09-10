@@ -1302,6 +1302,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Explore more courses to keep learning.';
 
   @override
+  String get savedForLater => 'Saved for later';
+
+  @override
+  String get savedForLaterEmptyTitle => 'You haven\'t saved anything';
+
+  @override
+  String get savedForLaterEmptyBody =>
+      'Save courses or lessons to find them easily.';
+
+  @override
+  String get saveForLater => 'Save for later';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get unsave => 'Remove';
+
+  @override
   String get exploreByTheme => 'Explore by theme';
 
   @override

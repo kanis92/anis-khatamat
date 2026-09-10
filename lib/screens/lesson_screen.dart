@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/theme/app_theme.dart';
 import '../features/formations/models/lesson.dart';
+import '../features/formations/models/saved_formation_item.dart';
 import '../features/formations/presentation/course_content_resolver.dart';
 import '../features/formations/providers/formations_providers.dart';
+import '../features/formations/providers/saved_formations_providers.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
   final String courseId;
@@ -85,6 +87,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               },
             ),
             title: Text(content.title),
+            actions: [
+              _SaveLessonButton(
+                courseId: widget.courseId,
+                lessonId: widget.lessonId,
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), // Extra bottom padding for bottom navigation
@@ -503,6 +511,44 @@ class _NavigationButtons extends ConsumerWidget {
             else
               const Spacer(),
           ],
+        );
+      },
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE LESSON BUTTON
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SaveLessonButton extends ConsumerWidget {
+  const _SaveLessonButton({
+    required this.courseId,
+    required this.lessonId,
+  });
+
+  final String courseId;
+  final String lessonId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final isSaved = ref.watch(
+      isSavedProvider((type: SavedItemType.lesson, targetId: lessonId)),
+    );
+
+    return IconButton(
+      icon: Icon(
+        isSaved ? Icons.bookmark : Icons.bookmark_border,
+        color: isSaved ? AppTheme.accentGold : null,
+      ),
+      tooltip: isSaved ? l10n.saved : l10n.saveForLater,
+      onPressed: () async {
+        final notifier = ref.read(savedFormationsNotifierProvider);
+        await notifier.toggleSaved(
+          type: SavedItemType.lesson,
+          targetId: lessonId,
+          courseId: courseId,
         );
       },
     );

@@ -1312,6 +1312,25 @@ class AppLocalizationsFr extends AppLocalizations {
       'Explorez d\'autres formations pour continuer à apprendre.';
 
   @override
+  String get savedForLater => 'À voir plus tard';
+
+  @override
+  String get savedForLaterEmptyTitle => 'Vous n\'avez rien enregistré';
+
+  @override
+  String get savedForLaterEmptyBody =>
+      'Enregistrez des cours ou des leçons pour les retrouver facilement.';
+
+  @override
+  String get saveForLater => 'Enregistrer pour plus tard';
+
+  @override
+  String get saved => 'Enregistré';
+
+  @override
+  String get unsave => 'Retirer';
+
+  @override
   String get exploreByTheme => 'Explorer par thème';
 
   @override

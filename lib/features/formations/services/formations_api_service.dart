@@ -1,4 +1,5 @@
 import '../../../core/api/anis_api_client.dart';
+import '../models/saved_formation_item.dart';
 
 class FormationProgressResponse {
   final String pathId;
@@ -75,4 +76,51 @@ class FormationsApiService {
       body: {},
     );
   }
+
+  // ─── Saved Formation Items ─────────────────────────────────────────────────
+
+  /// Get all saved formation items for the authenticated user
+  /// Returns empty list if no saved items exist
+  Future<List<SavedFormationItem>> getSavedItems() async {
+    final response = await _client.get('/v1/formations/saved');
+
+    final data = response['data'] as List<dynamic>?;
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+
+    return data
+        .map((item) => SavedFormationItem.fromJson(
+              item as Map<String, dynamic>,
+            ))
+        .toList();
+  }
+
+  /// Save a formation item (course or lesson)
+  /// Idempotent - returns existing item if already saved
+  Future<SavedFormationItem> saveItem({
+    required SavedItemType type,
+    required String targetId,
+    String? courseId,
+  }) async {
+    final response = await _client.post(
+      '/v1/formations/saved',
+      body: {
+        'type': type.toJson(),
+        'targetId': targetId,
+        'courseId': courseId,
+      },
+    );
+
+    return SavedFormationItem.fromJson(
+      response['data'] as Map<String, dynamic>,
+    );
+  }
+
+  /// Remove a saved formation item by ID
+  /// Idempotent - succeeds even if item doesn't exist
+  Future<void> removeSavedItem(String savedItemId) async {
+    await _client.delete('/v1/formations/saved/$savedItemId');
+  }
+
 }

@@ -149,6 +149,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /users/{userId}/savedFormations/{savedItemId} {
+      // Saved Formation items are server-authoritative via REST API only
+      // Client reads and writes both go through authenticated API endpoints
+      allow read, write: if false;
+    }
+
     // ─── Lives ────────────────────────────────────────────────────────────
     match /lives/{liveId} {
       allow read: if isSignedIn();

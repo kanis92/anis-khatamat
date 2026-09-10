@@ -13,6 +13,8 @@ import '../features/formations/presentation/course_presentation.dart';
 import '../features/formations/presentation/pillar_presentation.dart';
 import '../features/formations/presentation/formations_state_views.dart';
 import '../features/formations/providers/formations_providers.dart';
+import '../features/formations/providers/saved_formations_providers.dart';
+import '../features/formations/models/saved_formation_item.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
   final Course course;
@@ -41,6 +43,9 @@ class CourseDetailScreen extends ConsumerWidget {
           },
         ),
         title: Text(content.title),
+        actions: [
+          _SaveCourseButton(courseId: course.id),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 100), // Extra bottom padding for bottom navigation
@@ -379,10 +384,44 @@ class _ModuleCard extends ConsumerWidget {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE COURSE BUTTON
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SaveCourseButton extends ConsumerWidget {
+  const _SaveCourseButton({required this.courseId});
+
+  final String courseId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final isSaved = ref.watch(
+      isSavedProvider((type: SavedItemType.course, targetId: courseId)),
+    );
+
+    return IconButton(
+      icon: Icon(
+        isSaved ? Icons.bookmark : Icons.bookmark_border,
+        color: isSaved ? AppTheme.accentGold : null,
+      ),
+      tooltip: isSaved ? l10n.saved : l10n.saveForLater,
+      onPressed: () async {
+        final notifier = ref.read(savedFormationsNotifierProvider);
+        await notifier.toggleSaved(
+          type: SavedItemType.course,
+          targetId: courseId,
+          courseId: null,
+        );
+      },
     );
   }
 }

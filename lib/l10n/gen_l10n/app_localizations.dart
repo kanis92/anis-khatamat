@@ -2374,6 +2374,42 @@ abstract class AppLocalizations {
   /// **'Explorez d\'autres formations pour continuer à apprendre.'**
   String get myLearningAllCompletedBody;
 
+  /// No description provided for @savedForLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'À voir plus tard'**
+  String get savedForLater;
+
+  /// No description provided for @savedForLaterEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n\'avez rien enregistré'**
+  String get savedForLaterEmptyTitle;
+
+  /// No description provided for @savedForLaterEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrez des cours ou des leçons pour les retrouver facilement.'**
+  String get savedForLaterEmptyBody;
+
+  /// No description provided for @saveForLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer pour plus tard'**
+  String get saveForLater;
+
+  /// No description provided for @saved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistré'**
+  String get saved;
+
+  /// No description provided for @unsave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get unsave;
+
   /// No description provided for @exploreByTheme.
   ///
   /// In fr, this message translates to:

@@ -1287,6 +1287,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myLearningAllCompletedBody => 'استكشف دورات أخرى لمواصلة التعلّم.';
 
   @override
+  String get savedForLater => 'محفوظ لوقت لاحق';
+
+  @override
+  String get savedForLaterEmptyTitle => 'لم تحفظ أي شيء';
+
+  @override
+  String get savedForLaterEmptyBody => 'احفظ دورات أو دروسًا لإيجادها بسهولة.';
+
+  @override
+  String get saveForLater => 'حفظ لوقت لاحق';
+
+  @override
+  String get saved => 'محفوظ';
+
+  @override
+  String get unsave => 'إزالة';
+
+  @override
   String get exploreByTheme => 'استكشف حسب الموضوع';
 
   @override

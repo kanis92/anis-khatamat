@@ -10,12 +10,14 @@ import '../features/formations/models/course.dart';
 import '../features/formations/models/course_module.dart';
 import '../features/formations/models/lesson.dart';
 import '../features/formations/models/pedagogical_pillar.dart';
+import '../features/formations/models/saved_formation_item.dart';
 import '../features/formations/presentation/course_presentation.dart';
 import '../features/formations/presentation/course_content_resolver.dart';
 import '../features/formations/presentation/formation_resume_resolver.dart';
 import '../features/formations/providers/formation_learning_providers.dart';
 import '../features/formations/presentation/formations_state_views.dart';
 import '../features/formations/providers/formations_providers.dart';
+import '../features/formations/providers/saved_formations_providers.dart';
 import '../l10n/gen_l10n/app_localizations.dart';
 
 /// ANIS Formations V1 — Premium learning hub
@@ -82,6 +84,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
               // ═══ 2. MON APPRENTISSAGE (Tous tab only) ═══
               if (selectedPillar == null)
                 _MyLearningSection(tabsSectionKey: _tabsSectionKey),
+                const SizedBox(height: 32),
+                const _SavedForLaterSection(),
 
               // ═══ 3. EXPLORER PAR THÈME ═══
               Container(
@@ -1322,6 +1326,317 @@ class _MyLearningSurface extends StatelessWidget {
         ],
       ),
       child: child,
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SAVED FOR LATER SECTION
+// ═════════════════════════════════════════════════════════════════════════════
+
+class _SavedForLaterSection extends ConsumerWidget {
+  const _SavedForLaterSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final savedItemsAsync = ref.watch(savedFormationsProvider);
+
+    return savedItemsAsync.when(
+      loading: () => const _SavedForLaterSkeleton(),
+      error: (error, _) => FormationsFailureView(
+        error: error,
+        onRetry: () => ref.invalidate(savedFormationsProvider),
+      ),
+      data: (savedItems) {
+        if (savedItems.isEmpty) {
+          return const SizedBox.shrink(); // Don't show section if empty
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _SectionTitle(title: context.l10n.savedForLater),
+            const SizedBox(height: 12),
+            ...savedItems.take(3).map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _SavedItemCard(item: item),
+                )),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SavedForLaterSkeleton extends StatelessWidget {
+  const _SavedForLaterSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 80,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _SavedItemCard extends ConsumerWidget {
+  const _SavedItemCard({required this.item});
+
+  final SavedFormationItem item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
+    // Resolve the actual course/lesson from canonical content
+    Widget? content;
+
+    if (item.type == SavedItemType.course) {
+      final courseAsync = ref.watch(courseDetailProvider(item.targetId));
+      content = courseAsync.when(
+        loading: () => const CircularProgressIndicator(),
+        error: (_, __) => Text(
+          l10n.errorLoadingFormations,
+          style: TextStyle(color: Colors.red[700], fontSize: 12),
+        ),
+        data: (course) {
+          if (course == null) {
+            return Text(
+              l10n.errorLoadingFormations,
+              style: TextStyle(color: Colors.red[700], fontSize: 12),
+            );
+          }
+
+          return _SavedCourseCard(course: course, savedItemId: item.id);
+        },
+      );
+    } else if (item.type == SavedItemType.lesson) {
+      if (item.courseId == null) {
+        content = Text(
+          l10n.errorLoadingFormations,
+          style: TextStyle(color: Colors.red[700], fontSize: 12),
+        );
+      } else {
+        final courseAsync = ref.watch(courseDetailProvider(item.courseId!));
+        final lessonsAsync = ref.watch(courseLessonsProvider(item.courseId!));
+
+        content = courseAsync.when(
+          loading: () => const CircularProgressIndicator(),
+          error: (_, __) => Text(
+            l10n.errorLoadingFormations,
+            style: TextStyle(color: Colors.red[700], fontSize: 12),
+          ),
+          data: (course) {
+            if (course == null) {
+              return Text(
+                l10n.errorLoadingFormations,
+                style: TextStyle(color: Colors.red[700], fontSize: 12),
+              );
+            }
+
+            return lessonsAsync.when(
+              loading: () => const CircularProgressIndicator(),
+              error: (_, __) => Text(
+                l10n.errorLoadingFormations,
+                style: TextStyle(color: Colors.red[700], fontSize: 12),
+              ),
+              data: (lessons) {
+                final lesson = lessons.firstWhere(
+                  (l) => l.id == item.targetId,
+                  orElse: () => lessons.first,
+                );
+
+                return _SavedLessonCard(
+                  course: course,
+                  lesson: lesson,
+                  savedItemId: item.id,
+                );
+              },
+            );
+          },
+        );
+      }
+    }
+
+    return content ?? const SizedBox.shrink();
+  }
+}
+
+class _SavedCourseCard extends ConsumerWidget {
+  const _SavedCourseCard({
+    required this.course,
+    required this.savedItemId,
+  });
+
+  final Course course;
+  final String savedItemId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context);
+    final content = CourseContentResolver.resolve(course, locale);
+    final title = content.title;
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () {
+          context.push('/training/course/${course.id}');
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppTheme.primaryGreen.withValues(alpha: 0.15),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGold,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryGreen,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Formation',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.bookmark, size: 20),
+                color: AppTheme.accentGold,
+                onPressed: () async {
+                  final notifier = ref.read(savedFormationsNotifierProvider);
+                  await notifier.removeSavedItem(
+                    type: SavedItemType.course,
+                    targetId: course.id,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SavedLessonCard extends ConsumerWidget {
+  const _SavedLessonCard({
+    required this.course,
+    required this.lesson,
+    required this.savedItemId,
+  });
+
+  final Course course;
+  final Lesson lesson;
+  final String savedItemId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context);
+    final courseContent = CourseContentResolver.resolve(course, locale);
+    final lessonContent = LessonContentResolver.resolve(lesson, locale);
+    final courseTitle = courseContent.title;
+    final lessonTitle = lessonContent.title;
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () {
+          context.push('/training/course/${course.id}/lesson/${lesson.id}');
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppTheme.primaryGreen.withValues(alpha: 0.15),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGold,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lessonTitle,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryGreen,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      courseTitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.bookmark, size: 20),
+                color: AppTheme.accentGold,
+                onPressed: () async {
+                  final notifier = ref.read(savedFormationsNotifierProvider);
+                  await notifier.removeSavedItem(
+                    type: SavedItemType.lesson,
+                    targetId: lesson.id,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

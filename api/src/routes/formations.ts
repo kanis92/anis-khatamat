@@ -1,12 +1,13 @@
 /**
  * Formation Routes
- * Server-authoritative progress tracking for learning paths
+ * Server-authoritative progress tracking and saved items for learning paths
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth';
 import * as business from '../business';
 import { ApiError } from '../errors/api-error';
+import { SavedItemType } from '../domain/saved-formations';
 
 const router = Router();
 
@@ -112,6 +113,106 @@ router.post(
       }
 
       await business.completeFormationLesson(authReq.auth, pathId, lessonId);
+
+      res.status(200).json({ data: { success: true } });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ─── Saved Formation Items ───────────────────────────────────────────────────
+
+/**
+ * GET /v1/formations/saved
+ * Get all saved formation items for the authenticated user
+ */
+router.get(
+  '/v1/formations/saved',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const savedItems = await business.getAllSavedFormations(authReq.auth);
+      res.json({ data: savedItems });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * POST /v1/formations/saved
+ * Save a formation item (course or lesson)
+ */
+router.post(
+  '/v1/formations/saved',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { type, targetId, courseId } = req.body;
+
+      if (!type || !['course', 'lesson'].includes(type)) {
+        throw ApiError.invalidArgument('type must be "course" or "lesson"');
+      }
+
+      const savedItem = await business.saveFormationItem(
+        authReq.auth,
+        type as SavedItemType,
+        targetId,
+        courseId || null
+      );
+
+      res.status(200).json({ data: savedItem });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * DELETE /v1/formations/saved/:savedItemId
+ * Remove a saved formation item by ID
+ */
+router.delete(
+  '/v1/formations/saved/:savedItemId',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { savedItemId } = req.params;
+
+      await business.removeSavedFormation(authReq.auth, savedItemId);
+
+      res.status(200).json({ data: { success: true } });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * DELETE /v1/formations/saved-target
+ * Remove a saved formation item by type and targetId (convenience for UI toggle)
+ */
+router.delete(
+  '/v1/formations/saved-target',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { type, targetId } = req.body;
+
+      if (!type || !['course', 'lesson'].includes(type)) {
+        throw ApiError.invalidArgument('type must be "course" or "lesson"');
+      }
+
+      await business.removeSavedFormationByTarget(
+        authReq.auth,
+        type as SavedItemType,
+        targetId
+      );
 
       res.status(200).json({ data: { success: true } });
     } catch (error) {
