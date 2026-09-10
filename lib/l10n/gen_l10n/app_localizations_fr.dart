@@ -1271,4 +1271,117 @@ class AppLocalizationsFr extends AppLocalizations {
   String progressPercent(int percent) {
     return '$percent% complété';
   }
+
+  @override
+  String get formationsSubtitle =>
+      'Progressez étape par étape dans votre apprentissage';
+
+  @override
+  String get formationsHeroTagline =>
+      'Apprendre. Comprendre. Mettre en pratique.';
+
+  @override
+  String get formationsHeroSecondary =>
+      'Des parcours structurés pour avancer à votre rythme.';
+
+  @override
+  String get resumeYourLearning => 'Reprendre votre parcours';
+
+  @override
+  String get myLearning => 'Mon apprentissage';
+
+  @override
+  String get myLearningResumeSubtitle => 'Reprenez là où vous vous êtes arrêté';
+
+  @override
+  String get myLearningEmptyTitle => 'Commencez votre premier parcours';
+
+  @override
+  String get myLearningEmptyBody =>
+      'Choisissez une formation et retrouvez votre progression ici.';
+
+  @override
+  String get discoverFormations => 'Découvrir les formations';
+
+  @override
+  String get myLearningAllCompletedTitle =>
+      'Bravo, vous avez terminé vos parcours';
+
+  @override
+  String get myLearningAllCompletedBody =>
+      'Explorez d\'autres formations pour continuer à apprendre.';
+
+  @override
+  String get exploreByTheme => 'Explorer par thème';
+
+  @override
+  String get formationsSignInRequiredTitle => 'Connexion requise';
+
+  @override
+  String get formationsSignInRequiredBody =>
+      'Connectez-vous pour accéder aux formations.';
+
+  @override
+  String get formationsErrorPermissionDenied =>
+      'Accès refusé aux contenus de formation.';
+
+  @override
+  String get formationsErrorUnavailable =>
+      'Service temporairement indisponible. Réessayez dans un instant.';
+
+  @override
+  String formationsCourseModulesEmpty(String courseTitle) {
+    return 'Aucun module publié pour « $courseTitle » pour le moment.';
+  }
+
+  @override
+  String get featuredPaths => 'Parcours à découvrir';
+
+  @override
+  String get liveSection => 'EN DIRECT';
+
+  @override
+  String get liveSessionsCardTitle => 'Lives ANIS';
+
+  @override
+  String get liveSessionsDescription =>
+      'Des rencontres en direct avec des intervenants validés.';
+
+  @override
+  String get liveSessionsSecondary =>
+      'Échangez, posez vos questions et approfondissez vos connaissances.';
+
+  @override
+  String get questionsSection => 'Questions & échanges';
+
+  @override
+  String get allFormations => 'Toutes les formations';
+
+  @override
+  String get formationsAvailable => 'Formations disponibles';
+
+  @override
+  String get liveSessionsTitle => 'Lives en direct';
+
+  @override
+  String get questionsTitle => 'Questions privées & publiques';
+
+  @override
+  String get questionsDescription =>
+      'Posez une question en toute confidentialité ou consultez les réponses publiées.';
+
+  @override
+  String get privateQuestion => 'Question privée';
+
+  @override
+  String get publicAnswers => 'Réponses publiques';
+
+  @override
+  String get comingSoon => 'Bientôt';
+
+  @override
+  String get moduleContentComingSoon => 'Contenu à venir';
+
+  @override
+  String get upcoming => 'Prochainement';
 }

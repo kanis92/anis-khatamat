@@ -1263,4 +1263,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String progressPercent(int percent) {
     return '$percent% completed';
   }
+
+  @override
+  String get formationsSubtitle => 'Progress step by step in your learning';
+
+  @override
+  String get formationsHeroTagline => 'Learn. Understand. Practice.';
+
+  @override
+  String get formationsHeroSecondary =>
+      'Structured learning paths to progress at your own pace.';
+
+  @override
+  String get resumeYourLearning => 'Resume your learning';
+
+  @override
+  String get myLearning => 'My learning';
+
+  @override
+  String get myLearningResumeSubtitle => 'Pick up where you left off';
+
+  @override
+  String get myLearningEmptyTitle => 'Start your first learning path';
+
+  @override
+  String get myLearningEmptyBody =>
+      'Choose a course and track your progress here.';
+
+  @override
+  String get discoverFormations => 'Discover courses';
+
+  @override
+  String get myLearningAllCompletedTitle =>
+      'Well done, you\'ve completed your paths';
+
+  @override
+  String get myLearningAllCompletedBody =>
+      'Explore more courses to keep learning.';
+
+  @override
+  String get exploreByTheme => 'Explore by theme';
+
+  @override
+  String get formationsSignInRequiredTitle => 'Sign-in required';
+
+  @override
+  String get formationsSignInRequiredBody => 'Sign in to access the courses.';
+
+  @override
+  String get formationsErrorPermissionDenied =>
+      'Access to course content was denied.';
+
+  @override
+  String get formationsErrorUnavailable =>
+      'Service temporarily unavailable. Please try again shortly.';
+
+  @override
+  String formationsCourseModulesEmpty(String courseTitle) {
+    return 'No published module for \"$courseTitle\" yet.';
+  }
+
+  @override
+  String get featuredPaths => 'Featured paths';
+
+  @override
+  String get liveSection => 'LIVE';
+
+  @override
+  String get liveSessionsCardTitle => 'ANIS Live';
+
+  @override
+  String get liveSessionsDescription => 'Live meetings with verified speakers.';
+
+  @override
+  String get liveSessionsSecondary =>
+      'Share, ask your questions and deepen your knowledge.';
+
+  @override
+  String get questionsSection => 'Questions & exchanges';
+
+  @override
+  String get allFormations => 'All formations';
+
+  @override
+  String get formationsAvailable => 'Available Formations';
+
+  @override
+  String get liveSessionsTitle => 'Live Sessions';
+
+  @override
+  String get questionsTitle => 'Private & Public Questions';
+
+  @override
+  String get questionsDescription =>
+      'Ask a question in complete confidentiality or consult published answers.';
+
+  @override
+  String get privateQuestion => 'Private question';
+
+  @override
+  String get publicAnswers => 'Public answers';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get moduleContentComingSoon => 'Content coming soon';
+
+  @override
+  String get upcoming => 'Upcoming';
 }

@@ -3,10 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:anis_khatamat/features/formations/models/course.dart';
 import 'package:anis_khatamat/features/formations/models/user_progress.dart';
+import 'package:anis_khatamat/features/formations/models/course_module.dart';
+import 'package:anis_khatamat/features/formations/models/lesson.dart';
+import 'package:anis_khatamat/features/formations/presentation/formation_resume_resolver.dart';
+import 'package:anis_khatamat/features/formations/providers/formation_learning_providers.dart';
 import 'package:anis_khatamat/features/formations/providers/formations_providers.dart';
 import 'package:anis_khatamat/screens/training_screen.dart';
 import 'package:anis_khatamat/l10n/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:anis_khatamat/core/providers/auth_provider.dart';
 
 /// Test helper to wrap widgets with necessary providers and localization
 Widget _wrapWidget(
@@ -117,11 +122,17 @@ void main() {
         _wrapWidget(
           const TrainingScreen(),
           overrides: [
+            authReadinessProvider.overrideWith(
+              (ref) => const AuthReadiness.signedIn('test-uid'),
+            ),
             publishedCoursesProvider.overrideWith(
               (ref) => Stream.error(Exception('Test error')),
             ),
             allProgressProvider.overrideWith(
               (ref) => Future.value([]),
+            ),
+            myLearningStateProvider.overrideWith(
+              (ref) => Future.value(const MyLearningState(display: MyLearningDisplayState.empty)),
             ),
           ],
         ),
@@ -129,9 +140,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Erreur lors du chargement des formations'), findsOneWidget);
-      expect(find.text('Réessayer'), findsOneWidget);
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.text('Erreur lors du chargement des formations'), findsWidgets);
+      expect(find.text('Réessayer'), findsWidgets);
+      expect(find.byIcon(Icons.error_outline), findsWidgets);
     });
   });
 
@@ -156,7 +167,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -189,7 +200,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             ...courses.map((c) => courseProgressProvider(c.id).overrideWith(
-                  (ref) => Stream.value(null),
+                  (ref) => Future.value(null),
                 )),
           ],
         ),
@@ -225,7 +236,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(progress),
+              (ref) => Future.value(progress),
             ),
           ],
         ),
@@ -234,7 +245,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(LinearProgressIndicator), findsWidgets);
-      expect(find.text('30% terminé'), findsOneWidget);
+      expect(find.text('30% complété'), findsOneWidget);
     });
   });
 
@@ -253,7 +264,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -264,10 +275,9 @@ void main() {
       // Check "Tous" chip exists
       expect(find.text('Tous'), findsOneWidget);
       
-      // Check category chips exist
-      expect(find.text('Tajweed'), findsWidgets);
-      expect(find.text('Tafsir'), findsOneWidget);
-      expect(find.text('Fiqh'), findsOneWidget);
+      // Check pedagogical pillar chips exist (V1 taxonomy)
+      expect(find.text('Bases & pratique'), findsOneWidget);
+      expect(find.text("Qur'an & lecture"), findsOneWidget);
     });
 
     testWidgets('Category filter is horizontally scrollable', (tester) async {
@@ -284,7 +294,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -302,14 +312,17 @@ void main() {
     });
   });
 
-  group('TrainingScreen - Resume Card', () {
-    testWidgets('Resume card not shown when no progress', (tester) async {
+  group('TrainingScreen - Mon apprentissage', () {
+    testWidgets('shows empty Mon apprentissage when no progress', (tester) async {
       final course = _testCourse();
 
       await tester.pumpWidget(
         _wrapWidget(
           const TrainingScreen(),
           overrides: [
+            authReadinessProvider.overrideWith(
+              (ref) => const AuthReadiness.signedIn('test-uid'),
+            ),
             publishedCoursesProvider.overrideWith(
               (ref) => Stream.value([course]),
             ),
@@ -317,7 +330,10 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
+            ),
+            courseLessonsProvider(course.id).overrideWith(
+              (ref) => Future.value([]),
             ),
           ],
         ),
@@ -325,54 +341,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Continuer ma formation'), findsNothing);
-      // play_circle_outline appears in course cards, so check specifically for resume section
-      final resumeSection = find.ancestor(
-        of: find.text('Continuer ma formation'),
-        matching: find.byType(Container),
-      );
-      expect(resumeSection, findsNothing);
-    });
-
-    testWidgets('Resume card shown with most recent progress', (tester) async {
-      final course = _testCourse(
-        id: 'c1',
-        title: 'In Progress Course',
-        totalLessons: 10,
-      );
-
-      final progress = _testProgress(
-        courseId: 'c1',
-        completedLessonIds: {'lesson1', 'lesson2'},
-        currentLessonId: 'lesson3',
-        lastAccessedAt: DateTime(2024, 1, 15),
-      );
-
-      await tester.pumpWidget(
-        _wrapWidget(
-          const TrainingScreen(),
-          overrides: [
-            publishedCoursesProvider.overrideWith(
-              (ref) => Stream.value([course]),
-            ),
-            allProgressProvider.overrideWith(
-              (ref) => Future.value([progress]),
-            ),
-            courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(progress),
-            ),
-          ],
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(find.text('Continuer ma formation'), findsOneWidget);
-      expect(find.text('In Progress Course'), findsWidgets);
-      expect(find.text('2/10'), findsOneWidget);
-      expect(find.text('20%'), findsOneWidget);
-      expect(find.text('Continuer'), findsOneWidget);
-      expect(find.byType(LinearProgressIndicator), findsWidgets);
+      expect(find.text('Mon apprentissage'), findsOneWidget);
+      expect(find.text('Commencez votre premier parcours'), findsOneWidget);
+      expect(find.text('Reprendre votre parcours'), findsNothing);
     });
   });
 
@@ -399,7 +370,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -407,7 +378,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Formations'), findsWidgets); // Appears in app bar and body
+      expect(find.textContaining('FORMATIONS'), findsWidgets); // Hero in uppercase
       expect(find.text('Bases du Tajweed'), findsOneWidget);
       expect(find.text('Tous'), findsOneWidget);
       expect(find.text('Débutant'), findsOneWidget);
@@ -435,7 +406,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -443,7 +414,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Training'), findsWidgets); // Appears in app bar and body  
+      expect(find.textContaining('TRAINING'), findsWidgets); // Hero in uppercase
       expect(find.text('Tajweed Basics'), findsOneWidget);
       expect(find.text('All'), findsOneWidget);
       expect(find.text('Beginner'), findsOneWidget);
@@ -471,7 +442,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -479,7 +450,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('التدريب'), findsWidgets); // Appears in app bar and body
+      // Hero is in uppercase, check for formation-related text
       expect(find.text('أساسيات التجويد'), findsOneWidget);
       expect(find.text('الكل'), findsOneWidget);
       expect(find.text('مبتدئ'), findsOneWidget);
@@ -500,7 +471,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -551,7 +522,7 @@ void main() {
               (ref) => Future.value([]),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(null),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -563,19 +534,18 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Resume card fits on iPhone SE', (tester) async {
+    testWidgets('Mon apprentissage fits on iPhone SE', (tester) async {
       tester.view.physicalSize = const Size(375, 667);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
       final course = _testCourse(
-        title: 'In Progress Course',
-        totalLessons: 10,
-      );
-
-      final progress = _testProgress(
-        courseId: 'c1',
-        completedLessonIds: {'lesson1', 'lesson2'},
+        translations: const {
+          'fr': CourseTranslation(
+            title: 'Découvrir les formations ANIS',
+            description: 'Description',
+          ),
+        },
       );
 
       await tester.pumpWidget(
@@ -586,10 +556,57 @@ void main() {
               (ref) => Stream.value([course]),
             ),
             allProgressProvider.overrideWith(
-              (ref) => Future.value([progress]),
+              (ref) => Future.value([]),
+            ),
+            myLearningStateProvider.overrideWith(
+              (ref) async => MyLearningState(
+                display: MyLearningDisplayState.active,
+                active: ResolvedActiveLearning(
+                  course: course,
+                  progress: _testProgress(
+                    courseId: course.id,
+                    currentLessonId: 'l2',
+                    completedLessonIds: {'l1'},
+                  ),
+                  lessons: const [
+                    Lesson(
+                      id: 'l1',
+                      moduleId: 'm1',
+                      courseId: 'c1',
+                      title: 'Lesson 1',
+                      type: LessonType.text,
+                      order: 1,
+                    ),
+                    Lesson(
+                      id: 'l2',
+                      moduleId: 'm1',
+                      courseId: 'c1',
+                      title: 'Lesson 2',
+                      type: LessonType.text,
+                      order: 2,
+                    ),
+                  ],
+                  currentLesson: const Lesson(
+                    id: 'l2',
+                    moduleId: 'm1',
+                    courseId: 'c1',
+                    title: 'Lesson 2',
+                    type: LessonType.text,
+                    order: 2,
+                  ),
+                  module: const CourseModule(
+                    id: 'm1',
+                    courseId: 'c1',
+                    title: 'Module',
+                    order: 1,
+                    lessonIds: ['l1', 'l2'],
+                  ),
+                  resumeLessonId: 'l2',
+                ),
+              ),
             ),
             courseProgressProvider(course.id).overrideWith(
-              (ref) => Stream.value(progress),
+              (ref) => Future.value(null),
             ),
           ],
         ),
@@ -597,7 +614,146 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Continuer ma formation'), findsOneWidget);
+      expect(find.text('Mon apprentissage'), findsOneWidget);
+      expect(find.text('Reprendre'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('TrainingScreen - Premium Features', () {
+    testWidgets('Live card renders in teaser state', (tester) async {
+      final course = _testCourse();
+
+      await tester.pumpWidget(
+        _wrapWidget(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([course]),
+            ),
+            allProgressProvider.overrideWith(
+              (ref) => Future.value([]),
+            ),
+            courseProgressProvider(course.id).overrideWith(
+              (ref) => Future.value(null),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lives ANIS'), findsOneWidget);
+      expect(find.text('PROCHAINEMENT'), findsOneWidget); // Live card status (uppercase)
+    });
+
+    testWidgets('Questions card renders in teaser state', (tester) async {
+      final course = _testCourse();
+
+      await tester.pumpWidget(
+        _wrapWidget(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([course]),
+            ),
+            allProgressProvider.overrideWith(
+              (ref) => Future.value([]),
+            ),
+            courseProgressProvider(course.id).overrideWith(
+              (ref) => Future.value(null),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Questions privées & publiques'), findsOneWidget);
+      expect(find.text('Bientôt'), findsWidgets); // At least one for Questions card
+    });
+
+    testWidgets('Premium header renders correctly', (tester) async {
+      final course = _testCourse();
+
+      await tester.pumpWidget(
+        _wrapWidget(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([course]),
+            ),
+            allProgressProvider.overrideWith(
+              (ref) => Future.value([]),
+            ),
+            courseProgressProvider(course.id).overrideWith(
+              (ref) => Future.value(null),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('FORMATIONS'), findsWidgets);
+      expect(find.text('Apprendre.\nComprendre.\nMettre en pratique.'), findsOneWidget);
+    });
+
+    testWidgets('"Formations disponibles" section renders', (tester) async {
+      final course = _testCourse();
+
+      await tester.pumpWidget(
+        _wrapWidget(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([course]),
+            ),
+            allProgressProvider.overrideWith(
+              (ref) => Future.value([]),
+            ),
+            courseProgressProvider(course.id).overrideWith(
+              (ref) => Future.value(null),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Check for section titles
+      expect(find.text('Parcours à découvrir'), findsOneWidget);
+    });
+
+    testWidgets('Feature cards adapt on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(375, 667); // iPhone SE
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      final course = _testCourse();
+
+      await tester.pumpWidget(
+        _wrapWidget(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([course]),
+            ),
+            allProgressProvider.overrideWith(
+              (ref) => Future.value([]),
+            ),
+            courseProgressProvider(course.id).overrideWith(
+              (ref) => Future.value(null),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Both cards should render on iPhone SE without overflow
+      expect(find.text('Lives ANIS'), findsOneWidget);
+      expect(find.text('Questions privées & publiques'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

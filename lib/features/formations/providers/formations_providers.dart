@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/bootstrap/firebase_bootstrap.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../models/course.dart';
@@ -9,6 +10,7 @@ import '../models/user_progress.dart';
 import '../models/pedagogical_pillar.dart';
 import '../repositories/formations_repository.dart';
 import '../services/formations_api_service.dart';
+import 'formations_access.dart';
 
 // ─── Services ────────────────────────────────────────────────────────────────
 
@@ -20,42 +22,69 @@ final formationsApiServiceProvider = Provider<FormationsApiService>((ref) {
 // ─── Repository ──────────────────────────────────────────────────────────────
 
 final formationsRepositoryProvider = Provider<FormationsRepository>((ref) {
+  ref.watch(firebaseBootstrapProvider);
   final apiService = ref.watch(formationsApiServiceProvider);
-  return FormationsRepository(apiService: apiService);
+  final db = tryFirestore();
+  if (db == null) {
+    throw StateError(
+      'FormationsRepository requested before verified Firebase bootstrap completed.',
+    );
+  }
+  return FormationsRepository(db: db, apiService: apiService);
 });
 
 // ─── Courses ─────────────────────────────────────────────────────────────────
+//
+// Tous les providers ci-dessous sont en aval de `authReadinessProvider` : ils
+// se reconstruisent automatiquement à chaque changement d'authentification et
+// n'émettent aucune requête Firestore tant que les credentials ne sont pas
+// disponibles.
 
 final publishedCoursesProvider = StreamProvider<List<Course>>((ref) {
-  return ref.watch(formationsRepositoryProvider).watchPublishedCourses();
+  return guardedFormationStream(
+    ref,
+    () => ref.watch(formationsRepositoryProvider).watchPublishedCourses(),
+  );
 });
 
 final coursesByCategoryProvider =
     StreamProvider.family<List<Course>, CourseCategory>((ref, category) {
-      return ref
-          .watch(formationsRepositoryProvider)
-          .watchCoursesByCategory(category);
+      return guardedFormationStream(
+        ref,
+        () => ref
+            .watch(formationsRepositoryProvider)
+            .watchCoursesByCategory(category),
+      );
     });
 
 final coursesByPillarProvider =
     StreamProvider.family<List<Course>, String>((ref, pillarId) {
-      return ref
-          .watch(formationsRepositoryProvider)
-          .watchCoursesByPillar(pillarId);
+      return guardedFormationStream(
+        ref,
+        () => ref
+            .watch(formationsRepositoryProvider)
+            .watchCoursesByPillar(pillarId),
+      );
     });
 
 final courseDetailProvider = FutureProvider.family<Course?, String>((
   ref,
   courseId,
 ) {
-  return ref.watch(formationsRepositoryProvider).getCourse(courseId);
+  return guardedFormationRead(
+    ref,
+    () => ref.watch(formationsRepositoryProvider).getCourse(courseId),
+  );
 });
 
 // ─── Modules ─────────────────────────────────────────────────────────────────
 
 final courseModulesProvider = FutureProvider.family<List<CourseModule>, String>(
   (ref, courseId) {
-    return ref.watch(formationsRepositoryProvider).getModules(courseId);
+    return guardedFormationRead(
+      ref,
+      () => ref.watch(formationsRepositoryProvider).getModules(courseId),
+    );
   },
 );
 
@@ -65,7 +94,10 @@ final courseLessonsProvider = FutureProvider.family<List<Lesson>, String>((
   ref,
   courseId,
 ) {
-  return ref.watch(formationsRepositoryProvider).getLessons(courseId);
+  return guardedFormationRead(
+    ref,
+    () => ref.watch(formationsRepositoryProvider).getLessons(courseId),
+  );
 });
 
 class LessonParams {
@@ -87,22 +119,26 @@ final lessonDetailProvider = FutureProvider.family<Lesson?, LessonParams>((
   ref,
   params,
 ) {
-  return ref
-      .watch(formationsRepositoryProvider)
-      .getLesson(params.courseId, params.lessonId);
+  return guardedFormationRead(
+    ref,
+    () => ref
+        .watch(formationsRepositoryProvider)
+        .getLesson(params.courseId, params.lessonId),
+  );
 });
 
 // ─── Progress ─────────────────────────────────────────────────────────────────
 
+/// User's progress for a specific course (server-authoritative via API)
+/// Returns null if no progress exists yet or user not authenticated
 final courseProgressProvider =
-    StreamProvider.family<UserCourseProgress?, String>((ref, courseId) {
-      final user = ref.watch(currentUserProvider);
-      final uid = user?.uid;
-      if (uid == null) return Stream.value(null);
-      return ref
-          .watch(formationsRepositoryProvider)
-          .watchProgress(uid, courseId);
-    });
+    FutureProvider.family<UserCourseProgress?, String>((ref, courseId) async {
+  final user = ref.watch(currentUserProvider);
+  final uid = user?.uid;
+  if (uid == null) return null;
+
+  return ref.read(formationsRepositoryProvider).getProgress(courseId);
+});
 
 final allProgressProvider = FutureProvider<List<UserCourseProgress>>((
   ref,
@@ -146,23 +182,8 @@ class FormationsNotifier extends AsyncNotifier<void> {
     ref.invalidate(courseProgressProvider(courseId));
   }
 
-  Future<void> saveQuizScore({
-    required String courseId,
-    required String lessonId,
-    required int score,
-  }) async {
-    final user = ref.read(currentUserProvider);
-    final uid = user?.uid;
-    if (uid == null) return;
-    await ref
-        .read(formationsRepositoryProvider)
-        .saveQuizScore(
-          userId: uid,
-          courseId: courseId,
-          lessonId: lessonId,
-          score: score,
-        );
-  }
+  /// Quiz scoring: REMOVED — violates server-authoritative progress contract.
+  /// If quiz functionality is needed, implement via REST API endpoint.
 
   Future<void> updateCurrentLesson({
     required String courseId,

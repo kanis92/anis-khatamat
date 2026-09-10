@@ -61,7 +61,6 @@ class AnisSideNavigation extends StatelessWidget {
                         compactLabels:
                             mode != AnisAccessibilityTextMode.normal,
                         onTap: () {
-                          if (i == currentIndex) return;
                           AnisHaptics.selection();
                           onSelected(i);
                         },

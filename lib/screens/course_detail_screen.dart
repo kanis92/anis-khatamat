@@ -8,8 +8,10 @@ import '../features/formations/models/course.dart';
 import '../features/formations/models/course_module.dart';
 import '../features/formations/models/lesson.dart';
 import '../features/formations/presentation/course_content_resolver.dart';
+import '../features/formations/presentation/formation_resume_resolver.dart';
 import '../features/formations/presentation/course_presentation.dart';
 import '../features/formations/presentation/pillar_presentation.dart';
+import '../features/formations/presentation/formations_state_views.dart';
 import '../features/formations/providers/formations_providers.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
@@ -29,9 +31,19 @@ class CourseDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/training');
+            }
+          },
+        ),
         title: Text(content.title),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 100), // Extra bottom padding for bottom navigation
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -174,14 +186,12 @@ class CourseDetailScreen extends ConsumerWidget {
                         child: CircularProgressIndicator(),
                       ),
                     ),
-                    error: (error, _) => Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Text(
-                          l10n.errorLoadingFormations,
-                          style: TextStyle(color: Colors.red[700]),
-                        ),
-                      ),
+                    error: (error, _) => FormationsFailureView(
+                      error: error,
+                      onRetry: () {
+                        ref.invalidate(courseModulesProvider(course.id));
+                        ref.invalidate(courseLessonsProvider(course.id));
+                      },
                     ),
                     data: (modules) {
                       if (modules.isEmpty) {
@@ -200,7 +210,11 @@ class CourseDetailScreen extends ConsumerWidget {
 
                       return lessonsAsync.when(
                         loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (error, _) => Center(child: Text(l10n.errorLoadingFormations)),
+                        error: (error, _) => FormationsFailureView(
+                          error: error,
+                          onRetry: () =>
+                              ref.invalidate(courseLessonsProvider(course.id)),
+                        ),
                         data: (allLessons) {
                           final progress = progressAsync.valueOrNull;
                           return Column(
@@ -254,19 +268,14 @@ class CourseDetailScreen extends ConsumerWidget {
 
     String targetLessonId;
 
-    if (progressValue == null || progressValue.lastLessonId == null) {
-      // No progress - start with first lesson
+    if (progressValue == null) {
       targetLessonId = lessons.first.id;
     } else {
-      // Resume from last lesson or next incomplete
-      final lastLessonId = progressValue.lastLessonId;
-      final lastIndex = lessons.indexWhere((l) => l.id == lastLessonId);
-      
-      if (lastIndex == -1 || lastIndex >= lessons.length - 1) {
-        targetLessonId = lessons.first.id;
-      } else {
-        targetLessonId = lessons[lastIndex + 1].id;
-      }
+      targetLessonId = FormationResumeResolver.resolveResumeLessonId(
+            progress: progressValue,
+            publishedLessons: lessons,
+          ) ??
+          lessons.first.id;
     }
 
     context.push(

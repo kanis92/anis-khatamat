@@ -105,53 +105,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AchievementsScreen(),
       ),
       GoRoute(
-        path: '/formations/:courseId',
-        builder: (context, state) {
-          final courseId = state.pathParameters['courseId']!;
-          final extra = state.extra as Map<String, dynamic>?;
-          final course = extra?['course'] as Course?;
-
-          if (course != null) {
-            return CourseDetailScreen(course: course);
-          }
-
-          // Fallback: fetch course by ID
-          return FutureBuilder<Course?>(
-            future: ProviderScope.containerOf(context)
-                .read(courseDetailProvider(courseId).future),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-                return Scaffold(
-                  appBar: AppBar(),
-                  body: const Center(child: Text('Course not found')),
-                );
-              }
-
-              return CourseDetailScreen(course: snapshot.data!);
-            },
-          );
-        },
-      ),
-      GoRoute(
-        path: '/formations/:courseId/lessons/:lessonId',
-        builder: (context, state) {
-          final courseId = state.pathParameters['courseId']!;
-          final lessonId = state.pathParameters['lessonId']!;
-          final extra = state.extra as Map<String, dynamic>?;
-
-          return LessonScreen(
-            courseId: courseId,
-            lessonId: lessonId,
-          );
-        },
-      ),
-      GoRoute(
         path: '/mushaf',
         builder: (context, state) => const MushafSelectionScreen(),
       ),
@@ -305,6 +258,60 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: TrainingScreen()),
           ),
           GoRoute(
+            path: '/formations/:courseId',
+            pageBuilder: (context, state) {
+              final courseId = state.pathParameters['courseId']!;
+              final extra = state.extra as Map<String, dynamic>?;
+              final course = extra?['course'] as Course?;
+
+              if (course != null) {
+                return NoTransitionPage(
+                  child: CourseDetailScreen(course: course),
+                );
+              }
+
+              // Fallback: fetch course by ID
+              return NoTransitionPage(
+                child: FutureBuilder<Course?>(
+                  future: ProviderScope.containerOf(context)
+                      .read(courseDetailProvider(courseId).future),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (snapshot.hasError ||
+                        !snapshot.hasData ||
+                        snapshot.data == null) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: const Center(child: Text('Course not found')),
+                      );
+                    }
+
+                    return CourseDetailScreen(course: snapshot.data!);
+                  },
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/formations/:courseId/lessons/:lessonId',
+            pageBuilder: (context, state) {
+              final courseId = state.pathParameters['courseId']!;
+              final lessonId = state.pathParameters['lessonId']!;
+
+              return NoTransitionPage(
+                child: LessonScreen(
+                  courseId: courseId,
+                  lessonId: lessonId,
+                ),
+              );
+            },
+          ),
+          GoRoute(
             path: '/settings',
             pageBuilder:
                 (context, state) =>
@@ -366,28 +373,35 @@ class _MainShell extends StatelessWidget {
 
   int _calculateSelectedIndex(String location) {
     if (location.startsWith('/khatma')) return 1;
-    if (location.startsWith('/training')) return 2; // Formations
+    if (location.startsWith('/training') || location.startsWith('/formations')) return 2; // Formations
     if (location.startsWith('/wird')) return 3;
     if (location.startsWith('/settings')) return 4;
     return 0;
   }
 
   void _onItemTapped(BuildContext context, int index) {
+    final currentPath = GoRouterState.of(context).uri.path;
+
     switch (index) {
       case 0:
-        context.go('/');
+        // Accueil: no-op if already at root
+        if (currentPath != '/') context.go('/');
         break;
       case 1:
-        context.go('/khatma');
+        // Khatma: no-op if already at /khatma
+        if (currentPath != '/khatma') context.go('/khatma');
         break;
       case 2:
-        context.go('/training'); // Formations
+        // Formations: always navigate to /training (resets nested routes)
+        context.go('/training');
         break;
       case 3:
-        context.go('/wird');
+        // Wird: no-op if already at /wird
+        if (currentPath != '/wird') context.go('/wird');
         break;
       case 4:
-        context.go('/settings');
+        // Settings: no-op if already at /settings
+        if (currentPath != '/settings') context.go('/settings');
         break;
     }
   }

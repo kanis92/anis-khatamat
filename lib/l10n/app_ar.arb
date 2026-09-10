@@ -765,5 +765,43 @@
     "placeholders": {
       "percent": { "type": "int" }
     }
-  }
+  },
+  "formationsSubtitle": "تقدّم خطوة بخطوة في تعلمك",
+  "formationsHeroTagline": "تعلّم. افهم. طبّق.",
+  "formationsHeroSecondary": "مسارات تعليمية منظّمة للتقدّم بوتيرتك الخاصة.",
+  "resumeYourLearning": "تابع تعلّمك",
+  "myLearning": "تعلّمي",
+  "myLearningResumeSubtitle": "تابع من حيث توقفت",
+  "myLearningEmptyTitle": "ابدأ مسارك الأول",
+  "myLearningEmptyBody": "اختر دورة وستجد تقدّمك هنا.",
+  "discoverFormations": "اكتشف الدورات",
+  "myLearningAllCompletedTitle": "أحسنت، لقد أنهيت مساراتك",
+  "myLearningAllCompletedBody": "استكشف دورات أخرى لمواصلة التعلّم.",
+  "exploreByTheme": "استكشف حسب الموضوع",
+  "formationsSignInRequiredTitle": "تسجيل الدخول مطلوب",
+  "formationsSignInRequiredBody": "سجّل الدخول للوصول إلى الدورات.",
+  "formationsErrorPermissionDenied": "تم رفض الوصول إلى محتوى الدورات.",
+  "formationsErrorUnavailable": "الخدمة غير متاحة مؤقتًا. حاول مرة أخرى بعد قليل.",
+  "formationsCourseModulesEmpty": "لا توجد وحدات منشورة لـ «{courseTitle}» حتى الآن.",
+  "@formationsCourseModulesEmpty": {
+    "placeholders": {
+      "courseTitle": { "type": "String" }
+    }
+  },
+  "featuredPaths": "مسارات مميّزة",
+  "liveSection": "مباشر",
+  "liveSessionsCardTitle": "لقاءات ANIS المباشرة",
+  "liveSessionsDescription": "لقاءات مباشرة مع متحدثين معتمدين.",
+  "liveSessionsSecondary": "تبادل الآراء، اطرح أسئلتك وعمّق معرفتك.",
+  "questionsSection": "أسئلة وتبادلات",
+  "allFormations": "جميع التكوينات",
+  "formationsAvailable": "التكوينات المتاحة",
+  "liveSessionsTitle": "جلسات مباشرة",
+  "questionsTitle": "أسئلة خاصة وعامة",
+  "questionsDescription": "اطرح سؤالاً بسرية تامة أو اطّلع على الإجابات المنشورة.",
+  "privateQuestion": "سؤال خاص",
+  "publicAnswers": "إجابات عامة",
+  "comingSoon": "قريباً",
+  "moduleContentComingSoon": "المحتوى قريبًا",
+  "upcoming": "قريباً"
 }

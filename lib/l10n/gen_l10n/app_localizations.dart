@@ -2307,6 +2307,204 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{percent}% complété'**
   String progressPercent(int percent);
+
+  /// No description provided for @formationsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progressez étape par étape dans votre apprentissage'**
+  String get formationsSubtitle;
+
+  /// No description provided for @formationsHeroTagline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apprendre. Comprendre. Mettre en pratique.'**
+  String get formationsHeroTagline;
+
+  /// No description provided for @formationsHeroSecondary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des parcours structurés pour avancer à votre rythme.'**
+  String get formationsHeroSecondary;
+
+  /// No description provided for @resumeYourLearning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre votre parcours'**
+  String get resumeYourLearning;
+
+  /// No description provided for @myLearning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon apprentissage'**
+  String get myLearning;
+
+  /// No description provided for @myLearningResumeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprenez là où vous vous êtes arrêté'**
+  String get myLearningResumeSubtitle;
+
+  /// No description provided for @myLearningEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez votre premier parcours'**
+  String get myLearningEmptyTitle;
+
+  /// No description provided for @myLearningEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une formation et retrouvez votre progression ici.'**
+  String get myLearningEmptyBody;
+
+  /// No description provided for @discoverFormations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir les formations'**
+  String get discoverFormations;
+
+  /// No description provided for @myLearningAllCompletedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo, vous avez terminé vos parcours'**
+  String get myLearningAllCompletedTitle;
+
+  /// No description provided for @myLearningAllCompletedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorez d\'autres formations pour continuer à apprendre.'**
+  String get myLearningAllCompletedBody;
+
+  /// No description provided for @exploreByTheme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer par thème'**
+  String get exploreByTheme;
+
+  /// No description provided for @formationsSignInRequiredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise'**
+  String get formationsSignInRequiredTitle;
+
+  /// No description provided for @formationsSignInRequiredBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour accéder aux formations.'**
+  String get formationsSignInRequiredBody;
+
+  /// No description provided for @formationsErrorPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès refusé aux contenus de formation.'**
+  String get formationsErrorPermissionDenied;
+
+  /// No description provided for @formationsErrorUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service temporairement indisponible. Réessayez dans un instant.'**
+  String get formationsErrorUnavailable;
+
+  /// No description provided for @formationsCourseModulesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun module publié pour « {courseTitle} » pour le moment.'**
+  String formationsCourseModulesEmpty(String courseTitle);
+
+  /// No description provided for @featuredPaths.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours à découvrir'**
+  String get featuredPaths;
+
+  /// No description provided for @liveSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'EN DIRECT'**
+  String get liveSection;
+
+  /// No description provided for @liveSessionsCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lives ANIS'**
+  String get liveSessionsCardTitle;
+
+  /// No description provided for @liveSessionsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des rencontres en direct avec des intervenants validés.'**
+  String get liveSessionsDescription;
+
+  /// No description provided for @liveSessionsSecondary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échangez, posez vos questions et approfondissez vos connaissances.'**
+  String get liveSessionsSecondary;
+
+  /// No description provided for @questionsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions & échanges'**
+  String get questionsSection;
+
+  /// No description provided for @allFormations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les formations'**
+  String get allFormations;
+
+  /// No description provided for @formationsAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formations disponibles'**
+  String get formationsAvailable;
+
+  /// No description provided for @liveSessionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lives en direct'**
+  String get liveSessionsTitle;
+
+  /// No description provided for @questionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions privées & publiques'**
+  String get questionsTitle;
+
+  /// No description provided for @questionsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez une question en toute confidentialité ou consultez les réponses publiées.'**
+  String get questionsDescription;
+
+  /// No description provided for @privateQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question privée'**
+  String get privateQuestion;
+
+  /// No description provided for @publicAnswers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponses publiques'**
+  String get publicAnswers;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt'**
+  String get comingSoon;
+
+  /// No description provided for @moduleContentComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu à venir'**
+  String get moduleContentComingSoon;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochainement'**
+  String get upcoming;
 }
 
 class _AppLocalizationsDelegate

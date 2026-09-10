@@ -1251,4 +1251,109 @@ class AppLocalizationsAr extends AppLocalizations {
   String progressPercent(int percent) {
     return '$percent٪ مكتمل';
   }
+
+  @override
+  String get formationsSubtitle => 'تقدّم خطوة بخطوة في تعلمك';
+
+  @override
+  String get formationsHeroTagline => 'تعلّم. افهم. طبّق.';
+
+  @override
+  String get formationsHeroSecondary =>
+      'مسارات تعليمية منظّمة للتقدّم بوتيرتك الخاصة.';
+
+  @override
+  String get resumeYourLearning => 'تابع تعلّمك';
+
+  @override
+  String get myLearning => 'تعلّمي';
+
+  @override
+  String get myLearningResumeSubtitle => 'تابع من حيث توقفت';
+
+  @override
+  String get myLearningEmptyTitle => 'ابدأ مسارك الأول';
+
+  @override
+  String get myLearningEmptyBody => 'اختر دورة وستجد تقدّمك هنا.';
+
+  @override
+  String get discoverFormations => 'اكتشف الدورات';
+
+  @override
+  String get myLearningAllCompletedTitle => 'أحسنت، لقد أنهيت مساراتك';
+
+  @override
+  String get myLearningAllCompletedBody => 'استكشف دورات أخرى لمواصلة التعلّم.';
+
+  @override
+  String get exploreByTheme => 'استكشف حسب الموضوع';
+
+  @override
+  String get formationsSignInRequiredTitle => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get formationsSignInRequiredBody => 'سجّل الدخول للوصول إلى الدورات.';
+
+  @override
+  String get formationsErrorPermissionDenied =>
+      'تم رفض الوصول إلى محتوى الدورات.';
+
+  @override
+  String get formationsErrorUnavailable =>
+      'الخدمة غير متاحة مؤقتًا. حاول مرة أخرى بعد قليل.';
+
+  @override
+  String formationsCourseModulesEmpty(String courseTitle) {
+    return 'لا توجد وحدات منشورة لـ «$courseTitle» حتى الآن.';
+  }
+
+  @override
+  String get featuredPaths => 'مسارات مميّزة';
+
+  @override
+  String get liveSection => 'مباشر';
+
+  @override
+  String get liveSessionsCardTitle => 'لقاءات ANIS المباشرة';
+
+  @override
+  String get liveSessionsDescription => 'لقاءات مباشرة مع متحدثين معتمدين.';
+
+  @override
+  String get liveSessionsSecondary => 'تبادل الآراء، اطرح أسئلتك وعمّق معرفتك.';
+
+  @override
+  String get questionsSection => 'أسئلة وتبادلات';
+
+  @override
+  String get allFormations => 'جميع التكوينات';
+
+  @override
+  String get formationsAvailable => 'التكوينات المتاحة';
+
+  @override
+  String get liveSessionsTitle => 'جلسات مباشرة';
+
+  @override
+  String get questionsTitle => 'أسئلة خاصة وعامة';
+
+  @override
+  String get questionsDescription =>
+      'اطرح سؤالاً بسرية تامة أو اطّلع على الإجابات المنشورة.';
+
+  @override
+  String get privateQuestion => 'سؤال خاص';
+
+  @override
+  String get publicAnswers => 'إجابات عامة';
+
+  @override
+  String get comingSoon => 'قريباً';
+
+  @override
+  String get moduleContentComingSoon => 'المحتوى قريبًا';
+
+  @override
+  String get upcoming => 'قريباً';
 }

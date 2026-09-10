@@ -796,5 +796,43 @@
     "placeholders": {
       "percent": { "type": "int" }
     }
-  }
+  },
+  "formationsSubtitle": "Progressez étape par étape dans votre apprentissage",
+  "formationsHeroTagline": "Apprendre. Comprendre. Mettre en pratique.",
+  "formationsHeroSecondary": "Des parcours structurés pour avancer à votre rythme.",
+  "resumeYourLearning": "Reprendre votre parcours",
+  "myLearning": "Mon apprentissage",
+  "myLearningResumeSubtitle": "Reprenez là où vous vous êtes arrêté",
+  "myLearningEmptyTitle": "Commencez votre premier parcours",
+  "myLearningEmptyBody": "Choisissez une formation et retrouvez votre progression ici.",
+  "discoverFormations": "Découvrir les formations",
+  "myLearningAllCompletedTitle": "Bravo, vous avez terminé vos parcours",
+  "myLearningAllCompletedBody": "Explorez d'autres formations pour continuer à apprendre.",
+  "exploreByTheme": "Explorer par thème",
+  "formationsSignInRequiredTitle": "Connexion requise",
+  "formationsSignInRequiredBody": "Connectez-vous pour accéder aux formations.",
+  "formationsErrorPermissionDenied": "Accès refusé aux contenus de formation.",
+  "formationsErrorUnavailable": "Service temporairement indisponible. Réessayez dans un instant.",
+  "formationsCourseModulesEmpty": "Aucun module publié pour « {courseTitle} » pour le moment.",
+  "@formationsCourseModulesEmpty": {
+    "placeholders": {
+      "courseTitle": { "type": "String" }
+    }
+  },
+  "featuredPaths": "Parcours à découvrir",
+  "liveSection": "EN DIRECT",
+  "liveSessionsCardTitle": "Lives ANIS",
+  "liveSessionsDescription": "Des rencontres en direct avec des intervenants validés.",
+  "liveSessionsSecondary": "Échangez, posez vos questions et approfondissez vos connaissances.",
+  "questionsSection": "Questions & échanges",
+  "allFormations": "Toutes les formations",
+  "formationsAvailable": "Formations disponibles",
+  "liveSessionsTitle": "Lives en direct",
+  "questionsTitle": "Questions privées & publiques",
+  "questionsDescription": "Posez une question en toute confidentialité ou consultez les réponses publiées.",
+  "privateQuestion": "Question privée",
+  "publicAnswers": "Réponses publiques",
+  "comingSoon": "Bientôt",
+  "moduleContentComingSoon": "Contenu à venir",
+  "upcoming": "Prochainement"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -74,32 +75,32 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            leading: BackButton(
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/formations/${widget.courseId}');
+                }
+              },
+            ),
             title: Text(content.title),
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), // Extra bottom padding for bottom navigation
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Title
-                Text(
-                  content.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
+                // Description (if present)
                 if (content.description != null && content.description!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
                   Text(
                     content.description!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey[700],
                     ),
                   ),
+                  const SizedBox(height: 24),
                 ],
-
-                const SizedBox(height: 24),
 
                 // Main content
                 if (content.contentText != null && content.contentText!.isNotEmpty)
@@ -226,6 +227,8 @@ class _ContentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -233,10 +236,27 @@ class _ContentSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          height: 1.6,
+      child: MarkdownBody(
+        data: text,
+        selectable: true,
+        styleSheet: MarkdownStyleSheet(
+          p: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+          h1: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            height: 1.3,
+          ),
+          h2: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            height: 1.3,
+          ),
+          h3: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+          strong: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            height: 1.6,
+          ),
+          listBullet: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
         ),
       ),
     );
@@ -408,40 +428,6 @@ class _QuranReferenceSection extends StatelessWidget {
   }
 }
 
-class _QuizSection extends StatelessWidget {
-  final List<QuizQuestion> quiz;
-
-  const _QuizSection({required this.quiz});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Quiz',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[700],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${quiz.length} question(s)',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          // Quiz implementation can be expanded in future
-        ],
-      ),
-    );
-  }
-}
 
 class _NavigationButtons extends ConsumerWidget {
   final String courseId;
@@ -461,13 +447,15 @@ class _NavigationButtons extends ConsumerWidget {
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
       data: (lessons) {
-        lessons.sort((a, b) => a.order.compareTo(b.order));
-        final currentIndex = lessons.indexWhere((l) => l.id == currentLessonId);
+        final sortedLessons = [...lessons]
+          ..sort((a, b) => a.order.compareTo(b.order));
+        final currentIndex =
+            sortedLessons.indexWhere((l) => l.id == currentLessonId);
 
         if (currentIndex == -1) return const SizedBox.shrink();
 
         final hasPrevious = currentIndex > 0;
-        final hasNext = currentIndex < lessons.length - 1;
+        final hasNext = currentIndex < sortedLessons.length - 1;
 
         return Row(
           children: [
@@ -475,7 +463,7 @@ class _NavigationButtons extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    final previousLesson = lessons[currentIndex - 1];
+                    final previousLesson = sortedLessons[currentIndex - 1];
                     context.go(
                       '/formations/$courseId/lessons/${previousLesson.id}',
                       extra: {'courseId': courseId},
@@ -498,7 +486,7 @@ class _NavigationButtons extends ConsumerWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    final nextLesson = lessons[currentIndex + 1];
+                    final nextLesson = sortedLessons[currentIndex + 1];
                     context.go(
                       '/formations/$courseId/lessons/${nextLesson.id}',
                       extra: {'courseId': courseId},

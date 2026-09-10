@@ -765,5 +765,43 @@
     "placeholders": {
       "percent": { "type": "int" }
     }
-  }
+  },
+  "formationsSubtitle": "Progress step by step in your learning",
+  "formationsHeroTagline": "Learn. Understand. Practice.",
+  "formationsHeroSecondary": "Structured learning paths to progress at your own pace.",
+  "resumeYourLearning": "Resume your learning",
+  "myLearning": "My learning",
+  "myLearningResumeSubtitle": "Pick up where you left off",
+  "myLearningEmptyTitle": "Start your first learning path",
+  "myLearningEmptyBody": "Choose a course and track your progress here.",
+  "discoverFormations": "Discover courses",
+  "myLearningAllCompletedTitle": "Well done, you've completed your paths",
+  "myLearningAllCompletedBody": "Explore more courses to keep learning.",
+  "exploreByTheme": "Explore by theme",
+  "formationsSignInRequiredTitle": "Sign-in required",
+  "formationsSignInRequiredBody": "Sign in to access the courses.",
+  "formationsErrorPermissionDenied": "Access to course content was denied.",
+  "formationsErrorUnavailable": "Service temporarily unavailable. Please try again shortly.",
+  "formationsCourseModulesEmpty": "No published module for \"{courseTitle}\" yet.",
+  "@formationsCourseModulesEmpty": {
+    "placeholders": {
+      "courseTitle": { "type": "String" }
+    }
+  },
+  "featuredPaths": "Featured paths",
+  "liveSection": "LIVE",
+  "liveSessionsCardTitle": "ANIS Live",
+  "liveSessionsDescription": "Live meetings with verified speakers.",
+  "liveSessionsSecondary": "Share, ask your questions and deepen your knowledge.",
+  "questionsSection": "Questions & exchanges",
+  "allFormations": "All formations",
+  "formationsAvailable": "Available Formations",
+  "liveSessionsTitle": "Live Sessions",
+  "questionsTitle": "Private & Public Questions",
+  "questionsDescription": "Ask a question in complete confidentiality or consult published answers.",
+  "privateQuestion": "Private question",
+  "publicAnswers": "Public answers",
+  "comingSoon": "Coming Soon",
+  "moduleContentComingSoon": "Content coming soon",
+  "upcoming": "Upcoming"
 }

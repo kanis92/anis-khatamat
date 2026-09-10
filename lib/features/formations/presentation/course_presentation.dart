@@ -6,7 +6,7 @@ import '../../../l10n/gen_l10n/app_localizations.dart';
 import 'course_content_resolver.dart';
 
 /// Presentation layer for Course localization.
-/// 
+///
 /// Keeps the domain model (Course) free from Flutter dependencies.
 class CoursePresentationLabels {
   const CoursePresentationLabels._();
@@ -55,6 +55,22 @@ extension CoursePresentationExtension on Course {
 
   String localizedCategory(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    return CoursePresentationLabels.category(category, l10n);
+  }
+
+  /// V1: Prioritize pillar, fallback to category
+  String localizedPillarOrCategory(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    // Try to resolve pillar first
+    if (pillarId != null) {
+      final pillar = PedagogicalPillar.fromId(pillarId!);
+      if (pillar != null) {
+        return CoursePresentationLabels.pillar(pillar, l10n);
+      }
+    }
+
+    // Fallback to legacy category
     return CoursePresentationLabels.category(category, l10n);
   }
 

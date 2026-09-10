@@ -137,7 +137,6 @@ class AnisBottomNavigation extends StatelessWidget {
                         selected: i == currentIndex,
                         compactLabels: compactLabels,
                         onTap: () {
-                          if (i == currentIndex) return;
                           AnisHaptics.selection();
                           onSelected(i);
                         },
