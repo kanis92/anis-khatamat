@@ -11,6 +11,7 @@ import '../models/pedagogical_pillar.dart';
 import '../repositories/formations_repository.dart';
 import '../services/formations_api_service.dart';
 import 'formations_access.dart';
+import 'formation_learning_providers.dart';
 
 // ─── Services ────────────────────────────────────────────────────────────────
 
@@ -179,7 +180,11 @@ class FormationsNotifier extends AsyncNotifier<void> {
           courseId: courseId,
           lessonId: lessonId,
         );
+
+    // Refresh all progress-dependent state
     ref.invalidate(courseProgressProvider(courseId));
+    ref.invalidate(allProgressProvider);
+    ref.invalidate(myLearningStateProvider);
   }
 
   /// Quiz scoring: REMOVED — violates server-authoritative progress contract.
@@ -195,6 +200,11 @@ class FormationsNotifier extends AsyncNotifier<void> {
           courseId: courseId,
           lessonId: lessonId,
         );
+
+    // Refresh all progress-dependent state
+    ref.invalidate(courseProgressProvider(courseId));
+    ref.invalidate(allProgressProvider);
+    ref.invalidate(myLearningStateProvider);
   }
 }
 

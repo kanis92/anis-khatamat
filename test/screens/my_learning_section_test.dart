@@ -266,5 +266,63 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('progress indicator shows real completion fraction',
+        (tester) async {
+      final activeLearning = _activeLearning();
+
+      await tester.pumpWidget(
+        _wrap(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([_course()]),
+            ),
+            allProgressProvider.overrideWith((ref) => Future.value([])),
+            myLearningStateProvider.overrideWith(
+              (ref) async => MyLearningState(
+                display: MyLearningDisplayState.active,
+                active: activeLearning,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify progress indicator exists
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+      // Verify no fake percentages
+      expect(find.textContaining('%'), findsNothing);
+      expect(find.textContaining('streak'), findsNothing);
+      expect(find.textContaining('badge'), findsNothing);
+      expect(find.textContaining('points'), findsNothing);
+    });
+
+    testWidgets('error state does not masquerade as empty first-learning state',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const TrainingScreen(),
+          overrides: [
+            publishedCoursesProvider.overrideWith(
+              (ref) => Stream.value([_course()]),
+            ),
+            allProgressProvider.overrideWith((ref) => Future.value([])),
+            myLearningStateProvider.overrideWith(
+              (ref) => Future.error(Exception('API failure')),
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Should show error, not "Commencez votre premier parcours"
+      expect(find.text('Commencez votre premier parcours'), findsNothing);
+      expect(find.text('Réessayer'), findsOneWidget);
+    });
   });
 }
