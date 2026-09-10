@@ -58,9 +58,6 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     final coursesAsync = ref.watch(filteredCoursesProvider);
     final selectedPillar = ref.watch(selectedPillarProvider);
     final searchQuery = ref.watch(searchQueryProvider);
-    final searchResults = searchQuery.trim().isNotEmpty
-        ? ref.watch(formationSearchResultsProvider)
-        : <FormationSearchResult>[];
 
     // Detect pillar change and scroll to tabs
     if (_previousPillar != selectedPillar && selectedPillar != null) {
@@ -110,12 +107,21 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
 
               // ═══ 3. SEARCH RESULTS OR NORMAL CONTENT ═══
               if (searchQuery.trim().isNotEmpty)
-                _SearchResults(
-                  query: searchQuery,
-                  results: searchResults,
-                  onResultTap: () {
-                    _searchFocusNode.unfocus();
-                  },
+                ref.watch(formationSearchResultsProvider).when(
+                  data: (results) => _SearchResults(
+                    query: searchQuery,
+                    results: results,
+                    onResultTap: () {
+                      _searchFocusNode.unfocus();
+                    },
+                  ),
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(48.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  // On error, hide search results
+                  // Upstream error will be shown by normal content providers
+                  error: (error, stack) => const SizedBox.shrink(),
                 )
               else ...[
                 // ═══ MON APPRENTISSAGE (Tous tab only) ═══
