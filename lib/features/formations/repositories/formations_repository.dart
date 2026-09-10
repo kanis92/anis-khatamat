@@ -12,7 +12,7 @@ import '../services/formations_api_service.dart';
 ///   modules/{moduleId}
 ///   lessons/{lessonId}
 /// users/{userId}/formationProgress/{pathId}
-/// 
+///
 /// Progress writes are server-authoritative via API.
 /// Progress reads use Firestore streams for real-time updates.
 class FormationsRepository {
@@ -20,9 +20,9 @@ class FormationsRepository {
   final FormationsApiService _apiService;
 
   FormationsRepository({
-    FirebaseFirestore? db,
+    required FirebaseFirestore db,
     required FormationsApiService apiService,
-  }) : _db = db ?? FirebaseFirestore.instance,
+  }) : _db = db,
        _apiService = apiService;
 
   // ─── Collections ──────────────────────────────────────────────────────────
@@ -36,43 +36,45 @@ class FormationsRepository {
   CollectionReference<Map<String, dynamic>> _lessons(String courseId) =>
       _courses.doc(courseId).collection('lessons');
 
-  CollectionReference<Map<String, dynamic>> _progress(String userId) =>
-      _db.collection('users').doc(userId).collection('formationProgress');
-
   // ─── Courses ──────────────────────────────────────────────────────────────
 
+  /// Catalogue publié — une seule égalité Firestore (`isPublished`).
+  ///
+  /// Pas de `orderBy('createdAt')` : ce champ manque sur d'anciens documents
+  /// et l'index composite n'est pas garanti. Le tri est local.
   Stream<List<Course>> watchPublishedCourses() {
     return _courses
         .where('isPublished', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (s) =>
-              s.docs.map((d) => Course.fromFirestore(d.id, d.data())).toList(),
-        );
+        .map(_coursesFromSnapshot);
   }
 
   Stream<List<Course>> watchCoursesByCategory(CourseCategory category) {
-    return _courses
-        .where('isPublished', isEqualTo: true)
-        .where('category', isEqualTo: category.name)
-        .snapshots()
-        .map(
-          (s) =>
-              s.docs.map((d) => Course.fromFirestore(d.id, d.data())).toList(),
-        );
+    return watchPublishedCourses().map(
+      (courses) =>
+          courses.where((course) => course.category == category).toList(),
+    );
   }
 
-  /// V1: Filter by pedagogical pillar
+  /// Filtre local du catalogue publié. Évite l'index composite
+  /// `isPublished + pillarId` dont l'absence produit un échec (ou un
+  /// résultat vide selon l'environnement) alors que les documents existent.
   Stream<List<Course>> watchCoursesByPillar(String pillarId) {
-    return _courses
-        .where('isPublished', isEqualTo: true)
-        .where('pillarId', isEqualTo: pillarId)
-        .snapshots()
-        .map(
-          (s) =>
-              s.docs.map((d) => Course.fromFirestore(d.id, d.data())).toList(),
-        );
+    return watchPublishedCourses().map(
+      (courses) =>
+          courses.where((course) => course.pillarId == pillarId).toList(),
+    );
+  }
+
+  List<Course> _coursesFromSnapshot(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final courses =
+        snapshot.docs
+            .map((doc) => Course.fromFirestore(doc.id, doc.data()))
+            .toList();
+    courses.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return courses;
   }
 
   Future<Course?> getCourse(String courseId) async {
@@ -84,28 +86,31 @@ class FormationsRepository {
   // ─── Modules ──────────────────────────────────────────────────────────────
 
   Future<List<CourseModule>> getModules(String courseId) async {
-    final snap = await _modules(courseId).orderBy('order').get();
-    return snap.docs
-        .map((d) => CourseModule.fromFirestore(d.id, d.data()))
-        .toList();
+    final snap = await _modules(courseId).get();
+    final modules =
+        snap.docs
+            .map((d) => CourseModule.fromFirestore(d.id, d.data()))
+            .toList();
+    modules.sort((a, b) => a.order.compareTo(b.order));
+    return modules;
   }
 
   // ─── Lessons ──────────────────────────────────────────────────────────────
 
   Future<List<Lesson>> getLessons(String courseId) async {
-    final snap = await _lessons(courseId).orderBy('order').get();
-    return snap.docs.map((d) => Lesson.fromFirestore(d.id, d.data())).toList();
+    final snap = await _lessons(courseId).get();
+    final lessons =
+        snap.docs.map((d) => Lesson.fromFirestore(d.id, d.data())).toList();
+    lessons.sort((a, b) => a.order.compareTo(b.order));
+    return lessons;
   }
 
   Future<List<Lesson>> getLessonsForModule(
     String courseId,
     String moduleId,
   ) async {
-    final snap =
-        await _lessons(
-          courseId,
-        ).where('moduleId', isEqualTo: moduleId).orderBy('order').get();
-    return snap.docs.map((d) => Lesson.fromFirestore(d.id, d.data())).toList();
+    final lessons = await getLessons(courseId);
+    return lessons.where((lesson) => lesson.moduleId == moduleId).toList();
   }
 
   Future<Lesson?> getLesson(String courseId, String lessonId) async {
@@ -115,23 +120,21 @@ class FormationsRepository {
   }
 
   // ─── Progress ─────────────────────────────────────────────────────────────
-  // Reads use Firestore streams for real-time updates
-  // Writes are server-authoritative via API
+  // Personal Formation progress is server-authoritative via REST API only.
+  // No direct Firestore reads or writes.
 
-  Stream<UserCourseProgress?> watchProgress(String userId, String courseId) {
-    return _progress(userId).doc(courseId).snapshots().map((d) {
-      if (!d.exists) return null;
-      return UserCourseProgress.fromFirestore(d.data()!);
-    });
-  }
+  /// Get user's progress for a specific course (via API)
+  Future<UserCourseProgress?> getProgress(String courseId) async {
+    final apiProgress = await _apiService.getProgress(courseId);
+    if (apiProgress == null) return null;
 
-  Future<UserCourseProgress?> getProgress(
-    String userId,
-    String courseId,
-  ) async {
-    final doc = await _progress(userId).doc(courseId).get();
-    if (!doc.exists) return null;
-    return UserCourseProgress.fromFirestore(doc.data()!);
+    return UserCourseProgress(
+      userId: apiProgress.pathId, // Note: API uses pathId as courseId
+      courseId: apiProgress.pathId,
+      currentLessonId: apiProgress.lastLessonId,
+      completedLessonIds: apiProgress.completedLessonIds.toSet(),
+      lastAccessedAt: apiProgress.lastAccessedAt,
+    );
   }
 
   /// Mark lesson as completed (server-authoritative)
@@ -150,29 +153,24 @@ class FormationsRepository {
     await _apiService.openLesson(courseId, lessonId);
   }
 
-  /// Quiz scores still use Firestore (not part of core progress)
-  /// This can be moved to API in a future iteration if needed
-  Future<void> saveQuizScore({
-    required String userId,
-    required String courseId,
-    required String lessonId,
-    required int score,
-  }) async {
-    final ref = _progress(userId).doc(courseId);
-    await ref.set({
-      'userId': userId,
-      'courseId': courseId,
-      'quizScores.$lessonId': score,
-      'lastAccessedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
+  /// Quiz scores: REMOVED — server-authoritative progress contract.
+  /// If quiz scoring is needed, route through REST API.
+  /// Direct Firestore writes violate the ONE AUTHORITY invariant.
 
-  /// Progress de tous les cours d'un user
+  /// Get all formation progress records for the user (via API)
+  /// Server-authoritative - no direct Firestore read
   Future<List<UserCourseProgress>> getAllProgress(String userId) async {
-    final snap = await _progress(userId).get();
-    return snap.docs
-        .map((d) => UserCourseProgress.fromFirestore(d.data()))
-        .toList();
+    final apiProgressList = await _apiService.getAllProgress();
+
+    return apiProgressList.map((apiProgress) {
+      return UserCourseProgress(
+        userId: userId,
+        courseId: apiProgress.pathId,
+        currentLessonId: apiProgress.lastLessonId,
+        completedLessonIds: apiProgress.completedLessonIds.toSet(),
+        lastAccessedAt: apiProgress.lastAccessedAt,
+      );
+    }).toList();
   }
 
   // ─── Admin: seed data (debug only) ───────────────────────────────────────

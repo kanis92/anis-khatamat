@@ -10,6 +10,7 @@ export { releaseHizb } from './releaseHizb';
 export { completeHizb } from './completeHizb';
 
 // Formation business logic
+export { getAllFormationProgress } from './getAllFormationProgress';
 export { getFormationProgress } from './getFormationProgress';
 export { openFormationLesson } from './openFormationLesson';
 export { completeFormationLesson } from './completeFormationLesson';

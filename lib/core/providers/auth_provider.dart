@@ -26,12 +26,75 @@ final firebaseReadyProvider = Provider<bool>(
   (ref) => ref.watch(firebaseBootstrapProvider).isConfigured,
 );
 
-/// Provider pour l'état d'authentification Firebase
+/// Provider pour l'état d'authentification Firebase.
+///
+/// Source de vérité **session** : `FirebaseAuth.authStateChanges`.
+/// Les lectures Firestore Formations attendent ensuite un ID token avant
+/// de s'abonner (voir `guardedFormationRead` / `ensureFormationAuthToken`).
 final authStateProvider = StreamProvider<User?>((ref) {
   final auth = tryFirebaseAuth();
   if (auth == null) return Stream.value(null);
   return auth.authStateChanges();
 });
+
+/// Statut explicite des credentials Firebase.
+///
+/// [authStateProvider] seul ne suffit pas : `valueOrNull` renvoie `null` aussi
+/// bien pendant la restauration de session que pour un utilisateur déconnecté.
+/// Les deux situations n'ont pas le même contrat produit, donc elles ne doivent
+/// jamais être confondues.
+enum AuthStatus {
+  /// La session Firebase n'a pas encore été restaurée.
+  initializing,
+
+  /// Aucun credential Firebase utilisable (déconnecté ou auth en erreur).
+  signedOut,
+
+  /// Utilisateur Firebase authentifié : les lectures protégées sont permises.
+  signedIn,
+}
+
+/// Readiness canonique dérivée de [authStateProvider].
+///
+/// L'`uid` fait partie de l'identité de la valeur : un changement
+/// d'utilisateur invalide donc automatiquement tout provider en aval.
+class AuthReadiness {
+  const AuthReadiness._(this.status, this.uid);
+
+  final AuthStatus status;
+  final String? uid;
+
+  static const initializing = AuthReadiness._(AuthStatus.initializing, null);
+  static const signedOut = AuthReadiness._(AuthStatus.signedOut, null);
+
+  const AuthReadiness.signedIn(String uid)
+      : this._(AuthStatus.signedIn, uid);
+
+  @override
+  bool operator ==(Object other) =>
+      other is AuthReadiness && other.status == status && other.uid == uid;
+
+  @override
+  int get hashCode => Object.hash(status, uid);
+
+  @override
+  String toString() => 'AuthReadiness(${status.name}, uid: $uid)';
+}
+
+final authReadinessProvider = Provider<AuthReadiness>((ref) {
+  return ref.watch(authStateProvider).when(
+        loading: () => AuthReadiness.initializing,
+        error: (_, __) => AuthReadiness.signedOut,
+        data: (user) => user == null
+            ? AuthReadiness.signedOut
+            : AuthReadiness.signedIn(user.uid),
+      );
+});
+
+/// UID Firebase courant, `null` tant que [AuthStatus.signedIn] n'est pas atteint.
+final firebaseUidProvider = Provider<String?>(
+  (ref) => ref.watch(authReadinessProvider).uid,
+);
 
 /// Utilisateur actuel (Firebase ou démo)
 class AppUser {

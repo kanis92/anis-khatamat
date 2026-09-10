@@ -11,6 +11,24 @@ import { ApiError } from '../errors/api-error';
 const router = Router();
 
 /**
+ * GET /v1/formations/progress
+ * Get all formation progress records for the authenticated user
+ */
+router.get(
+  '/v1/formations/progress',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const allProgress = await business.getAllFormationProgress(authReq.auth);
+      res.json({ data: allProgress });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
  * GET /v1/formations/:pathId/progress
  * Get user's progress for a learning path
  */

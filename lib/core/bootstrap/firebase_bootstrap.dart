@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,8 +6,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../firebase_options.dart';
+import 'firebase_development_guard.dart';
+
+export 'firebase_development_guard.dart'
+    show
+        DevBootstrapMarker,
+        DevBootstrapTarget,
+        DevelopmentBootstrapDecision,
+        FirebaseDevelopmentRuntime,
+        decideDevelopmentBootstrap,
+        isProductionEnvMode,
+        kDevAuthEmulatorPort,
+        kDevBootstrapMarkerKey,
+        kDevEmulatorHostOverride,
+        kDevFirestoreEmulatorPort,
+        kFirebaseEnvMode,
+        kUnsafeDevelopmentRuntimeMessage,
+        requiresNativeDevelopmentGuard,
+        resolveEmulatorHost;
 
 /// État bas niveau du bootstrap Firebase Core.
 enum FirebaseRuntimeState { configured, unavailable, failed }
@@ -20,10 +40,15 @@ enum AnisRuntimeMode {
 }
 
 class FirebaseBootstrapResult {
-  const FirebaseBootstrapResult({required this.state, this.error});
+  const FirebaseBootstrapResult({
+    required this.state,
+    this.error,
+    this.developmentRuntime,
+  });
 
   final FirebaseRuntimeState state;
   final Object? error;
+  final FirebaseDevelopmentRuntime? developmentRuntime;
 
   AnisRuntimeMode resolveAppMode({required bool demoModeActive}) {
     if (demoModeActive) return AnisRuntimeMode.demo;
@@ -36,11 +61,19 @@ class FirebaseBootstrapResult {
 
   bool get isConfigured => state == FirebaseRuntimeState.configured;
 
+  /// Firestore reads are allowed only after bootstrap verified the target runtime.
+  bool get isFirestoreAccessAllowed {
+    if (state != FirebaseRuntimeState.configured) return false;
+    final runtime = developmentRuntime;
+    if (runtime == null) return true;
+    return runtime.allowsFirestoreAccess;
+  }
+
   /// Production-safe diagnostic message (no sensitive data).
   String get diagnosticMessage {
     return switch (state) {
       FirebaseRuntimeState.configured => 'Firebase configured',
-      FirebaseRuntimeState.unavailable => 
+      FirebaseRuntimeState.unavailable =>
         'Firebase configuration missing (no firebase_options.dart or --dart-define)',
       FirebaseRuntimeState.failed => _sanitizeErrorMessage(error),
     };
@@ -48,14 +81,12 @@ class FirebaseBootstrapResult {
 
   static String _sanitizeErrorMessage(Object? error) {
     if (error == null) return 'Firebase initialization failed';
-    
+
     final errorStr = error.toString();
-    // Extract error type and code without exposing sensitive data
     if (errorStr.contains('duplicate-app')) {
       return 'Firebase error: duplicate-app';
     }
     if (errorStr.contains('FirebaseException')) {
-      // Try to extract plugin and code
       final pluginMatch = RegExp(r'plugin:\s*(\w+)').firstMatch(errorStr);
       final codeMatch = RegExp(r'code:\s*([a-z-]+)').firstMatch(errorStr);
       if (pluginMatch != null && codeMatch != null) {
@@ -63,8 +94,28 @@ class FirebaseBootstrapResult {
       }
       return 'Firebase error: initialization-failed';
     }
-    // Generic sanitized message
     return 'Firebase error: ${error.runtimeType}';
+  }
+}
+
+/// Completed bootstrap snapshot — set before [runApp] returns control to providers.
+class FirebaseBootstrapGuard {
+  static FirebaseBootstrapResult? _result;
+
+  static FirebaseBootstrapResult? get result => _result;
+
+  static bool get isFirestoreReady => _result?.isFirestoreAccessAllowed ?? false;
+
+  static bool get developmentVerified =>
+      _result?.developmentRuntime?.developmentVerified ?? false;
+
+  static void register(FirebaseBootstrapResult result) {
+    _result = result;
+  }
+
+  @visibleForTesting
+  static void resetForTests() {
+    _result = null;
   }
 }
 
@@ -73,32 +124,173 @@ late FirebaseBootstrapResult anisFirebaseBootstrapResult =
     const FirebaseBootstrapResult(state: FirebaseRuntimeState.unavailable);
 
 Future<FirebaseBootstrapResult> bootstrapFirebase() async {
-  if (Firebase.apps.isNotEmpty) {
-    await installCrashlyticsHandlers();
-    return const FirebaseBootstrapResult(
-      state: FirebaseRuntimeState.configured,
-    );
-  }
+  const envMode = kFirebaseEnvMode;
+  final requiresGuard = requiresNativeDevelopmentGuard(
+    envMode: envMode,
+    isWeb: kIsWeb,
+    debugMode: kDebugMode,
+  );
 
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+    if (isProductionEnvMode(envMode)) {
+      await _clearDevBootstrapMarker();
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+      await installCrashlyticsHandlers();
+      final result = const FirebaseBootstrapResult(
+        state: FirebaseRuntimeState.configured,
+      );
+      _finalizeBootstrap(result, envMode: envMode);
+      return result;
+    }
+
+    if (kIsWeb) {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+      await installCrashlyticsHandlers();
+      final result = FirebaseBootstrapResult(
+        state: FirebaseRuntimeState.configured,
+        developmentRuntime: FirebaseDevelopmentRuntime(
+          envMode: envMode,
+          firebaseInitialized: Firebase.apps.isNotEmpty,
+          emulatorConfigured: false,
+          developmentVerified: true,
+          unsafeExistingRuntime: false,
+          persistenceEnabled: true,
+        ),
+      );
+      _finalizeBootstrap(result, envMode: envMode);
+      return result;
+    }
+
+    if (!kDebugMode) {
+      throw StateError(
+        'Release build detected without ENV_MODE=production. '
+        'Either run in debug mode or set ENV_MODE=production.',
+      );
+    }
+
+    final emulatorHost = resolveEmulatorHost(
+      platform: defaultTargetPlatform,
+      explicitHost: kDevEmulatorHostOverride,
+      isWeb: kIsWeb,
     );
-    
-    // Development: Connect to Firebase emulators if available
-    await _configureEmulatorsInDevelopment();
-    
-    await installCrashlyticsHandlers();
-    debugPrint('[FirebaseBootstrap] CONFIGURED');
-    return const FirebaseBootstrapResult(
-      state: FirebaseRuntimeState.configured,
+    final projectId = DefaultFirebaseOptions.currentPlatform.projectId;
+    final target = DevBootstrapTarget(
+      projectId: projectId,
+      firestoreHost: emulatorHost,
+      firestorePort: kDevFirestoreEmulatorPort,
+      authHost: emulatorHost,
+      authPort: kDevAuthEmulatorPort,
+      envMode: envMode,
     );
+
+    final storedMarker = await _readDevBootstrapMarker();
+    final decision = decideDevelopmentBootstrap(
+      appsAlreadyInitialized: Firebase.apps.isNotEmpty,
+      storedMarker: storedMarker,
+      expected: target,
+      requiresGuard: requiresGuard,
+    );
+
+    switch (decision) {
+      case DevelopmentBootstrapDecision.failUnsafeExisting:
+        throw StateError(kUnsafeDevelopmentRuntimeMessage);
+
+      case DevelopmentBootstrapDecision.acceptVerifiedExisting:
+        final runtime = FirebaseDevelopmentRuntime(
+          envMode: envMode,
+          firebaseInitialized: true,
+          emulatorConfigured: true,
+          developmentVerified: true,
+          unsafeExistingRuntime: false,
+          persistenceEnabled: false,
+          firestoreHost: emulatorHost,
+          firestorePort: kDevFirestoreEmulatorPort,
+          authHost: emulatorHost,
+          authPort: kDevAuthEmulatorPort,
+        );
+        await _discardInvalidDevelopmentSession(envMode);
+        _logDevelopmentBootstrap(
+          projectId: projectId,
+          envMode: envMode,
+          runtime: runtime,
+          resumedFromHotRestart: true,
+        );
+        await installCrashlyticsHandlers();
+        final resumed = FirebaseBootstrapResult(
+          state: FirebaseRuntimeState.configured,
+          developmentRuntime: runtime,
+        );
+        _finalizeBootstrap(resumed, envMode: envMode);
+        return resumed;
+
+      case DevelopmentBootstrapDecision.freshConfigure:
+        await _clearDevBootstrapMarker();
+        if (Firebase.apps.isEmpty) {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          );
+        }
+
+        await _configureAuthEmulator(emulatorHost);
+        _applyDevelopmentFirestoreCachePolicy(FirebaseFirestore.instance);
+        await _configureFirestoreEmulator(emulatorHost);
+
+        final marker = DevBootstrapMarker(
+          projectId: projectId,
+          firestoreHost: emulatorHost,
+          firestorePort: kDevFirestoreEmulatorPort,
+          authHost: emulatorHost,
+          authPort: kDevAuthEmulatorPort,
+          envMode: envMode,
+          configuredAtEpochMs: DateTime.now().millisecondsSinceEpoch,
+        );
+        await _persistDevBootstrapMarker(marker);
+        await _discardInvalidDevelopmentSession(envMode);
+
+        final runtime = FirebaseDevelopmentRuntime(
+          envMode: envMode,
+          firebaseInitialized: true,
+          emulatorConfigured: true,
+          developmentVerified: true,
+          unsafeExistingRuntime: false,
+          persistenceEnabled: false,
+          firestoreHost: emulatorHost,
+          firestorePort: kDevFirestoreEmulatorPort,
+          authHost: emulatorHost,
+          authPort: kDevAuthEmulatorPort,
+        );
+        _logDevelopmentBootstrap(
+          projectId: projectId,
+          envMode: envMode,
+          runtime: runtime,
+          resumedFromHotRestart: false,
+        );
+        await installCrashlyticsHandlers();
+        final fresh = FirebaseBootstrapResult(
+          state: FirebaseRuntimeState.configured,
+          developmentRuntime: runtime,
+        );
+        _finalizeBootstrap(fresh, envMode: envMode);
+        return fresh;
+
+      case DevelopmentBootstrapDecision.productionPath:
+      case DevelopmentBootstrapDecision.webDevelopmentPath:
+        throw StateError('Unexpected development bootstrap decision: $decision');
+    }
   } catch (error, stackTrace) {
-    // Always log failures (production-safe diagnostic)
     final result = FirebaseBootstrapResult(
       state: FirebaseRuntimeState.failed,
       error: error,
     );
+    FirebaseBootstrapGuard.register(result);
     debugPrint(
       '[FirebaseBootstrap] FAILED\n'
       'Diagnostic: ${result.diagnosticMessage}\n'
@@ -112,11 +304,171 @@ Future<FirebaseBootstrapResult> bootstrapFirebase() async {
   }
 }
 
-/// Branche Crashlytics après un Firebase Core prêt.
+void _finalizeBootstrap(
+  FirebaseBootstrapResult result, {
+  required String envMode,
+}) {
+  FirebaseBootstrapGuard.register(result);
+  anisFirebaseBootstrapResult = result;
+  if (kDebugMode && !isProductionEnvMode(envMode)) {
+    debugPrint(
+      '[FirebaseBootstrap] Firestore access allowed: '
+      '${result.isFirestoreAccessAllowed}',
+    );
+  }
+}
+
+void _logDevelopmentBootstrap({
+  required String projectId,
+  required String envMode,
+  required FirebaseDevelopmentRuntime runtime,
+  required bool resumedFromHotRestart,
+}) {
+  if (!kDebugMode) return;
+  debugPrint('[FirebaseBootstrap] CONFIGURED (development)');
+  debugPrint('[FirebaseBootstrap] projectId: $projectId');
+  debugPrint('[FirebaseBootstrap] ENV_MODE: $envMode');
+  debugPrint(
+    '[FirebaseBootstrap] Firestore emulator: '
+    '${runtime.firestoreHost}:${runtime.firestorePort}',
+  );
+  debugPrint(
+    '[FirebaseBootstrap] Auth emulator: '
+    '${runtime.authHost}:${runtime.authPort}',
+  );
+  debugPrint(
+    '[FirebaseBootstrap] Firestore persistence: '
+    '${runtime.persistenceEnabled ? 'enabled' : 'disabled (development)'}',
+  );
+  debugPrint(
+    '[FirebaseBootstrap] developmentVerified: ${runtime.developmentVerified}',
+  );
+  if (resumedFromHotRestart) {
+    debugPrint(
+      '[FirebaseBootstrap] Resumed verified development runtime (hot restart)',
+    );
+  }
+}
+
+Future<void> _configureAuthEmulator(String host) async {
+  try {
+    await FirebaseAuth.instance.useAuthEmulator(host, kDevAuthEmulatorPort);
+    debugPrint(
+      '[FirebaseBootstrap] Auth emulator configured ($host:$kDevAuthEmulatorPort)',
+    );
+  } catch (error) {
+    throw StateError(
+      'Failed to configure Auth emulator in development mode. '
+      'Ensure emulators are running: firebase emulators:start --only auth '
+      'ERROR: $error',
+    );
+  }
+}
+
+Future<void> _configureFirestoreEmulator(String host) async {
+  try {
+    FirebaseFirestore.instance.useFirestoreEmulator(
+      host,
+      kDevFirestoreEmulatorPort,
+    );
+    debugPrint(
+      '[FirebaseBootstrap] Firestore emulator configured '
+      '($host:$kDevFirestoreEmulatorPort)',
+    );
+  } catch (error) {
+    throw StateError(
+      'Failed to configure Firestore emulator in development mode. '
+      'Ensure emulators are running: firebase emulators:start --only firestore '
+      'ERROR: $error',
+    );
+  }
+}
+
+/// DEVELOPMENT ONLY — drop a restored FirebaseAuth session that the Auth
+/// emulator no longer recognises.
 ///
-/// Ne s'active pas sur le web, ni en mode démo / config manquante.
-/// N'envoie pas d'identifiant utilisateur, d'e-mail, de localisation,
-/// ni de contenu de Khatma — uniquement stack traces techniques.
+/// Restarting the Auth emulator wipes its user store while the device keeps a
+/// persisted session on disk. Without this check the app boots with a
+/// `currentUser` whose token can never be refreshed, and every protected
+/// Firestore read fails with `permission-denied` for no visible reason.
+///
+/// Production authentication lifecycle is untouched: this runs only after the
+/// development emulator path has been configured.
+Future<void> _discardInvalidDevelopmentSession(String envMode) async {
+  final user = FirebaseAuth.instance.currentUser;
+  final decision = decideRestoredSessionValidation(
+    envMode: envMode,
+    hasRestoredUser: user != null,
+    isWeb: kIsWeb,
+    debugMode: kDebugMode,
+  );
+  if (decision != RestoredSessionDecision.validateAgainstEmulator) return;
+
+  var tokenRefreshSucceeded = true;
+  try {
+    await user!.getIdToken(true);
+  } catch (error) {
+    tokenRefreshSucceeded = false;
+    debugPrint(
+      '[FirebaseBootstrap] Restored development session rejected by the Auth '
+      'emulator ($error)',
+    );
+  }
+
+  if (!shouldDiscardRestoredSession(
+    tokenRefreshSucceeded: tokenRefreshSucceeded,
+  )) {
+    return;
+  }
+
+  try {
+    await FirebaseAuth.instance.signOut();
+    debugPrint(
+      '[FirebaseBootstrap] Stale development session signed out locally',
+    );
+  } catch (signOutError) {
+    debugPrint(
+      '[FirebaseBootstrap] Local development sign-out failed: $signOutError',
+    );
+  }
+}
+
+/// Disable local persistence before the first Firestore read in development.
+/// Production keeps the SDK default (persistence enabled on mobile).
+void _applyDevelopmentFirestoreCachePolicy(FirebaseFirestore firestore) {
+  firestore.settings = const Settings(
+    persistenceEnabled: false,
+  );
+  debugPrint(
+    '[FirebaseBootstrap] Development Firestore cache policy applied '
+    '(persistenceEnabled: false)',
+  );
+}
+
+Future<DevBootstrapMarker?> _readDevBootstrapMarker() async {
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getString(kDevBootstrapMarkerKey);
+  if (raw == null || raw.isEmpty) return null;
+  try {
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map<String, dynamic>) return null;
+    return DevBootstrapMarker.fromJson(decoded);
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<void> _persistDevBootstrapMarker(DevBootstrapMarker marker) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(kDevBootstrapMarkerKey, jsonEncode(marker.toJson()));
+}
+
+Future<void> _clearDevBootstrapMarker() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(kDevBootstrapMarkerKey);
+}
+
+/// Branche Crashlytics après un Firebase Core prêt.
 Future<void> installCrashlyticsHandlers() async {
   if (kIsWeb || !isFirebaseCoreReady) return;
   switch (defaultTargetPlatform) {
@@ -163,98 +515,6 @@ Future<void> installCrashlyticsHandlers() async {
   }
 }
 
-/// Configure Firebase emulators in development mode.
-/// 
-/// FAIL-CLOSED SAFETY:
-/// - Production mode (ENV_MODE=production): Uses real Firebase, never emulators
-/// - Development mode (default): Uses emulators ONLY, throws if unavailable
-/// - NO silent fallback to production in development mode
-/// 
-/// Platform-aware emulator hosts:
-/// - iOS Simulator: localhost / 127.0.0.1
-/// - Android Emulator: 10.0.2.2 (maps to host machine)
-/// - Flutter Web: localhost (N/A - web doesn't use this code path)
-/// - Physical device: Requires explicit DEV_EMULATOR_HOST override
-Future<void> _configureEmulatorsInDevelopment() async {
-  // Production mode: always use real Firebase, never emulators
-  const envMode = String.fromEnvironment('ENV_MODE', defaultValue: 'development');
-  if (envMode == 'production') {
-    debugPrint('[FirebaseBootstrap] Production mode - using real Firebase');
-    return;
-  }
-
-  // Web doesn't need emulator configuration (uses different connection method)
-  if (kIsWeb) {
-    debugPrint('[FirebaseBootstrap] Web mode - Firebase config via JS SDK');
-    return;
-  }
-
-  // Development mode: MUST use emulators (fail-closed)
-  if (!kDebugMode) {
-    // Release build without ENV_MODE=production is misconfigured
-    throw StateError(
-      'Release build detected without ENV_MODE=production. '
-      'Either run in debug mode or set ENV_MODE=production.',
-    );
-  }
-
-  // Determine emulator host based on platform
-  final emulatorHost = _getEmulatorHost();
-  
-  debugPrint('[FirebaseBootstrap] Development mode - configuring emulators');
-  debugPrint('[FirebaseBootstrap] Emulator host: $emulatorHost');
-
-  // Configure Firestore emulator (MUST succeed in development)
-  try {
-    FirebaseFirestore.instance.useFirestoreEmulator(emulatorHost, 8080);
-    debugPrint('[FirebaseBootstrap] ✅ Firestore emulator configured ($emulatorHost:8080)');
-  } catch (error) {
-    debugPrint('[FirebaseBootstrap] ❌ Firestore emulator configuration failed: $error');
-    throw StateError(
-      'Failed to configure Firestore emulator in development mode. '
-      'Ensure emulators are running: firebase emulators:start --only firestore '
-      'ERROR: $error',
-    );
-  }
-
-  // Configure Auth emulator (MUST succeed in development)
-  try {
-    await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
-    debugPrint('[FirebaseBootstrap] ✅ Auth emulator configured ($emulatorHost:9099)');
-  } catch (error) {
-    debugPrint('[FirebaseBootstrap] ❌ Auth emulator configuration failed: $error');
-    throw StateError(
-      'Failed to configure Auth emulator in development mode. '
-      'Ensure emulators are running: firebase emulators:start --only auth '
-      'ERROR: $error',
-    );
-  }
-
-  debugPrint('[FirebaseBootstrap] ✅ Development emulators configured successfully');
-}
-
-/// Get platform-appropriate emulator host.
-/// 
-/// iOS Simulator: localhost works
-/// Android Emulator: 10.0.2.2 (special alias for host machine)
-/// Physical device: Requires DEV_EMULATOR_HOST env var (LAN IP)
-String _getEmulatorHost() {
-  // Explicit override for physical devices (e.g., --dart-define=DEV_EMULATOR_HOST=192.168.1.100)
-  const explicitHost = String.fromEnvironment('DEV_EMULATOR_HOST');
-  if (explicitHost.isNotEmpty) {
-    return explicitHost;
-  }
-
-  // Platform detection
-  if (defaultTargetPlatform == TargetPlatform.android) {
-    // Android emulator: 10.0.2.2 maps to host machine's localhost
-    return '10.0.2.2';
-  }
-
-  // iOS simulator, macOS, Linux, Windows: localhost works
-  return 'localhost';
-}
-
 bool get isFirebaseCoreReady => Firebase.apps.isNotEmpty;
 
 FirebaseAuth? tryFirebaseAuth() {
@@ -268,6 +528,7 @@ FirebaseAuth? tryFirebaseAuth() {
 
 FirebaseFirestore? tryFirestore() {
   if (!isFirebaseCoreReady) return null;
+  if (!FirebaseBootstrapGuard.isFirestoreReady) return null;
   try {
     return FirebaseFirestore.instance;
   } catch (_) {

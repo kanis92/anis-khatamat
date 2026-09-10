@@ -76,8 +76,12 @@ describe('E2E: Formation Progress API', () => {
     for (const [, user] of Object.entries(TEST_USERS)) {
       if (user.uid) {
         try {
-          await db.collection('users').doc(user.uid)
-            .collection('formationProgress').doc(testPathId).delete();
+          const progressCollection = db.collection('users').doc(user.uid)
+            .collection('formationProgress');
+          const snapshot = await progressCollection.get();
+          const batch = db.batch();
+          snapshot.docs.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
         } catch (e) {
           // Ignore if doesn't exist
         }
@@ -435,6 +439,106 @@ describe('E2E: Formation Progress API', () => {
       const realProgress = await db.collection('users').doc(TEST_USERS.creator.uid)
         .collection('formationProgress').doc(testPathId).get();
       expect(realProgress.data()?.userId).toBe(TEST_USERS.creator.uid);
+    });
+  });
+
+  describe('GET /v1/formations/progress - Get all progress', () => {
+    it('requires authentication', async () => {
+      const res = await request(app)
+        .get('/v1/formations/progress');
+
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe('AUTH_REQUIRED');
+    });
+
+    it('returns empty array when user has no progress', async () => {
+      const headers = await getAuthHeaders('creator');
+
+      const res = await request(app)
+        .get('/v1/formations/progress')
+        .set(headers);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([]);
+    });
+
+    it('returns user\'s progress records', async () => {
+      const headers = await getAuthHeaders('creator');
+
+      // Create some progress
+      await request(app)
+        .post(`/v1/formations/${testPathId}/lessons/${testLessonId1}/open`)
+        .set(headers);
+
+      await request(app)
+        .post(`/v1/formations/${testPathId}/lessons/${testLessonId1}/complete`)
+        .set(headers);
+
+      // Get all progress
+      const res = await request(app)
+        .get('/v1/formations/progress')
+        .set(headers);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].pathId).toBe(testPathId);
+      expect(res.body.data[0].lastLessonId).toBe(testLessonId1);
+      expect(res.body.data[0].completedLessonIds).toContain(testLessonId1);
+      expect(res.body.data[0].lastAccessedAt).toBeDefined();
+    });
+
+    it('returns only the authenticated user\'s progress', async () => {
+      const headersA = await getAuthHeaders('creator');
+      const headersB = await getAuthHeaders('participantA');
+
+      // User A creates progress
+      await request(app)
+        .post(`/v1/formations/${testPathId}/lessons/${testLessonId1}/complete`)
+        .set(headersA);
+
+      // User B creates progress
+      await request(app)
+        .post(`/v1/formations/${testPathId}/lessons/${testLessonId2}/complete`)
+        .set(headersB);
+
+      // User A requests all progress
+      const resA = await request(app)
+        .get('/v1/formations/progress')
+        .set(headersA);
+
+      expect(resA.status).toBe(200);
+      expect(resA.body.data).toHaveLength(1);
+      expect(resA.body.data[0].completedLessonIds).toContain(testLessonId1);
+      expect(resA.body.data[0].completedLessonIds).not.toContain(testLessonId2);
+
+      // User B requests all progress
+      const resB = await request(app)
+        .get('/v1/formations/progress')
+        .set(headersB);
+
+      expect(resB.status).toBe(200);
+      expect(resB.body.data).toHaveLength(1);
+      expect(resB.body.data[0].completedLessonIds).toContain(testLessonId2);
+      expect(resB.body.data[0].completedLessonIds).not.toContain(testLessonId1);
+    });
+
+    it('query params cannot override userId', async () => {
+      const headers = await getAuthHeaders('creator');
+      const fakeUserId = 'fake-user-id';
+
+      // Create progress for real user
+      await request(app)
+        .post(`/v1/formations/${testPathId}/lessons/${testLessonId1}/complete`)
+        .set(headers);
+
+      // Try to get progress with fake userId in query
+      const res = await request(app)
+        .get(`/v1/formations/progress?userId=${fakeUserId}`)
+        .set(headers);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].pathId).toBe(testPathId);
     });
   });
 });

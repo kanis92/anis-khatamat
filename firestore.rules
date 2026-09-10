@@ -143,8 +143,10 @@ service cloud.firestore {
       }
     }
 
-    match /users/{userId}/courseProgress/{progressId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    match /users/{userId}/formationProgress/{progressId} {
+      // Personal Formation progress is server-authoritative via REST API only
+      // Client reads and writes both go through authenticated API endpoints
+      allow read, write: if false;
     }
 
     // ─── Lives ────────────────────────────────────────────────────────────

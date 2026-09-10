@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "test": "firebase emulators:exec --only firestore,auth 'node khatmat_rules.test.js && node hizb_snapshot_rules.test.js && node queries_rules.test.js && node certification_e2e.test.js && node khatma_60_hizb_batch_regression.test.js && node khatma_creation_lifecycle_rules.test.js && node khatma_deny_business_isolated.test.js && node default_deny_unknown_paths.test.js'",
-    "test:all": "npm test && npm run test:admin",
+    "test:all": "npm test && npm run test:admin && npm run test:formations",
     "test:queries": "firebase emulators:exec --only firestore,auth 'node queries_rules.test.js'",
     "test:watch": "firebase emulators:exec --only firestore,auth 'node --watch khatmat_rules.test.js'",
-    "test:admin": "firebase emulators:exec --only firestore,auth 'node admin_formations_rules.test.js'"
+    "test:admin": "firebase emulators:exec --only firestore,auth 'node admin_formations_rules.test.js'",
+    "test:formations": "firebase emulators:exec --only firestore,auth 'node formations_content_rules.test.js'"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.4",

@@ -29,11 +29,28 @@ class FormationsApiService {
 
   FormationsApiService(this._client);
 
+  /// Get all formation progress records for the authenticated user
+  /// Returns empty list if no progress exists
+  Future<List<FormationProgressResponse>> getAllProgress() async {
+    final response = await _client.get('/v1/formations/progress');
+
+    final data = response['data'] as List<dynamic>?;
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+
+    return data
+        .map((item) => FormationProgressResponse.fromJson(
+              item as Map<String, dynamic>,
+            ))
+        .toList();
+  }
+
   /// Get user's progress for a learning path
   /// Returns null if no progress exists yet
   Future<FormationProgressResponse?> getProgress(String pathId) async {
     final response = await _client.get('/v1/formations/$pathId/progress');
-    
+
     if (response['data'] == null) {
       return null;
     }

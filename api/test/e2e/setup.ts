@@ -5,6 +5,7 @@
 
 import * as admin from 'firebase-admin';
 import fetch from 'node-fetch';
+import * as http from 'http';
 import { getFirebaseAuth } from '../../src/firebase/admin';
 
 // Test user credentials
@@ -89,15 +90,9 @@ export async function clearFirestore(): Promise<void> {
  * Exchange custom token for ID token (simulates client auth)
  */
 export async function getIdToken(customToken: string): Promise<string> {
-  // In a real scenario, we'd call Firebase Auth REST API
-  // For emulator, custom token can be used directly with verifyIdToken
-  // But we need an actual ID token for HTTP Authorization header
+  // Use HTTP agent with keep-alive disabled to prevent open handles in Jest
+  const agent = new http.Agent({ keepAlive: false });
   
-  // For emulator testing, we'll use a workaround:
-  // Create a token that looks like an ID token
-  // The emulator is more lenient
-  
-  // Actually, let's call the Firebase Auth REST API
   const response = await fetch(
     `http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=fake-api-key`,
     {
@@ -107,6 +102,7 @@ export async function getIdToken(customToken: string): Promise<string> {
         token: customToken,
         returnSecureToken: true,
       }),
+      agent,
     }
   );
 

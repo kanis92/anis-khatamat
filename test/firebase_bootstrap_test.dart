@@ -7,6 +7,10 @@ import 'package:anis_khatamat/core/providers/auth_provider.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUp(() {
+    FirebaseBootstrapGuard.resetForTests();
+  });
+
   group('F1 — bootstrap Firebase', () {
     test('bootstrapFirebase handles initialization', () async {
       // Bootstrap will either succeed (if Firebase available) or fail gracefully

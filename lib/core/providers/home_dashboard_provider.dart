@@ -150,7 +150,7 @@ final formationProgressProvider = FutureProvider<FormationProgressInfo?>((
   if (uid == null || courses.isEmpty) return null;
   final repo = ref.read(formationsRepositoryProvider);
   for (final c in courses) {
-    final progress = await repo.getProgress(uid, c.id);
+    final progress = await repo.getProgress(c.id);
     final totalLessons = c.totalLessons > 0 ? c.totalLessons : 1;
     if (progress != null && !progress.isCompleted(totalLessons)) {
       String lessonTitle = 'Reprendre';
