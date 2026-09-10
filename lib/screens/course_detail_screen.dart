@@ -104,67 +104,140 @@ class CourseDetailScreen extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
 
-                  // Progress bar if any
-                  progressAsync.whenData((progress) {
-                    if (progress != null && course.totalLessons > 0) {
-                      final percent = (progress.completedLessonIds.length / course.totalLessons * 100).round();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          Row(
+                  // Progress bar and CTA
+                  const SizedBox(height: 16),
+                  progressAsync.when(
+                    loading: () => Column(
+                      children: [
+                        const SizedBox(height: 4),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: null, // Disabled during loading
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryGreen,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    error: (error, _) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
                             children: [
+                              Icon(Icons.warning_amber_rounded, 
+                                color: Colors.orange.shade700, size: 20),
+                              const SizedBox(width: 8),
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: LinearProgressIndicator(
-                                    value: progress.completedLessonIds.length / course.totalLessons,
-                                    backgroundColor: Colors.grey[200],
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppTheme.primaryGreen,
-                                    ),
-                                    minHeight: 8,
+                                child: Text(
+                                  l10n.errorLoadingFormations,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade900,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                l10n.progressPercent(percent),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primaryGreen,
+                              TextButton(
+                                onPressed: () => ref.invalidate(courseProgressProvider(course.id)),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.orange.shade700,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
+                                child: Text(l10n.retry, style: const TextStyle(fontSize: 13)),
                               ),
                             ],
                           ),
+                        ),
+                      ],
+                    ),
+                    data: (progress) {
+                      // Progress bar if exists
+                      final progressBar = (progress != null && course.totalLessons > 0)
+                        ? Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: LinearProgressIndicator(
+                                        value: progress.completedLessonIds.length / course.totalLessons,
+                                        backgroundColor: Colors.grey[200],
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          AppTheme.primaryGreen,
+                                        ),
+                                        minHeight: 8,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    l10n.progressPercent(
+                                      (progress.completedLessonIds.length / course.totalLessons * 100).round()
+                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.primaryGreen,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          )
+                        : const SizedBox.shrink();
+
+                      // CTA button
+                      return Column(
+                        children: [
+                          progressBar,
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => _handleStartContinue(context, ref, progress),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryGreen,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                _getCtaLabel(context, progress, course.totalLessons),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       );
-                    }
-                    return const SizedBox.shrink();
-                  }).valueOrNull ?? const SizedBox.shrink(),
-
-                  // CTA button
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _handleStartContinue(context, ref, progressAsync.valueOrNull),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryGreen,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        _getCtaLabel(context, progressAsync.valueOrNull, course.totalLessons),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    },
                   ),
                 ],
               ),

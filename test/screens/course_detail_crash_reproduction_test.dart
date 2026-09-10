@@ -8,27 +8,23 @@ import 'package:anis_khatamat/l10n/gen_l10n/app_localizations.dart';
 import 'package:anis_khatamat/screens/course_detail_screen.dart';
 
 void main() {
-  group('CourseDetailScreen crash reproduction', () {
+  group('CourseDetailScreen progress error semantics', () {
+    final testCourse = Course(
+      id: 'test-course',
+      title: 'Test Course',
+      description: 'Test',
+      instructor: 'Test',
+      createdAt: DateTime.now(),
+      totalLessons: 5,
+    );
+
     testWidgets(
-      'PROVEN: accessing progressAsync.value when AsyncError crashes',
+      'A. AsyncError does not crash',
       (tester) async {
-        final course = Course(
-          id: 'test-course',
-          title: 'Test Course',
-          description: 'Test',
-          instructor: 'Test',
-          createdAt: DateTime.now(),
-        );
-
-        // This test proves that if courseProgressProvider is in AsyncError state
-        // (e.g. due to Firestore permission-denied), then accessing .value
-        // will crash with AsyncError.value exception
-
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              // Simulate permission-denied error
-              courseProgressProvider(course.id).overrideWith(
+              courseProgressProvider(testCourse.id).overrideWith(
                 (ref) => Future.error(
                   Exception('[cloud_firestore/permission-denied] Denied'),
                 ),
@@ -38,20 +34,74 @@ void main() {
               locale: const Locale('fr'),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: CourseDetailScreen(course: course),
+              home: CourseDetailScreen(course: testCourse),
             ),
           ),
         );
 
         await tester.pump();
 
-        // The screen tries to access progressAsync.value
-        // If AsyncValue is AsyncError, this will throw
-        // FlutterError: AsyncError.value
-        
-        // This test will fail with the crash if the bug exists
-        // After fix, it should pass because we'll use valueOrNull
+        // INVARIANT: AsyncError must not crash
         expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'B. AsyncError does NOT show "Commencer" CTA',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              courseProgressProvider(testCourse.id).overrideWith(
+                (ref) => Future.error(
+                  Exception('Progress load failed'),
+                ),
+              ),
+            ],
+            child: MaterialApp(
+              locale: const Locale('fr'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: CourseDetailScreen(course: testCourse),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        // INVARIANT: ERROR != NO PROGRESS
+        // Must NOT show "Commencer" (which is for genuine no-progress)
+        expect(find.text('Commencer'), findsNothing);
+        
+        // Must show retry affordance
+        expect(find.text('Réessayer'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'C. AsyncData(null) DOES show "Commencer"',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              courseProgressProvider(testCourse.id).overrideWith(
+                (ref) => Future.value(null), // No progress
+              ),
+            ],
+            child: MaterialApp(
+              locale: const Locale('fr'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: CourseDetailScreen(course: testCourse),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        // INVARIANT: genuine no-progress shows "Commencer"
+        expect(find.text('Commencer'), findsOneWidget);
+        expect(find.text('Réessayer'), findsNothing);
       },
     );
   });
