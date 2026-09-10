@@ -141,14 +141,14 @@ class CourseDetailScreen extends ConsumerWidget {
                       );
                     }
                     return const SizedBox.shrink();
-                  }).value ?? const SizedBox.shrink(),
+                  }).valueOrNull ?? const SizedBox.shrink(),
 
                   // CTA button
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _handleStartContinue(context, ref, progressAsync.value),
+                      onPressed: () => _handleStartContinue(context, ref, progressAsync.valueOrNull),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryGreen,
                         foregroundColor: Colors.white,
@@ -158,7 +158,7 @@ class CourseDetailScreen extends ConsumerWidget {
                         ),
                       ),
                       child: Text(
-                        _getCtaLabel(context, progressAsync.value, course.totalLessons),
+                        _getCtaLabel(context, progressAsync.valueOrNull, course.totalLessons),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
