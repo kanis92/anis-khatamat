@@ -814,5 +814,20 @@
   "publicAnswers": "إجابات عامة",
   "comingSoon": "قريباً",
   "moduleContentComingSoon": "المحتوى قريبًا",
-  "upcoming": "قريباً"
+  "upcoming": "قريباً",
+  "authWelcomeTitle": "مرحباً بك في ANIS",
+  "authWelcomeSubtitle": "عمّق ممارستك ومعرفتك بالإسلام",
+  "authContinueWithGoogle": "المتابعة مع Google",
+  "authContinueWithApple": "المتابعة مع Apple",
+  "authContinueWithEmail": "المتابعة بالبريد الإلكتروني",
+  "authOr": "أو",
+  "authErrorAccountCollision": "هذا الحساب {email} موجود بالفعل بطريقة تسجيل دخول أخرى. يُرجى تسجيل الدخول بتلك الطريقة.",
+  "@authErrorAccountCollision": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "authErrorNetwork": "خطأ في الاتصال. يُرجى التحقق من اتصالك بالإنترنت.",
+  "authErrorProvider": "فشلت المصادقة. يُرجى المحاولة مرة أخرى.",
+  "authErrorConfiguration": "خدمة المصادقة غير متاحة."
 }

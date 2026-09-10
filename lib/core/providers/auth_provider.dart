@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../bootstrap/firebase_bootstrap.dart';
+import '../services/auth_service.dart';
 
 /// Mode démo explicite (utilisateur ou bootstrap sans Firebase).
 final demoModeProvider = StateProvider<bool>((ref) => false);
@@ -125,4 +126,9 @@ final currentUserProvider = Provider<AppUser?>((ref) {
 /// Provider pour savoir si l'utilisateur est connecté
 final isAuthenticatedProvider = Provider<bool>((ref) {
   return ref.watch(currentUserProvider) != null;
+});
+
+/// Provider pour le service d'authentification
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService();
 });

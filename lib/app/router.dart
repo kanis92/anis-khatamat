@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/web/legacy_join_url_bridge.dart';
 
 import '../screens/home_screen.dart';
+import '../screens/auth_welcome_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/settings_screen.dart';
@@ -79,22 +80,30 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       }
 
       final isDemo = ref.read(demoModeProvider);
-      final isLoggedIn = isDemo || ref.read(authStateProvider).valueOrNull != null;
+      final authReadiness = ref.read(authReadinessProvider);
+
+      // Prevent login screen flash during session restoration
+      if (authReadiness.status == AuthStatus.initializing) {
+        return null; // Stay on current route during initialization
+      }
+
+      final isLoggedIn = isDemo || authReadiness.status == AuthStatus.signedIn;
       final isAuthScreen =
+          state.matchedLocation == '/auth' ||
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
-      final isLoggingIn = isAuthScreen;
       final isJoinRoute = state.matchedLocation.startsWith('/join/');
 
-      if (!isLoggedIn && !isLoggingIn && !isJoinRoute) {
-        return '/login';
+      if (!isLoggedIn && !isAuthScreen && !isJoinRoute) {
+        return '/auth';
       }
-      if (isLoggedIn && isLoggingIn) {
+      if (isLoggedIn && isAuthScreen) {
         return '/';
       }
       return null;
     },
     routes: [
+      GoRoute(path: '/auth', builder: (context, state) => const AuthWelcomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',

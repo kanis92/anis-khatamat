@@ -1391,4 +1391,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get upcoming => 'قريباً';
+
+  @override
+  String get authWelcomeTitle => 'مرحباً بك في ANIS';
+
+  @override
+  String get authWelcomeSubtitle => 'عمّق ممارستك ومعرفتك بالإسلام';
+
+  @override
+  String get authContinueWithGoogle => 'المتابعة مع Google';
+
+  @override
+  String get authContinueWithApple => 'المتابعة مع Apple';
+
+  @override
+  String get authContinueWithEmail => 'المتابعة بالبريد الإلكتروني';
+
+  @override
+  String get authOr => 'أو';
+
+  @override
+  String authErrorAccountCollision(String email) {
+    return 'هذا الحساب $email موجود بالفعل بطريقة تسجيل دخول أخرى. يُرجى تسجيل الدخول بتلك الطريقة.';
+  }
+
+  @override
+  String get authErrorNetwork =>
+      'خطأ في الاتصال. يُرجى التحقق من اتصالك بالإنترنت.';
+
+  @override
+  String get authErrorProvider => 'فشلت المصادقة. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get authErrorConfiguration => 'خدمة المصادقة غير متاحة.';
 }

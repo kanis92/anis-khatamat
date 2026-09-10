@@ -1420,4 +1420,40 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get upcoming => 'Prochainement';
+
+  @override
+  String get authWelcomeTitle => 'Bienvenue sur ANIS';
+
+  @override
+  String get authWelcomeSubtitle =>
+      'Approfondissez votre pratique et votre connaissance de l\'Islam';
+
+  @override
+  String get authContinueWithGoogle => 'Continuer avec Google';
+
+  @override
+  String get authContinueWithApple => 'Continuer avec Apple';
+
+  @override
+  String get authContinueWithEmail => 'Continuer avec Email';
+
+  @override
+  String get authOr => 'ou';
+
+  @override
+  String authErrorAccountCollision(String email) {
+    return 'Ce compte $email existe déjà avec une autre méthode de connexion. Veuillez vous connecter avec cette méthode.';
+  }
+
+  @override
+  String get authErrorNetwork =>
+      'Erreur de connexion. Vérifiez votre connexion internet.';
+
+  @override
+  String get authErrorProvider =>
+      'Échec de l\'authentification. Veuillez réessayer.';
+
+  @override
+  String get authErrorConfiguration =>
+      'Service d\'authentification non disponible.';
 }

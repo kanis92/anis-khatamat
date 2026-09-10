@@ -814,5 +814,20 @@
   "publicAnswers": "Public answers",
   "comingSoon": "Coming Soon",
   "moduleContentComingSoon": "Content coming soon",
-  "upcoming": "Upcoming"
+  "upcoming": "Upcoming",
+  "authWelcomeTitle": "Welcome to ANIS",
+  "authWelcomeSubtitle": "Deepen your practice and knowledge of Islam",
+  "authContinueWithGoogle": "Continue with Google",
+  "authContinueWithApple": "Continue with Apple",
+  "authContinueWithEmail": "Continue with Email",
+  "authOr": "or",
+  "authErrorAccountCollision": "This account {email} already exists with another sign-in method. Please sign in with that method.",
+  "@authErrorAccountCollision": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "authErrorNetwork": "Connection error. Please check your internet connection.",
+  "authErrorProvider": "Authentication failed. Please try again.",
+  "authErrorConfiguration": "Authentication service unavailable."
 }

@@ -2571,6 +2571,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Prochainement'**
   String get upcoming;
+
+  /// No description provided for @authWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur ANIS'**
+  String get authWelcomeTitle;
+
+  /// No description provided for @authWelcomeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approfondissez votre pratique et votre connaissance de l\'Islam'**
+  String get authWelcomeSubtitle;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authContinueWithApple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get authContinueWithApple;
+
+  /// No description provided for @authContinueWithEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Email'**
+  String get authContinueWithEmail;
+
+  /// No description provided for @authOr.
+  ///
+  /// In fr, this message translates to:
+  /// **'ou'**
+  String get authOr;
+
+  /// No description provided for @authErrorAccountCollision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte {email} existe déjà avec une autre méthode de connexion. Veuillez vous connecter avec cette méthode.'**
+  String authErrorAccountCollision(String email);
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion. Vérifiez votre connexion internet.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorProvider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de l\'authentification. Veuillez réessayer.'**
+  String get authErrorProvider;
+
+  /// No description provided for @authErrorConfiguration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service d\'authentification non disponible.'**
+  String get authErrorConfiguration;
 }
 
 class _AppLocalizationsDelegate

@@ -852,5 +852,20 @@
   "publicAnswers": "Réponses publiques",
   "comingSoon": "Bientôt",
   "moduleContentComingSoon": "Contenu à venir",
-  "upcoming": "Prochainement"
+  "upcoming": "Prochainement",
+  "authWelcomeTitle": "Bienvenue sur ANIS",
+  "authWelcomeSubtitle": "Approfondissez votre pratique et votre connaissance de l'Islam",
+  "authContinueWithGoogle": "Continuer avec Google",
+  "authContinueWithApple": "Continuer avec Apple",
+  "authContinueWithEmail": "Continuer avec Email",
+  "authOr": "ou",
+  "authErrorAccountCollision": "Ce compte {email} existe déjà avec une autre méthode de connexion. Veuillez vous connecter avec cette méthode.",
+  "@authErrorAccountCollision": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "authErrorNetwork": "Erreur de connexion. Vérifiez votre connexion internet.",
+  "authErrorProvider": "Échec de l'authentification. Veuillez réessayer.",
+  "authErrorConfiguration": "Service d'authentification non disponible."
 }
