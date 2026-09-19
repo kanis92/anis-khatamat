@@ -829,5 +829,6 @@
   },
   "authErrorNetwork": "Connection error. Please check your internet connection.",
   "authErrorProvider": "Authentication failed. Please try again.",
-  "authErrorConfiguration": "Authentication service unavailable."
+  "authErrorConfiguration": "Authentication service unavailable.",
+  "authOtherSignInMethods": "Other sign-in options"
 }

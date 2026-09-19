@@ -829,5 +829,6 @@
   },
   "authErrorNetwork": "خطأ في الاتصال. يُرجى التحقق من اتصالك بالإنترنت.",
   "authErrorProvider": "فشلت المصادقة. يُرجى المحاولة مرة أخرى.",
-  "authErrorConfiguration": "خدمة المصادقة غير متاحة."
+  "authErrorConfiguration": "خدمة المصادقة غير متاحة.",
+  "authOtherSignInMethods": "خيارات تسجيل أخرى"
 }

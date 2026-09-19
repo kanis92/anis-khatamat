@@ -1423,4 +1423,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authErrorConfiguration => 'خدمة المصادقة غير متاحة.';
+
+  @override
+  String get authOtherSignInMethods => 'خيارات تسجيل أخرى';
 }

@@ -2631,6 +2631,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Service d\'authentification non disponible.'**
   String get authErrorConfiguration;
+
+  /// No description provided for @authOtherSignInMethods.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres méthodes de connexion'**
+  String get authOtherSignInMethods;
 }
 
 class _AppLocalizationsDelegate

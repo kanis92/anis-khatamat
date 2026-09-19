@@ -8,64 +8,16 @@ import 'package:go_router/go_router.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/services/auth_service.dart';
+import '../core/widgets/anis_auth_brand_hero.dart';
+import '../core/widgets/auth_provider_leading_icon.dart';
 import '../design_system/anis_design_system.dart';
 
-const _kAuthHeroAsset = 'assets/branding/anis_login_hero.png';
-const _kAuthHeroAspectRatio = 1269 / 413;
-const _kAuthHeroEmeraldFill = Color(0xFF030E11);
+enum _AuthLoading { google, apple }
 
-/// Hero émeraude ANIS — même cadrage que [LoginScreen] (_LoginBrandHero).
-class _AuthHero extends StatelessWidget {
-  const _AuthHero({required this.height, this.compact = false});
-
-  final double height;
-  final bool compact;
-
-  static const double _artworkBottomClearance = 34;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: ClipRect(
-        child: ColoredBox(
-          color: _kAuthHeroEmeraldFill,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    end: compact ? 4 : 0,
-                    bottom: _artworkBottomClearance,
-                  ),
-                  child: SizedBox(
-                    width: constraints.maxWidth,
-                    child: AspectRatio(
-                      aspectRatio: _kAuthHeroAspectRatio,
-                      child: Image.asset(
-                        _kAuthHeroAsset,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.bottomRight,
-                        filterQuality: FilterQuality.high,
-                        semanticLabel: 'ANIS Khatamat',
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Carte d'authentification premium.
+/// Carte d'authentification premium (alignée sur la feuille login).
 class _AuthCard extends StatelessWidget {
   const _AuthCard({
-    required this.isLoading,
+    required this.loading,
     required this.errorMessage,
     required this.onGoogleSignIn,
     required this.onAppleSignIn,
@@ -73,159 +25,149 @@ class _AuthCard extends StatelessWidget {
     required this.showAppleButton,
   });
 
-  final bool isLoading;
+  final _AuthLoading? loading;
+
+  bool get _isBusy => loading != null;
   final String? errorMessage;
   final VoidCallback onGoogleSignIn;
   final VoidCallback onAppleSignIn;
   final VoidCallback onEmailSignIn;
   final bool showAppleButton;
 
+  static const double _buttonHeight = 58;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final text = context.anisText;
     final l10n = context.l10n;
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surfaceBase,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: AnisElevation.subtle(colors.shadow),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(28, 28, 28, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Welcome message
-          Text(
-            l10n.authWelcomeTitle,
-            style: text.titleLarge.copyWith(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.authWelcomeSubtitle,
-            style: text.bodySecondary.copyWith(
-              fontSize: 14,
-              color: colors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 28),
-
-          // Error message
-          if (errorMessage != null) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colors.dangerSurface,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colors.dangerBorder),
+        padding: EdgeInsetsDirectional.fromSTEB(
+          AnisSpacing.page,
+          AnisSpacing.xxl,
+          AnisSpacing.page,
+          bottomInset > 0 ? AnisSpacing.lg : AnisSpacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.authWelcomeTitle,
+              style: text.titleLarge.copyWith(
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+                color: AnisPalette.green800,
+                height: 1.2,
               ),
-              child: Text(
-                errorMessage!,
-                style: text.bodySecondary.copyWith(
-                  fontSize: 13,
-                  color: colors.dangerText,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AnisSpacing.xs),
+            Text(
+              l10n.authWelcomeSubtitle,
+              style: text.bodySecondary.copyWith(
+                fontSize: 15,
+                color: colors.textSecondary,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AnisSpacing.xl),
+            if (errorMessage != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colors.dangerSurface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colors.dangerBorder),
                 ),
-                textAlign: TextAlign.center,
+                child: Text(
+                  errorMessage!,
+                  style: text.bodySecondary.copyWith(
+                    fontSize: 13,
+                    color: colors.dangerText,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
-
-          // Google button
-          _AuthProviderButton(
-            onPressed: isLoading ? null : onGoogleSignIn,
-            icon: 'assets/icons/google_logo.png',
-            label: l10n.authContinueWithGoogle,
-            colors: colors,
-            text: text,
-          ),
-          const SizedBox(height: 12),
-
-          // Apple button (iOS/macOS only)
-          if (showAppleButton) ...[
+              const SizedBox(height: AnisSpacing.lg),
+            ],
             _AuthProviderButton(
-              onPressed: isLoading ? null : onAppleSignIn,
-              icon: 'assets/icons/apple_logo.png',
-              label: l10n.authContinueWithApple,
+              onPressed: _isBusy ? null : onGoogleSignIn,
+              kind: AuthProviderLeadingKind.google,
+              label: l10n.authContinueWithGoogle,
               colors: colors,
               text: text,
-              isDark: true,
+              isLoading: loading == _AuthLoading.google,
             ),
-            const SizedBox(height: 12),
-          ],
-
-          // Divider
-          _AuthDivider(label: l10n.authOr, colors: colors, text: text),
-          const SizedBox(height: 12),
-
-          // Email button
-          OutlinedButton(
-            onPressed: isLoading ? null : onEmailSignIn,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colors.textPrimary,
-              side: BorderSide(color: colors.borderStrong),
-              minimumSize: const Size(double.infinity, 52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            const SizedBox(height: AnisSpacing.sm),
+            if (showAppleButton) ...[
+              _AuthProviderButton(
+                onPressed: _isBusy ? null : onAppleSignIn,
+                kind: AuthProviderLeadingKind.apple,
+                label: l10n.authContinueWithApple,
+                colors: colors,
+                text: text,
+                isDark: true,
+                isLoading: loading == _AuthLoading.apple,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: Text(
-              l10n.authContinueWithEmail,
-              style: text.label.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: colors.textPrimary,
+              const SizedBox(height: AnisSpacing.sm),
+            ],
+            _AuthDivider(label: l10n.authOr, colors: colors, text: text),
+            const SizedBox(height: AnisSpacing.sm),
+            OutlinedButton(
+              onPressed: _isBusy ? null : onEmailSignIn,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colors.textPrimary,
+                side: BorderSide(color: colors.borderStrong),
+                minimumSize: const Size(double.infinity, _buttonHeight),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
-            ),
-          ),
-
-          // Loading indicator
-          if (isLoading) ...[
-            const SizedBox(height: 20),
-            Center(
-              child: SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: colors.actionPrimary,
+              child: Text(
+                l10n.authContinueWithEmail,
+                style: text.label.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colors.textPrimary,
                 ),
               ),
             ),
           ],
-        ],
-      ),
+        ),
       ),
     );
   }
 }
 
-/// Bouton fournisseur d'authentification.
 class _AuthProviderButton extends StatelessWidget {
   const _AuthProviderButton({
     required this.onPressed,
-    required this.icon,
+    required this.kind,
     required this.label,
     required this.colors,
     required this.text,
     this.isDark = false,
+    this.isLoading = false,
   });
 
   final VoidCallback? onPressed;
-  final String icon;
+  final AuthProviderLeadingKind kind;
   final String label;
   final AnisColors colors;
   final AnisTypography text;
   final bool isDark;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +179,7 @@ class _AuthProviderButton extends StatelessWidget {
         disabledBackgroundColor: colors.surfaceElevated,
         disabledForegroundColor: colors.textSecondary,
         elevation: 0,
-        minimumSize: const Size(double.infinity, 52),
+        minimumSize: const Size(double.infinity, _AuthCard._buttonHeight),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(
@@ -246,35 +188,38 @@ class _AuthProviderButton extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            icon,
-            height: 20,
-            width: 20,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.login,
-              size: 20,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: text.label.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
-        ],
-      ),
+      child:
+          isLoading && onPressed != null
+              ? SizedBox(
+                height: AnisIconSize.lg,
+                width: AnisIconSize.lg,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isDark ? Colors.white : colors.actionPrimary,
+                ),
+              )
+              : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AuthProviderLeadingIcon(
+                    kind: kind,
+                    monochromeLight: isDark,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    label,
+                    style: text.label.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
     );
   }
 }
 
-/// Diviseur avec label.
 class _AuthDivider extends StatelessWidget {
   const _AuthDivider({
     required this.label,
@@ -317,8 +262,10 @@ class AuthWelcomeScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
-  bool _isLoading = false;
+  _AuthLoading? _loading;
   String? _errorMessage;
+
+  bool get _isLoading => _loading != null;
 
   bool get _showAppleButton {
     if (kIsWeb) return false;
@@ -329,7 +276,7 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
     if (_isLoading) return;
 
     setState(() {
-      _isLoading = true;
+      _loading = _AuthLoading.google;
       _errorMessage = null;
     });
 
@@ -339,49 +286,17 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
     if (!mounted) return;
 
     setState(() {
-      _isLoading = false;
+      _loading = null;
     });
 
-    switch (result) {
-      case AuthSuccess():
-        // Router will automatically redirect to home
-        break;
-
-      case AuthCancelled():
-        // User cancelled, no error message
-        break;
-
-      case AuthAccountCollision(:final email):
-        setState(() {
-          _errorMessage = context.l10n.authErrorAccountCollision(email);
-        });
-        break;
-
-      case AuthNetworkFailure():
-        setState(() {
-          _errorMessage = context.l10n.authErrorNetwork;
-        });
-        break;
-
-      case AuthProviderFailure():
-        setState(() {
-          _errorMessage = context.l10n.authErrorProvider;
-        });
-        break;
-
-      case AuthConfigurationFailure():
-        setState(() {
-          _errorMessage = context.l10n.authErrorConfiguration;
-        });
-        break;
-    }
+    _applyAuthResult(result);
   }
 
   Future<void> _handleAppleSignIn() async {
     if (_isLoading) return;
 
     setState(() {
-      _isLoading = true;
+      _loading = _AuthLoading.apple;
       _errorMessage = null;
     });
 
@@ -391,41 +306,34 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
     if (!mounted) return;
 
     setState(() {
-      _isLoading = false;
+      _loading = null;
     });
 
+    _applyAuthResult(result);
+  }
+
+  void _applyAuthResult(AuthResult result) {
+    final l10n = context.l10n;
     switch (result) {
       case AuthSuccess():
-        // Router will automatically redirect to home
-        break;
-
       case AuthCancelled():
-        // User cancelled, no error message
         break;
-
       case AuthAccountCollision(:final email):
         setState(() {
-          _errorMessage = context.l10n.authErrorAccountCollision(email);
+          _errorMessage = l10n.authErrorAccountCollision(email);
         });
-        break;
-
       case AuthNetworkFailure():
         setState(() {
-          _errorMessage = context.l10n.authErrorNetwork;
+          _errorMessage = l10n.authErrorNetwork;
         });
-        break;
-
-      case AuthProviderFailure():
+      case AuthProviderFailure(:final message):
         setState(() {
-          _errorMessage = context.l10n.authErrorProvider;
+          _errorMessage = message;
         });
-        break;
-
       case AuthConfigurationFailure():
         setState(() {
-          _errorMessage = context.l10n.authErrorConfiguration;
+          _errorMessage = l10n.authErrorConfiguration;
         });
-        break;
     }
   }
 
@@ -433,18 +341,12 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
     context.push('/login');
   }
 
-  static const double _sheetOverlap = 28;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final isCompact = screenHeight < 700;
-
-    final heroHeight = (screenHeight * (isCompact ? 0.29 : 0.31)).clamp(
-      isCompact ? 196.0 : 210.0,
-      isCompact ? 248.0 : 278.0,
-    );
+    final heroHeight = anisAuthHeroHeight(screenHeight, compact: isCompact);
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
@@ -454,11 +356,11 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _AuthHero(height: heroHeight, compact: isCompact),
+            AnisAuthBrandHero(height: heroHeight, compact: isCompact),
             Transform.translate(
-              offset: const Offset(0, -_sheetOverlap),
+              offset: const Offset(0, -kAnisAuthSheetOverlap),
               child: _AuthCard(
-                isLoading: _isLoading,
+                loading: _loading,
                 errorMessage: _errorMessage,
                 onGoogleSignIn: _handleGoogleSignIn,
                 onAppleSignIn: _handleAppleSignIn,

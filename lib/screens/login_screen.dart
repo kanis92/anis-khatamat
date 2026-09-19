@@ -5,71 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/bootstrap/firebase_bootstrap.dart';
 import '../core/extensions/l10n_extensions.dart';
+import '../core/widgets/anis_auth_brand_hero.dart';
 import '../design_system/anis_design_system.dart';
-
-const _kLoginHeroAsset = 'assets/branding/anis_login_hero.png';
-
-/// Ratio [anis_login_hero.png] — 1269×413 px.
-const _kLoginHeroAspectRatio = 1269 / 413;
-
-/// Fond émeraude profond (#030E11) — bord source anis_header.
-const _kLoginHeroEmeraldFill = Color(0xFF030E11);
-
-/// Hero émeraude — artwork entier (contain), full-width, ancré en bas.
-class _LoginBrandHero extends StatelessWidget {
-  const _LoginBrandHero({required this.height, this.compact = false});
-
-  final double height;
-  final bool compact;
-
-  static const double _artworkWidthFactor = 1.0;
-
-  static const double _artworkWidthFactorCompact = 1.0;
-
-  /// Dégage le Coran du chevauchement ivoire (_sheetOverlap = 28).
-  static const double _artworkBottomClearance = 34;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: ClipRect(
-        child: ColoredBox(
-          color: _kLoginHeroEmeraldFill,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final drawW =
-                  constraints.maxWidth *
-                  (compact ? _artworkWidthFactorCompact : _artworkWidthFactor);
-
-              return Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    end: compact ? 4 : 0,
-                    bottom: _artworkBottomClearance,
-                  ),
-                  child: SizedBox(
-                    width: drawW,
-                    child: AspectRatio(
-                      aspectRatio: _kLoginHeroAspectRatio,
-                      child: Image.asset(
-                        _kLoginHeroAsset,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                        semanticLabel: 'ANIS Khatamat',
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// Feuille ivoire — formulaire de connexion.
 class _LoginAuthSheet extends StatelessWidget {
@@ -84,6 +21,7 @@ class _LoginAuthSheet extends StatelessWidget {
     required this.onTogglePassword,
     required this.onLogin,
     required this.onRegister,
+    required this.onBackToAuth,
     required this.inputDecoration,
     required this.primaryButtonStyle,
   });
@@ -98,6 +36,7 @@ class _LoginAuthSheet extends StatelessWidget {
   final VoidCallback onTogglePassword;
   final VoidCallback onLogin;
   final VoidCallback onRegister;
+  final VoidCallback onBackToAuth;
   final InputDecoration Function({
     required String label,
     required IconData prefixIcon,
@@ -129,6 +68,30 @@ class _LoginAuthSheet extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: onBackToAuth,
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: AnisIconSize.sm,
+                      color: colors.actionSecondaryText,
+                    ),
+                    label: Text(l10n.authOtherSignInMethods),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.actionSecondaryText,
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      textStyle: text.label.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colors.actionSecondaryText,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AnisSpacing.sm),
                 Text(
                   l10n.loginWelcome,
                   style: text.titleLarge.copyWith(
@@ -261,7 +224,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   static const double _fieldHeight = 58;
   static const double _primaryButtonHeight = 58;
-  static const double _sheetOverlap = 28;
 
   @override
   void dispose() {
@@ -414,10 +376,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final screenHeight = MediaQuery.sizeOf(context).height;
     final isCompact = screenHeight < 700;
 
-    final heroHeight = (screenHeight * (isCompact ? 0.29 : 0.31)).clamp(
-      isCompact ? 196.0 : 210.0,
-      isCompact ? 248.0 : 278.0,
-    );
+    final heroHeight = anisAuthHeroHeight(screenHeight, compact: isCompact);
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
@@ -429,9 +388,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _LoginBrandHero(height: heroHeight, compact: isCompact),
+              AnisAuthBrandHero(height: heroHeight, compact: isCompact),
               Transform.translate(
-                offset: const Offset(0, -_sheetOverlap),
+                offset: const Offset(0, -kAnisAuthSheetOverlap),
                 child: _LoginAuthSheet(
                   colors: colors,
                   text: text,
@@ -445,6 +404,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                   onLogin: _login,
                   onRegister: () => context.push('/register'),
+                  onBackToAuth: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/auth');
+                    }
+                  },
                   inputDecoration: _inputDecoration,
                   primaryButtonStyle: _primaryButtonStyle(colors, text),
                 ),

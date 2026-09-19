@@ -1456,4 +1456,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get authErrorConfiguration =>
       'Service d\'authentification non disponible.';
+
+  @override
+  String get authOtherSignInMethods => 'Autres méthodes de connexion';
 }

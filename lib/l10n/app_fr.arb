@@ -867,5 +867,6 @@
   },
   "authErrorNetwork": "Erreur de connexion. Vérifiez votre connexion internet.",
   "authErrorProvider": "Échec de l'authentification. Veuillez réessayer.",
-  "authErrorConfiguration": "Service d'authentification non disponible."
+  "authErrorConfiguration": "Service d'authentification non disponible.",
+  "authOtherSignInMethods": "Autres méthodes de connexion"
 }

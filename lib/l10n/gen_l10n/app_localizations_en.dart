@@ -1442,4 +1442,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authErrorConfiguration => 'Authentication service unavailable.';
+
+  @override
+  String get authOtherSignInMethods => 'Other sign-in options';
 }
