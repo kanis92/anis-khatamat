@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,9 @@ import '../core/data/quran_hizb_data.dart';
 import '../core/models/khatma.dart';
 import '../core/providers/auth_provider.dart';
 import '../core/providers/reading_provider.dart';
+import '../core/utils/khatma_organizer.dart';
+import '../core/utils/khatma_participant_id.dart';
+import '../core/widgets/edit_khatma_metadata_sheet.dart';
 import '../core/extensions/l10n_extensions.dart';
 import '../core/widgets/anis_button.dart';
 import '../core/widgets/empty_state.dart';
@@ -29,15 +33,39 @@ class KhatmaDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final progressAsync = ref.watch(khatmaProgressProvider(khatma.id));
     final currentUserEmail = ref.watch(currentUserProvider)?.email ?? 'demo';
+    final participantId = KhatmaParticipantId.fromFirebaseUser(
+          FirebaseAuth.instance.currentUser,
+        ) ??
+        currentUserEmail;
     final estimatedCompletionAsync =
         ref.watch(khatmaEstimatedCompletionProvider(khatma.id));
+    final liveKhatma = ref.watch(khatmatProvider).maybeWhen(
+          data: (list) => _khatmaFromList(list, khatma),
+          orElse: () => khatma,
+        );
+    final isCreator = isKhatmaOrganizer(
+      liveKhatma,
+      participantId,
+      authUid: FirebaseAuth.instance.currentUser?.uid,
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(khatma.title),
+        title: Text(liveKhatma.title),
         actions: [
+          if (isCreator)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: l10n.editKhatmaMetadata,
+              onPressed: () => showEditKhatmaMetadataSheet(
+                context,
+                ref,
+                liveKhatma,
+              ),
+            ),
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline),
             tooltip: 'Chat Khatma',
@@ -63,7 +91,7 @@ class KhatmaDetailScreen extends ConsumerWidget {
       ),
       body: progressAsync.when(
         data: (progress) => _KhatmaDetailContent(
-          khatma: khatma,
+          khatma: liveKhatma,
           completedHizb: progress?.completedHizb ?? {},
           completedCount: progress?.completedCount ?? 0,
           currentUserEmail: currentUserEmail,
@@ -90,6 +118,13 @@ class KhatmaDetailScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+Khatma _khatmaFromList(List<Khatma> list, Khatma fallback) {
+  for (final k in list) {
+    if (k.id == fallback.id) return k;
+  }
+  return fallback;
 }
 
 void _shareKhatmaDetail(Khatma khatma, int completedCount) {

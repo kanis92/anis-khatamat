@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 const kAnisAuthHeroAsset = 'assets/branding/anis_login_hero.png';
 
-/// Ratio [anis_login_hero.png] — 1269×413 px.
-const kAnisAuthHeroAspectRatio = 1269 / 413;
-
 /// Fond émeraude profond (#030E11) — bord source anis_header.
 const kAnisAuthHeroEmeraldFill = Color(0xFF030E11);
+
+/// Cadrage [anis_login_hero.png] (sujet ~62 % largeur, ancré bas) — plein cadre.
+const kAnisAuthHeroCoverAlignment = Alignment(0.22, 1.0);
+
+const kAnisAuthHeroCoverAlignmentCompact = Alignment(0.18, 1.0);
 
 /// Hero émeraude partagé (écran auth + login email).
 class AnisAuthBrandHero extends StatelessWidget {
@@ -19,40 +21,31 @@ class AnisAuthBrandHero extends StatelessWidget {
   final double height;
   final bool compact;
 
+  /// Dégage le Coran du chevauchement ivoire ([kAnisAuthSheetOverlap]).
   static const double artworkBottomClearance = 34;
 
   @override
   Widget build(BuildContext context) {
+    final alignment =
+        compact ? kAnisAuthHeroCoverAlignmentCompact : kAnisAuthHeroCoverAlignment;
+
     return SizedBox(
       height: height,
+      width: double.infinity,
       child: ClipRect(
         child: ColoredBox(
           color: kAnisAuthHeroEmeraldFill,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    end: compact ? 4 : 0,
-                    bottom: artworkBottomClearance,
-                  ),
-                  child: SizedBox(
-                    width: constraints.maxWidth,
-                    child: AspectRatio(
-                      aspectRatio: kAnisAuthHeroAspectRatio,
-                      child: Image.asset(
-                        kAnisAuthHeroAsset,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.bottomRight,
-                        filterQuality: FilterQuality.high,
-                        semanticLabel: 'ANIS Khatamat',
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: artworkBottomClearance),
+            child: Image.asset(
+              kAnisAuthHeroAsset,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              alignment: alignment,
+              filterQuality: FilterQuality.high,
+              semanticLabel: 'ANIS Khatamat',
+            ),
           ),
         ),
       ),

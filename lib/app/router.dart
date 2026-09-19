@@ -16,6 +16,8 @@ import '../screens/achievements_screen.dart';
 import '../screens/mushaf_selection_screen.dart';
 import '../screens/mushaf_hafs_screen.dart';
 import '../screens/mushaf_warsh_screen.dart';
+import '../features/ayat_fadila/presentation/ayat_fadila_screen.dart';
+import '../screens/douaa_arrabita_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../screens/training_screen.dart';
 import '../screens/course_detail_screen.dart';
@@ -111,6 +113,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/achievements',
         builder: (context, state) => const AchievementsScreen(),
+      ),
+      GoRoute(
+        path: '/ayat-fadila',
+        builder: (context, state) => const AyatFadilaScreen(),
+      ),
+      GoRoute(
+        path: '/douaa-arrabita',
+        builder: (context, state) => const DouaaArrabitaScreen(),
       ),
       GoRoute(
         path: '/mushaf',

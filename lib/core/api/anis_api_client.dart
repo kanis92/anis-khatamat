@@ -46,6 +46,11 @@ class AnisApiClient {
     return _request('PUT', path, body: body);
   }
 
+  /// PATCH request
+  Future<Map<String, dynamic>> patch(String path, {Map<String, dynamic>? body}) async {
+    return _request('PATCH', path, body: body);
+  }
+
   /// DELETE request
   Future<Map<String, dynamic>> delete(String path) async {
     return _request('DELETE', path);
@@ -103,6 +108,8 @@ class AnisApiClient {
         return _httpClient.post(url, headers: headers, body: encodedBody);
       case 'PUT':
         return _httpClient.put(url, headers: headers, body: encodedBody);
+      case 'PATCH':
+        return _httpClient.patch(url, headers: headers, body: encodedBody);
       case 'DELETE':
         return _httpClient.delete(url, headers: headers);
       default:

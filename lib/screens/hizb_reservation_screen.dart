@@ -27,6 +27,8 @@ import '../core/services/reservation_service.dart';
 import '../core/utils/khatma_participant_id.dart';
 import '../core/theme/app_theme.dart';
 import '../core/extensions/l10n_extensions.dart';
+import '../core/utils/khatma_organizer.dart';
+import '../core/widgets/edit_khatma_metadata_sheet.dart';
 import '../widgets/khatma/khatma_completion_celebration_overlay.dart';
 import 'mushaf_hafs_screen.dart';
 import 'mushaf_warsh_screen.dart';
@@ -1130,10 +1132,29 @@ class _HizbReservationScreenState extends ConsumerState<HizbReservationScreen> {
     final completed = _khatma.completedReservationCount;
     final total = AppConstants.totalHizb;
 
+    final authUid = FirebaseAuth.instance.currentUser?.uid;
+    final canEditMetadata = widget.guestId == null &&
+        isKhatmaOrganizer(_khatma, _userId, authUid: authUid);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_khatma.title),
         actions: [
+          if (canEditMetadata)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: context.l10n.editKhatmaMetadata,
+              onPressed: () async {
+                final updated = await showEditKhatmaMetadataSheet(
+                  context,
+                  ref,
+                  _khatma,
+                );
+                if (updated != null && mounted) {
+                  setState(() => _lastKnownKhatma = updated);
+                }
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.chat, color: Color(0xFF25D366)),
             onPressed: () async {

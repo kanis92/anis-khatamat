@@ -5,6 +5,12 @@
  * PORT is configurable via environment variable (default: 3000)
  */
 
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load api/.env for local development (GOOGLE_APPLICATION_CREDENTIALS, etc.)
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import { getEnvironment } from './config/environment';
 import { createApp } from './app';
 import { logger } from './utils/logger';

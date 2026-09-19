@@ -4,6 +4,7 @@
 
 // Khatma business logic
 export { createCollaborativeKhatma } from './createCollaborativeKhatma';
+export { updateKhatmaMetadata } from './updateKhatmaMetadata';
 export { reserveHizb } from './reserveHizb';
 export { assignHizbToParticipant } from './assignHizbToParticipant';
 export { releaseHizb } from './releaseHizb';

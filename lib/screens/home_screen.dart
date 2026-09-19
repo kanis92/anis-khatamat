@@ -21,7 +21,7 @@ import '../core/widgets/connectivity_banner.dart' show connectivityProvider;
 import '../core/widgets/mushaf_hizb_indicator.dart' show mushafNumber;
 import '../design_system/anis_design_system.dart';
 
-/// Accueil ANIS — présentation premium (hero immersif + progression + actions).
+/// Accueil ANIS — hero, Khatma prioritaire, actions rapides, progression.
 ///
 /// Aucune donnée n'est fabriquée : chaque bloc s'appuie sur les providers et
 /// modèles existants. Les routes des actions rapides pointent uniquement vers
@@ -378,17 +378,17 @@ class _QuickActionsGrid extends StatelessWidget {
               children: [
                 SizedBox(
                   width: tileWidth,
-                  child: _QuickActionTile(
-                    icon: AnisIconType.bookOpen,
-                    title: l10n.mushaf,
-                    subtitle: l10n.quickActionMushafSubtitle,
-                    onTap: () => context.push('/mushaf'),
+                  child: AnisHomeQuickActionTile(
+                    variant: AnisHomeQuickActionVariant.douaaArrabita,
+                    title: l10n.douaaArrabitaTitle,
+                    subtitle: l10n.quickActionDouaaArrabitaSubtitle,
+                    onTap: () => context.push('/douaa-arrabita'),
                   ),
                 ),
                 SizedBox(
                   width: tileWidth,
-                  child: _QuickActionTile(
-                    icon: AnisIconType.khatma,
+                  child: AnisHomeQuickActionTile(
+                    variant: AnisHomeQuickActionVariant.khatma,
                     title: l10n.khatma,
                     subtitle: l10n.quickActionKhatmaSubtitle,
                     onTap: () => context.go('/khatma'),
@@ -396,8 +396,8 @@ class _QuickActionsGrid extends StatelessWidget {
                 ),
                 SizedBox(
                   width: tileWidth,
-                  child: _QuickActionTile(
-                    icon: AnisIconType.training,
+                  child: AnisHomeQuickActionTile(
+                    variant: AnisHomeQuickActionVariant.formations,
                     title: l10n.quickActionFormationsTitle,
                     subtitle: l10n.quickActionFormationsSubtitle,
                     onTap: () => context.go('/training'),
@@ -405,11 +405,11 @@ class _QuickActionsGrid extends StatelessWidget {
                 ),
                 SizedBox(
                   width: tileWidth,
-                  child: _QuickActionTile(
-                    icon: AnisIconType.bell,
-                    title: l10n.notifications,
-                    subtitle: l10n.quickActionNotificationsSubtitle,
-                    onTap: () => context.go('/notifications'),
+                  child: AnisHomeQuickActionTile(
+                    variant: AnisHomeQuickActionVariant.ayatFadila,
+                    title: l10n.ayatFadilaTitle,
+                    subtitle: l10n.upcoming,
+                    onTap: () => context.push('/ayat-fadila'),
                   ),
                 ),
               ],
@@ -417,77 +417,6 @@ class _QuickActionsGrid extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-}
-
-class _QuickActionTile extends StatelessWidget {
-  const _QuickActionTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final AnisIconType icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.anisColors;
-    final text = context.anisText;
-
-    return AnisSurface(
-      level: AnisSurfaceLevel.subtle,
-      radius: AnisRadius.md,
-      onTap: onTap,
-      semanticLabel: '$title. $subtitle',
-      padding: const EdgeInsetsDirectional.all(AnisSpacing.md),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 100,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: colors.actionPrimary.withValues(
-                  alpha: AnisOpacity.subtleFill,
-                ),
-                borderRadius: AnisRadius.smAll,
-              ),
-              alignment: Alignment.center,
-              child: AnisGlyph.anis(
-                icon,
-                size: AnisIconSize.md,
-                color: colors.actionPrimary,
-              ),
-            ),
-            const SizedBox(height: AnisSpacing.sm),
-            Text(
-              title,
-              style: text.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AnisSpacing.xxs),
-            Text(
-              subtitle,
-              style: text.caption,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -547,9 +476,6 @@ class _HomeEmptyBody extends ConsumerWidget {
       children: [
         if (_isRamadanMonth())
           _RamadanSummaryCard(day: HijriDateTime.now().day),
-        const _QuranProgressCard(dashboard: HomeDashboardState.empty),
-        const _QuickActionsGrid(),
-        const SizedBox(height: AnisSpacing.sectionGap),
         AnisEmptyState(
           showSignature: true,
           title: l10n.homeEmptyTitle,
@@ -559,6 +485,9 @@ class _HomeEmptyBody extends ConsumerWidget {
           secondaryActionLabel: l10n.joinCollectiveKhatma,
           onSecondaryAction: () => context.go('/khatma'),
         ),
+        const SizedBox(height: AnisSpacing.sectionGap),
+        const _QuickActionsGrid(),
+        const _QuranProgressCard(dashboard: HomeDashboardState.empty),
       ],
     );
   }
@@ -580,10 +509,7 @@ class _HomeDashboardBody extends ConsumerWidget {
         const _OfflineNotice(),
         if (_isRamadanMonth())
           _RamadanSummaryCard(day: HijriDateTime.now().day),
-        _QuranProgressCard(dashboard: dashboard),
-        const _QuickActionsGrid(),
         if (dashboard.primary != null) ...[
-          const SizedBox(height: AnisSpacing.sectionGap),
           AnisSectionHeader(title: l10n.khatmaInProgress),
           const SizedBox(height: AnisSpacing.md),
           _PrimaryKhatmaCard(
@@ -603,7 +529,10 @@ class _HomeDashboardBody extends ConsumerWidget {
               ),
             ),
           ],
+          const SizedBox(height: AnisSpacing.sectionGap),
         ],
+        const _QuickActionsGrid(),
+        _QuranProgressCard(dashboard: dashboard),
         if (formation != null) ...[
           const SizedBox(height: AnisSpacing.blockGap),
           AnisListTile(

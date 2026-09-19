@@ -10,9 +10,21 @@ import { Khatma } from "./types";
  * - Checks both normalized (lowercase) and raw createdBy
  * - Historical mixed-case creator emails still recognized
  */
-export function isOrganizer(khatma: Khatma, userId: string): boolean {
-  return khatma.createdBy === userId || 
-         khatma.createdBy.toLowerCase() === userId.toLowerCase();
+export function isOrganizer(
+  khatma: Khatma,
+  userId: string,
+  uid?: string
+): boolean {
+  if (
+    khatma.createdBy === userId ||
+    khatma.createdBy.toLowerCase() === userId.toLowerCase()
+  ) {
+    return true;
+  }
+  if (uid != null && uid.length > 0 && khatma.createdBy === uid) {
+    return true;
+  }
+  return false;
 }
 
 /**

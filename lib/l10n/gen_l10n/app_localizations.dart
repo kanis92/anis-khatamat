@@ -586,6 +586,66 @@ abstract class AppLocalizations {
   /// **'Titre de la Khatma'**
   String get khatmaTitle;
 
+  /// No description provided for @editKhatmaMetadata.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la Khatma'**
+  String get editKhatmaMetadata;
+
+  /// No description provided for @saveKhatmaChanges.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get saveKhatmaChanges;
+
+  /// No description provided for @khatmaMetadataSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifications enregistrées'**
+  String get khatmaMetadataSaved;
+
+  /// No description provided for @khatmaMetadataSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer les modifications. Réessayez.'**
+  String get khatmaMetadataSaveFailed;
+
+  /// No description provided for @khatmaMetadataApiOutdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur API en ligne n\'a pas encore cette fonction (mise à jour requise).'**
+  String get khatmaMetadataApiOutdated;
+
+  /// No description provided for @khatmaMetadataApiOutdatedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur simulateur : terminal 1 → cd api && npm run dev — terminal 2 → flutter run avec --dart-define=API_BASE_URL=http://127.0.0.1:3000'**
+  String get khatmaMetadataApiOutdatedHint;
+
+  /// No description provided for @khatmaMetadataForbidden.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul le créateur de la Khatma peut modifier le titre.'**
+  String get khatmaMetadataForbidden;
+
+  /// No description provided for @khatmaMetadataNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au serveur impossible. Vérifiez l\'API (port 3000) ou votre réseau.'**
+  String get khatmaMetadataNetworkError;
+
+  /// No description provided for @khatmaMetadataAuthError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée. Reconnectez-vous puis réessayez.'**
+  String get khatmaMetadataAuthError;
+
+  /// No description provided for @khatmaMetadataServerCredentialsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'API locale : définissez GOOGLE_APPLICATION_CREDENTIALS dans api/.env (compte de service Firebase prod).'**
+  String get khatmaMetadataServerCredentialsHint;
+
   /// No description provided for @objectives.
   ///
   /// In fr, this message translates to:
@@ -1954,6 +2014,30 @@ abstract class AppLocalizations {
   /// **'Reprendre ma lecture'**
   String get quickActionMushafSubtitle;
 
+  /// No description provided for @douaaArrabitaTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Douaa Arrabita'**
+  String get douaaArrabitaTitle;
+
+  /// No description provided for @douaaArrabitaEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invocations'**
+  String get douaaArrabitaEyebrow;
+
+  /// No description provided for @quickActionDouaaArrabitaSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invocations de la Rabita'**
+  String get quickActionDouaaArrabitaSubtitle;
+
+  /// No description provided for @douaaArrabitaIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recueil des douaas de la Rabita — le contenu sera disponible ici prochainement.'**
+  String get douaaArrabitaIntro;
+
   /// No description provided for @quickActionKhatmaSubtitle.
   ///
   /// In fr, this message translates to:
@@ -1972,11 +2056,233 @@ abstract class AppLocalizations {
   /// **'Mes formations'**
   String get quickActionFormationsSubtitle;
 
-  /// No description provided for @quickActionNotificationsSubtitle.
+  /// No description provided for @ayatFadilaTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Gérer mes alertes'**
-  String get quickActionNotificationsSubtitle;
+  /// **'Ayat Fadila'**
+  String get ayatFadilaTitle;
+
+  /// No description provided for @quickActionAyatFadilaSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochainement'**
+  String get quickActionAyatFadilaSubtitle;
+
+  /// No description provided for @ayatFadilaComingSoonMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le recueil des ayat fadila sera disponible dans une prochaine mise à jour de l\'application.'**
+  String get ayatFadilaComingSoonMessage;
+
+  /// No description provided for @ayatFadilaHeaderSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versets et sourates aux mérites confirmés'**
+  String get ayatFadilaHeaderSubtitle;
+
+  /// No description provided for @ayatFadilaSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un verset, une sourate…'**
+  String get ayatFadilaSearchHint;
+
+  /// No description provided for @ayatFadilaFeaturedSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection ANIS'**
+  String get ayatFadilaFeaturedSection;
+
+  /// No description provided for @ayatFadilaCategoryProtection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection & sérénité'**
+  String get ayatFadilaCategoryProtection;
+
+  /// No description provided for @ayatFadilaCategoryDaily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quotidien & invocations'**
+  String get ayatFadilaCategoryDaily;
+
+  /// No description provided for @ayatFadilaCategoryPraise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Louange & tawhid'**
+  String get ayatFadilaCategoryPraise;
+
+  /// No description provided for @ayatFadilaResumeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre votre lecture'**
+  String get ayatFadilaResumeTitle;
+
+  /// No description provided for @ayatFadilaResumeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Derniers versets de Al-Baqara'**
+  String get ayatFadilaResumeSubtitle;
+
+  /// No description provided for @ayatFadilaDetailVirtueLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mérite'**
+  String get ayatFadilaDetailVirtueLabel;
+
+  /// No description provided for @ayatFadilaOpenInMushaf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir dans le Mushaf'**
+  String get ayatFadilaOpenInMushaf;
+
+  /// No description provided for @ayatFadilaReaderSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le lecteur PDF intégré arrive bientôt.'**
+  String get ayatFadilaReaderSoon;
+
+  /// No description provided for @ayatFadilaEntryAlKursiTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ayat Al-Kursi'**
+  String get ayatFadilaEntryAlKursiTitle;
+
+  /// No description provided for @ayatFadilaEntryAlKursiVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récitation matin et soir — protection'**
+  String get ayatFadilaEntryAlKursiVirtue;
+
+  /// No description provided for @ayatFadilaEntryAlKursiRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'2:255'**
+  String get ayatFadilaEntryAlKursiRef;
+
+  /// No description provided for @ayatFadilaEntryAlIkhlasTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sourate Al-Ikhlas'**
+  String get ayatFadilaEntryAlIkhlasTitle;
+
+  /// No description provided for @ayatFadilaEntryAlIkhlasVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équivalente au tiers du Coran'**
+  String get ayatFadilaEntryAlIkhlasVirtue;
+
+  /// No description provided for @ayatFadilaEntryAlIkhlasRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'112'**
+  String get ayatFadilaEntryAlIkhlasRef;
+
+  /// No description provided for @ayatFadilaEntryAlFalaqNasTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Al-Falaq & An-Nas'**
+  String get ayatFadilaEntryAlFalaqNasTitle;
+
+  /// No description provided for @ayatFadilaEntryAlFalaqNasVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuge contre le mal visible et caché'**
+  String get ayatFadilaEntryAlFalaqNasVirtue;
+
+  /// No description provided for @ayatFadilaEntryAlFalaqNasRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'113–114'**
+  String get ayatFadilaEntryAlFalaqNasRef;
+
+  /// No description provided for @ayatFadilaEntryBaqarahEndTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin de Al-Baqara'**
+  String get ayatFadilaEntryBaqarahEndTitle;
+
+  /// No description provided for @ayatFadilaEntryBaqarahEndVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suffisant pour une nuit de lecture'**
+  String get ayatFadilaEntryBaqarahEndVirtue;
+
+  /// No description provided for @ayatFadilaEntryBaqarahEndRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'2:285–286'**
+  String get ayatFadilaEntryBaqarahEndRef;
+
+  /// No description provided for @ayatFadilaEntryRabbanaTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invocation du pèlerin'**
+  String get ayatFadilaEntryRabbanaTitle;
+
+  /// No description provided for @ayatFadilaEntryRabbanaVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'« Rabbana atina fid-dunya hasanatan… »'**
+  String get ayatFadilaEntryRabbanaVirtue;
+
+  /// No description provided for @ayatFadilaEntryRabbanaRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'2:201'**
+  String get ayatFadilaEntryRabbanaRef;
+
+  /// No description provided for @ayatFadilaEntryMulkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sourate Al-Mulk'**
+  String get ayatFadilaEntryMulkTitle;
+
+  /// No description provided for @ayatFadilaEntryMulkVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intercession jusqu\'au pardon'**
+  String get ayatFadilaEntryMulkVirtue;
+
+  /// No description provided for @ayatFadilaEntryMulkRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'67'**
+  String get ayatFadilaEntryMulkRef;
+
+  /// No description provided for @ayatFadilaEntryHashrTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Noms d\'Allah — Al-Hashr'**
+  String get ayatFadilaEntryHashrTitle;
+
+  /// No description provided for @ayatFadilaEntryHashrVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Louange des plus beaux noms'**
+  String get ayatFadilaEntryHashrVirtue;
+
+  /// No description provided for @ayatFadilaEntryHashrRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'59:22–24'**
+  String get ayatFadilaEntryHashrRef;
+
+  /// No description provided for @ayatFadilaEntrySalamTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parole de paix'**
+  String get ayatFadilaEntrySalamTitle;
+
+  /// No description provided for @ayatFadilaEntrySalamVirtue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut du Seigneur miséricordieux'**
+  String get ayatFadilaEntrySalamVirtue;
+
+  /// No description provided for @ayatFadilaEntrySalamRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'36:58'**
+  String get ayatFadilaEntrySalamRef;
 
   /// No description provided for @loginWelcome.
   ///

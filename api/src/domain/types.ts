@@ -93,6 +93,19 @@ export interface CreateKhatmaResponse {
   khatmaId: string;
 }
 
+export interface UpdateKhatmaMetadataRequest {
+  title?: string;
+  /** Send null or empty string to remove objectives */
+  objectives?: string | null;
+}
+
+export interface UpdateKhatmaMetadataResponse {
+  khatmaId: string;
+  success: boolean;
+  title: string;
+  objectives?: string | null;
+}
+
 export interface ReserveHizbRequest {
   khatmaId: string;
   hizbNumber: number;

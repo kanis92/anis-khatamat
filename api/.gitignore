@@ -15,6 +15,7 @@ coverage/
 .env
 .env.local
 .env.*.local
+.deploy.env
 
 # Secrets - NEVER commit
 *.json

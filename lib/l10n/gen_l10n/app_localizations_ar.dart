@@ -280,6 +280,41 @@ class AppLocalizationsAr extends AppLocalizations {
   String get khatmaTitle => 'عنوان الختمة';
 
   @override
+  String get editKhatmaMetadata => 'تعديل الختمة';
+
+  @override
+  String get saveKhatmaChanges => 'حفظ';
+
+  @override
+  String get khatmaMetadataSaved => 'تم حفظ التعديلات';
+
+  @override
+  String get khatmaMetadataSaveFailed => 'تعذّر حفظ التعديلات. حاول مرة أخرى.';
+
+  @override
+  String get khatmaMetadataApiOutdated =>
+      'خادم API لا يدعم هذه الميزة بعد (يلزم التحديث).';
+
+  @override
+  String get khatmaMetadataApiOutdatedHint =>
+      'على المحاكي: cd api && npm run dev ثم flutter run مع --dart-define=API_BASE_URL=http://127.0.0.1:3000';
+
+  @override
+  String get khatmaMetadataForbidden => 'منشئ الختمة فقط يمكنه تعديل العنوان.';
+
+  @override
+  String get khatmaMetadataNetworkError =>
+      'تعذّر الاتصال بالخادم. تحقق من API (المنفذ 3000) أو الشبكة.';
+
+  @override
+  String get khatmaMetadataAuthError =>
+      'انتهت الجلسة. سجّل الدخول مجدداً وحاول مرة أخرى.';
+
+  @override
+  String get khatmaMetadataServerCredentialsHint =>
+      'API محلي: عيّن GOOGLE_APPLICATION_CREDENTIALS في api/.env.';
+
+  @override
   String get objectives => 'الأهداف';
 
   @override
@@ -1045,6 +1080,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quickActionMushafSubtitle => 'استئناف القراءة';
 
   @override
+  String get douaaArrabitaTitle => 'دعاء الرابطة';
+
+  @override
+  String get douaaArrabitaEyebrow => 'أدعية';
+
+  @override
+  String get quickActionDouaaArrabitaSubtitle => 'أدعية الرابطة';
+
+  @override
+  String get douaaArrabitaIntro =>
+      'مجموعة أدعية الرابطة — المحتوى سيُتاح هنا قريبًا.';
+
+  @override
   String get quickActionKhatmaSubtitle => 'ختماتي';
 
   @override
@@ -1054,7 +1102,120 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quickActionFormationsSubtitle => 'دوراتي';
 
   @override
-  String get quickActionNotificationsSubtitle => 'إدارة التنبيهات';
+  String get ayatFadilaTitle => 'آيات فاضلة';
+
+  @override
+  String get quickActionAyatFadilaSubtitle => 'قريبًا';
+
+  @override
+  String get ayatFadilaComingSoonMessage =>
+      'مجموعة الآيات الفاضلة ستتوفر في تحديث قادم للتطبيق.';
+
+  @override
+  String get ayatFadilaHeaderSubtitle => 'آيات وسور ثبت فضلها';
+
+  @override
+  String get ayatFadilaSearchHint => 'ابحث عن آية أو سورة…';
+
+  @override
+  String get ayatFadilaFeaturedSection => 'اختيار ANIS';
+
+  @override
+  String get ayatFadilaCategoryProtection => 'حفظ وطمأنينة';
+
+  @override
+  String get ayatFadilaCategoryDaily => 'يومي ودعاء';
+
+  @override
+  String get ayatFadilaCategoryPraise => 'حمد وتوحيد';
+
+  @override
+  String get ayatFadilaResumeTitle => 'متابعة القراءة';
+
+  @override
+  String get ayatFadilaResumeSubtitle => 'خاتمة سورة البقرة';
+
+  @override
+  String get ayatFadilaDetailVirtueLabel => 'الفضل';
+
+  @override
+  String get ayatFadilaOpenInMushaf => 'فتح في المصحف';
+
+  @override
+  String get ayatFadilaReaderSoon => 'قارئ PDF المدمج قريبًا.';
+
+  @override
+  String get ayatFadilaEntryAlKursiTitle => 'آية الكرسي';
+
+  @override
+  String get ayatFadilaEntryAlKursiVirtue => 'قراءة الصباح والمساء — حفظ';
+
+  @override
+  String get ayatFadilaEntryAlKursiRef => '٢:٢٥٥';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasTitle => 'سورة الإخلاص';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasVirtue => 'تعدل ثلث القرآن';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasRef => '١١٢';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasTitle => 'الفلق والناس';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasVirtue => 'الاستعاذة من الشر';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasRef => '١١٣–١١٤';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndTitle => 'خاتمة البقرة';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndVirtue => 'كفاية ليلة من القراءة';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndRef => '٢:٢٨٥–٢٨٦';
+
+  @override
+  String get ayatFadilaEntryRabbanaTitle => 'دعاء الحاج';
+
+  @override
+  String get ayatFadilaEntryRabbanaVirtue =>
+      '« رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً… »';
+
+  @override
+  String get ayatFadilaEntryRabbanaRef => '٢:٢٠١';
+
+  @override
+  String get ayatFadilaEntryMulkTitle => 'سورة الملك';
+
+  @override
+  String get ayatFadilaEntryMulkVirtue => 'شفاعة حتى المغفرة';
+
+  @override
+  String get ayatFadilaEntryMulkRef => '٦٧';
+
+  @override
+  String get ayatFadilaEntryHashrTitle => 'أسماء الله — الحشر';
+
+  @override
+  String get ayatFadilaEntryHashrVirtue => 'ثناء على أسمائه الحسنى';
+
+  @override
+  String get ayatFadilaEntryHashrRef => '٥٩:٢٢–٢٤';
+
+  @override
+  String get ayatFadilaEntrySalamTitle => 'كلمة السلام';
+
+  @override
+  String get ayatFadilaEntrySalamVirtue => 'تحية من رب رحيم';
+
+  @override
+  String get ayatFadilaEntrySalamRef => '٣٦:٥٨';
 
   @override
   String get loginWelcome => 'مرحباً';

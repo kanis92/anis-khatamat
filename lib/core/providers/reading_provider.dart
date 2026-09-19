@@ -6,6 +6,7 @@ import '../services/reading_service.dart';
 import '../services/reading_history_service.dart';
 
 import '../models/khatma_load_result.dart';
+import '../services/khatma_metadata_service.dart';
 import '../services/reservation_service.dart';
 import '../models/khatma_with_status.dart';
 import '../utils/my_khatmat_utils.dart';
@@ -13,6 +14,10 @@ import 'auth_provider.dart';
 
 final readingServiceProvider = Provider<ReadingService>(
   (ref) => ReadingService(),
+);
+
+final khatmaMetadataServiceProvider = Provider<KhatmaMetadataService>(
+  (ref) => KhatmaMetadataService(),
 );
 
 /// Identité utilisateur pour Mes Khatmas / dashboard Home.

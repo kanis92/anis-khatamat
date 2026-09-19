@@ -7,6 +7,7 @@ import 'package:anis_khatamat/core/models/home_dashboard_state.dart';
 import 'package:anis_khatamat/core/providers/auth_provider.dart';
 import 'package:anis_khatamat/core/providers/home_dashboard_provider.dart';
 import 'package:anis_khatamat/core/widgets/connectivity_banner.dart';
+import 'package:anis_khatamat/design_system/anis_design_system.dart';
 import 'package:anis_khatamat/screens/home_screen.dart';
 import 'package:anis_khatamat/l10n/gen_l10n/app_localizations.dart';
 
@@ -54,16 +55,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify titles are fully visible (not truncated)
-      expect(find.text('Mushaf'), findsOneWidget);
+      expect(find.text('Douaa Arrabita'), findsOneWidget);
       expect(find.text('Khatma'), findsOneWidget);
       expect(find.text('Formations'), findsOneWidget);
-      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Ayat Fadila'), findsOneWidget);
 
       // Verify new compact subtitles are present
-      expect(find.text('Reprendre ma lecture'), findsOneWidget);
+      expect(find.text('Invocations de la Rabita'), findsOneWidget);
       expect(find.text('Mes Khatmat'), findsOneWidget);
       expect(find.text('Mes formations'), findsOneWidget);
-      expect(find.text('Gérer mes alertes'), findsOneWidget);
+      expect(find.text('Prochainement'), findsOneWidget);
 
       // Verify no overflow
       expect(tester.takeException(), isNull);
@@ -81,16 +82,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify titles are fully visible
-      expect(find.text('Mushaf'), findsOneWidget);
+      expect(find.text('Douaa Arrabita'), findsOneWidget);
       expect(find.text('Khatma'), findsOneWidget);
       expect(find.text('Training'), findsOneWidget);
-      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Ayat Fadila'), findsOneWidget);
 
       // Verify new compact subtitles
-      expect(find.text('Resume reading'), findsOneWidget);
+      expect(find.text('Rabita invocations'), findsOneWidget);
       expect(find.text('My Khatmat'), findsOneWidget);
       expect(find.text('My courses'), findsOneWidget);
-      expect(find.text('Manage alerts'), findsOneWidget);
+      expect(find.text('Upcoming'), findsOneWidget);
 
       // Verify no overflow
       expect(tester.takeException(), isNull);
@@ -108,16 +109,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Arabic titles are fully visible
-      expect(find.text('المصحف'), findsOneWidget);
+      expect(find.text('دعاء الرابطة'), findsOneWidget);
       expect(find.text('الختمة'), findsOneWidget);
       expect(find.text('التدريب'), findsOneWidget);
-      expect(find.text('الإشعارات'), findsOneWidget);
+      expect(find.text('آيات فاضلة'), findsOneWidget);
 
       // Verify Arabic subtitles
-      expect(find.text('استئناف القراءة'), findsOneWidget);
+      expect(find.text('أدعية الرابطة'), findsOneWidget);
       expect(find.text('ختماتي'), findsOneWidget);
       expect(find.text('دوراتي'), findsOneWidget);
-      expect(find.text('إدارة التنبيهات'), findsOneWidget);
+      expect(find.text('قريباً'), findsOneWidget);
 
       // Verify RTL directionality
       final BuildContext context = tester.element(find.byType(AnisHomePage));
@@ -139,10 +140,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify all titles are present
-      expect(find.text('Mushaf'), findsOneWidget);
+      expect(find.text('Douaa Arrabita'), findsOneWidget);
       expect(find.text('Khatma'), findsOneWidget);
       expect(find.text('Formations'), findsOneWidget);
-      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Ayat Fadila'), findsOneWidget);
 
       // Verify no overflow
       expect(tester.takeException(), isNull);
@@ -160,10 +161,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify all content renders without issues
-      expect(find.text('Mushaf'), findsOneWidget);
+      expect(find.text('Douaa Arrabita'), findsOneWidget);
       expect(find.text('Khatma'), findsOneWidget);
       expect(find.text('Formations'), findsOneWidget);
-      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Ayat Fadila'), findsOneWidget);
 
       // Verify no overflow
       expect(tester.takeException(), isNull);
@@ -182,19 +183,22 @@ void main() {
 
       // Find all quick action tiles by scrolling to them
       await tester.scrollUntilVisible(
-        find.text('Mushaf'),
+        find.text('Douaa Arrabita'),
         100,
         scrollable: find.byType(Scrollable).first,
       );
 
-      // Verify minimum height (100px as per new vertical structure)
-      final mushafCard = find.ancestor(
-        of: find.text('Mushaf'),
-        matching: find.byType(ConstrainedBox),
-      ).first;
-
-      final constrainedBox = tester.widget<ConstrainedBox>(mushafCard);
-      expect(constrainedBox.constraints.minHeight, greaterThanOrEqualTo(100));
+      // Photo band (76) + text block — tuile éditoriale
+      final photoBand = find.descendant(
+        of: find.ancestor(
+          of: find.text('Douaa Arrabita'),
+          matching: find.byType(AnisHomeQuickActionTile),
+        ),
+        matching: find.byWidgetPredicate(
+          (w) => w is SizedBox && w.height == 76,
+        ),
+      );
+      expect(photoBand, findsOneWidget);
     });
 
     testWidgets('Cards are visually compact without excessive whitespace', (tester) async {
@@ -210,14 +214,14 @@ void main() {
 
       // Scroll to quick actions
       await tester.scrollUntilVisible(
-        find.text('Mushaf'),
+        find.text('Douaa Arrabita'),
         100,
         scrollable: find.byType(Scrollable).first,
       );
 
       // Verify card has vertical Column layout (not Row)
       final mushafCard = find.ancestor(
-        of: find.text('Mushaf'),
+        of: find.text('Douaa Arrabita'),
         matching: find.byType(Column),
       );
       expect(mushafCard, findsWidgets);

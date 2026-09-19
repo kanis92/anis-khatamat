@@ -8,6 +8,7 @@ import { authMiddleware, AuthenticatedRequest } from '../middleware/auth';
 import * as business from '../business';
 import {
   CreateKhatmaRequest,
+  UpdateKhatmaMetadataRequest,
   ReserveHizbRequest,
   AssignHizbToParticipantRequest,
   ReleaseHizbRequest,
@@ -16,6 +17,47 @@ import {
 import { ApiError } from '../errors/api-error';
 
 const router = Router();
+
+const METADATA_FORBIDDEN_FIELDS = [
+  'id',
+  'createdBy',
+  'creatorUid',
+  'creationState',
+  'completedHizbCount',
+  'participantIds',
+  'members',
+  'isGroup',
+  'isPublic',
+  'reservationMode',
+  'hizbDefinitionId',
+];
+
+async function handleUpdateKhatmaMetadata(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    for (const field of METADATA_FORBIDDEN_FIELDS) {
+      if (field in req.body) {
+        throw ApiError.invalidArgument(
+          `Field '${field}' cannot be provided by client`
+        );
+      }
+    }
+
+    const data: UpdateKhatmaMetadataRequest = req.body;
+    const result = await business.updateKhatmaMetadata(
+      authReq.auth,
+      req.params.khatmaId,
+      data
+    );
+    res.json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+}
 
 /**
  * POST /v1/khatmat
@@ -45,6 +87,26 @@ router.post(
       next(error);
     }
   }
+);
+
+/**
+ * POST /v1/khatmat/:khatmaId/metadata
+ * Update title and/or objectives (creator only) — preferred (same as other mutations)
+ */
+router.post(
+  '/v1/khatmat/:khatmaId/metadata',
+  authMiddleware,
+  handleUpdateKhatmaMetadata
+);
+
+/**
+ * PATCH /v1/khatmat/:khatmaId
+ * Update title and/or objectives (creator only)
+ */
+router.patch(
+  '/v1/khatmat/:khatmaId',
+  authMiddleware,
+  handleUpdateKhatmaMetadata
 );
 
 /**

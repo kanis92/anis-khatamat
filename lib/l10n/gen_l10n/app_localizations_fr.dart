@@ -283,6 +283,43 @@ class AppLocalizationsFr extends AppLocalizations {
   String get khatmaTitle => 'Titre de la Khatma';
 
   @override
+  String get editKhatmaMetadata => 'Modifier la Khatma';
+
+  @override
+  String get saveKhatmaChanges => 'Enregistrer';
+
+  @override
+  String get khatmaMetadataSaved => 'Modifications enregistrées';
+
+  @override
+  String get khatmaMetadataSaveFailed =>
+      'Impossible d\'enregistrer les modifications. Réessayez.';
+
+  @override
+  String get khatmaMetadataApiOutdated =>
+      'Le serveur API en ligne n\'a pas encore cette fonction (mise à jour requise).';
+
+  @override
+  String get khatmaMetadataApiOutdatedHint =>
+      'Sur simulateur : terminal 1 → cd api && npm run dev — terminal 2 → flutter run avec --dart-define=API_BASE_URL=http://127.0.0.1:3000';
+
+  @override
+  String get khatmaMetadataForbidden =>
+      'Seul le créateur de la Khatma peut modifier le titre.';
+
+  @override
+  String get khatmaMetadataNetworkError =>
+      'Connexion au serveur impossible. Vérifiez l\'API (port 3000) ou votre réseau.';
+
+  @override
+  String get khatmaMetadataAuthError =>
+      'Session expirée. Reconnectez-vous puis réessayez.';
+
+  @override
+  String get khatmaMetadataServerCredentialsHint =>
+      'API locale : définissez GOOGLE_APPLICATION_CREDENTIALS dans api/.env (compte de service Firebase prod).';
+
+  @override
   String get objectives => 'Objectifs';
 
   @override
@@ -1061,6 +1098,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quickActionMushafSubtitle => 'Reprendre ma lecture';
 
   @override
+  String get douaaArrabitaTitle => 'Douaa Arrabita';
+
+  @override
+  String get douaaArrabitaEyebrow => 'Invocations';
+
+  @override
+  String get quickActionDouaaArrabitaSubtitle => 'Invocations de la Rabita';
+
+  @override
+  String get douaaArrabitaIntro =>
+      'Recueil des douaas de la Rabita — le contenu sera disponible ici prochainement.';
+
+  @override
   String get quickActionKhatmaSubtitle => 'Mes Khatmat';
 
   @override
@@ -1070,7 +1120,124 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quickActionFormationsSubtitle => 'Mes formations';
 
   @override
-  String get quickActionNotificationsSubtitle => 'Gérer mes alertes';
+  String get ayatFadilaTitle => 'Ayat Fadila';
+
+  @override
+  String get quickActionAyatFadilaSubtitle => 'Prochainement';
+
+  @override
+  String get ayatFadilaComingSoonMessage =>
+      'Le recueil des ayat fadila sera disponible dans une prochaine mise à jour de l\'application.';
+
+  @override
+  String get ayatFadilaHeaderSubtitle =>
+      'Versets et sourates aux mérites confirmés';
+
+  @override
+  String get ayatFadilaSearchHint => 'Rechercher un verset, une sourate…';
+
+  @override
+  String get ayatFadilaFeaturedSection => 'Sélection ANIS';
+
+  @override
+  String get ayatFadilaCategoryProtection => 'Protection & sérénité';
+
+  @override
+  String get ayatFadilaCategoryDaily => 'Quotidien & invocations';
+
+  @override
+  String get ayatFadilaCategoryPraise => 'Louange & tawhid';
+
+  @override
+  String get ayatFadilaResumeTitle => 'Reprendre votre lecture';
+
+  @override
+  String get ayatFadilaResumeSubtitle => 'Derniers versets de Al-Baqara';
+
+  @override
+  String get ayatFadilaDetailVirtueLabel => 'Mérite';
+
+  @override
+  String get ayatFadilaOpenInMushaf => 'Ouvrir dans le Mushaf';
+
+  @override
+  String get ayatFadilaReaderSoon => 'Le lecteur PDF intégré arrive bientôt.';
+
+  @override
+  String get ayatFadilaEntryAlKursiTitle => 'Ayat Al-Kursi';
+
+  @override
+  String get ayatFadilaEntryAlKursiVirtue =>
+      'Récitation matin et soir — protection';
+
+  @override
+  String get ayatFadilaEntryAlKursiRef => '2:255';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasTitle => 'Sourate Al-Ikhlas';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasVirtue => 'Équivalente au tiers du Coran';
+
+  @override
+  String get ayatFadilaEntryAlIkhlasRef => '112';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasTitle => 'Al-Falaq & An-Nas';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasVirtue =>
+      'Refuge contre le mal visible et caché';
+
+  @override
+  String get ayatFadilaEntryAlFalaqNasRef => '113–114';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndTitle => 'Fin de Al-Baqara';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndVirtue =>
+      'Suffisant pour une nuit de lecture';
+
+  @override
+  String get ayatFadilaEntryBaqarahEndRef => '2:285–286';
+
+  @override
+  String get ayatFadilaEntryRabbanaTitle => 'Invocation du pèlerin';
+
+  @override
+  String get ayatFadilaEntryRabbanaVirtue =>
+      '« Rabbana atina fid-dunya hasanatan… »';
+
+  @override
+  String get ayatFadilaEntryRabbanaRef => '2:201';
+
+  @override
+  String get ayatFadilaEntryMulkTitle => 'Sourate Al-Mulk';
+
+  @override
+  String get ayatFadilaEntryMulkVirtue => 'Intercession jusqu\'au pardon';
+
+  @override
+  String get ayatFadilaEntryMulkRef => '67';
+
+  @override
+  String get ayatFadilaEntryHashrTitle => 'Noms d\'Allah — Al-Hashr';
+
+  @override
+  String get ayatFadilaEntryHashrVirtue => 'Louange des plus beaux noms';
+
+  @override
+  String get ayatFadilaEntryHashrRef => '59:22–24';
+
+  @override
+  String get ayatFadilaEntrySalamTitle => 'Parole de paix';
+
+  @override
+  String get ayatFadilaEntrySalamVirtue => 'Salut du Seigneur miséricordieux';
+
+  @override
+  String get ayatFadilaEntrySalamRef => '36:58';
 
   @override
   String get loginWelcome => 'Bienvenue';

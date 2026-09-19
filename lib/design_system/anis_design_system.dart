@@ -27,6 +27,7 @@ export 'components/anis_metric_tile.dart';
 export 'components/anis_notice.dart';
 export 'components/anis_page_header.dart';
 export 'components/anis_progress.dart';
+export 'components/anis_home_quick_action_tile.dart';
 export 'components/anis_quick_action.dart';
 export 'components/anis_scaffold.dart';
 export 'components/anis_section_header.dart';

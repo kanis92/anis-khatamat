@@ -16,6 +16,7 @@ enum AnisIconType {
   calendar,
   chart,
   training,
+  handsQuran,
   bell,
   bookmark,
   user,
@@ -52,6 +53,8 @@ class AnisIcon extends StatelessWidget {
         return 'assets/icons/icon_chart.svg';
       case AnisIconType.training:
         return 'assets/icons/icon_training.svg';
+      case AnisIconType.handsQuran:
+        return 'assets/icons/icon_hands_quran.svg';
       case AnisIconType.bell:
         return 'assets/icons/icon_bell.svg';
       case AnisIconType.bookmark:

@@ -27,11 +27,12 @@ export function initializeFirebaseAdmin(): void {
       projectId: firebaseProjectId,
     });
   } else if (nodeEnv === 'development') {
-    // Development: may use emulator or ADC (Application Default Credentials)
-    // If FIREBASE_AUTH_EMULATOR_HOST is set, SDK will use emulator
-    admin.initializeApp({
-      projectId: firebaseProjectId,
-    });
+    // Development: emulator, or prod Firestore via GOOGLE_APPLICATION_CREDENTIALS / ADC
+    const options: admin.AppOptions = { projectId: firebaseProjectId };
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      options.credential = admin.credential.applicationDefault();
+    }
+    admin.initializeApp(options);
   } else {
     // Production: requires explicit credentials
     // Use Application Default Credentials (ADC) or GOOGLE_APPLICATION_CREDENTIALS
