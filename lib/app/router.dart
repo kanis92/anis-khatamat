@@ -61,7 +61,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return legacy;
       }
     }
-    return '/login';
+    return '/auth';
   }();
 
   return GoRouter(

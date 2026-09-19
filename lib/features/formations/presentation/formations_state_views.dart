@@ -43,7 +43,7 @@ class FormationsFailureView extends StatelessWidget {
         body: l10n.formationsSignInRequiredBody,
         actionIcon: Icons.login,
         actionLabel: l10n.loginButton,
-        onAction: () => context.go('/login'),
+        onAction: () => context.go('/auth'),
       );
     }
 
