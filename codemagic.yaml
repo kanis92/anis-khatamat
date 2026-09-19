@@ -79,11 +79,11 @@ workflows:
           cd ios && pod install && cd ..
       - name: Set up code signing
         script: xcode-project use-profiles
-      - name: Build IPA (méthode Xcode native - SwiftSupport inclus)
+      - name: Build IPA (release production Firebase + API)
         script: |
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+          flutter build ipa --release \
+            --dart-define=ENV_MODE=production \
+            --export-options-plist=ios/ExportOptions.plist
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/xcarchive/*.xcarchive
