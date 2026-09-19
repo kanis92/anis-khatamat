@@ -14,11 +14,14 @@ const _kAuthHeroAsset = 'assets/branding/anis_login_hero.png';
 const _kAuthHeroAspectRatio = 1269 / 413;
 const _kAuthHeroEmeraldFill = Color(0xFF030E11);
 
-/// Hero émeraude ANIS.
+/// Hero émeraude ANIS — même cadrage que [LoginScreen] (_LoginBrandHero).
 class _AuthHero extends StatelessWidget {
-  const _AuthHero({required this.height});
+  const _AuthHero({required this.height, this.compact = false});
 
   final double height;
+  final bool compact;
+
+  static const double _artworkBottomClearance = 34;
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +32,21 @@ class _AuthHero extends StatelessWidget {
           color: _kAuthHeroEmeraldFill,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final drawW = constraints.maxWidth * 0.95;
-
               return Align(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
+                  padding: EdgeInsetsDirectional.only(
+                    end: compact ? 4 : 0,
+                    bottom: _artworkBottomClearance,
+                  ),
                   child: SizedBox(
-                    width: drawW,
+                    width: constraints.maxWidth,
                     child: AspectRatio(
                       aspectRatio: _kAuthHeroAspectRatio,
                       child: Image.asset(
                         _kAuthHeroAsset,
                         fit: BoxFit.contain,
+                        alignment: Alignment.bottomRight,
                         filterQuality: FilterQuality.high,
                         semanticLabel: 'ANIS Khatamat',
                       ),
@@ -81,20 +86,13 @@ class _AuthCard extends StatelessWidget {
     final text = context.anisText;
     final l10n = context.l10n;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(28),
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surfaceBase,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 28, 28, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -205,6 +203,7 @@ class _AuthCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
       ),
     );
   }
@@ -434,27 +433,31 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
     context.push('/login');
   }
 
+  static const double _sheetOverlap = 28;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.anisColors;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final isCompact = screenHeight < 700;
 
-    final heroHeight = (screenHeight * (isCompact ? 0.32 : 0.36)).clamp(
-      isCompact ? 200.0 : 240.0,
-      isCompact ? 260.0 : 300.0,
+    final heroHeight = (screenHeight * (isCompact ? 0.29 : 0.31)).clamp(
+      isCompact ? 196.0 : 210.0,
+      isCompact ? 248.0 : 278.0,
     );
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _AuthHero(height: heroHeight),
-              const SizedBox(height: 20),
-              _AuthCard(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _AuthHero(height: heroHeight, compact: isCompact),
+            Transform.translate(
+              offset: const Offset(0, -_sheetOverlap),
+              child: _AuthCard(
                 isLoading: _isLoading,
                 errorMessage: _errorMessage,
                 onGoogleSignIn: _handleGoogleSignIn,
@@ -462,9 +465,8 @@ class _AuthWelcomeScreenState extends ConsumerState<AuthWelcomeScreen> {
                 onEmailSignIn: _handleEmailSignIn,
                 showAppleButton: _showAppleButton,
               ),
-              const SizedBox(height: 32),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
