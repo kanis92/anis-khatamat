@@ -117,8 +117,6 @@ class AppUser {
 
 /// Provider pour l'utilisateur actuel
 final currentUserProvider = Provider<AppUser?>((ref) {
-  final isDemo = ref.watch(demoModeProvider);
-  if (isDemo) return AppUser.demo;
   final user = ref.watch(authStateProvider).valueOrNull;
   return user != null ? AppUser.fromFirebase(user) : null;
 });

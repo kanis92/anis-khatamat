@@ -7,9 +7,7 @@ import 'package:anis_khatamat/core/providers/auth_provider.dart';
 import 'package:anis_khatamat/l10n/gen_l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('demo activation redirects to home without manual navigation', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('demo mode does not bypass auth gate', (WidgetTester tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
@@ -27,11 +25,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(router.state.uri.path, '/login');
+    expect(router.state.uri.path, '/auth');
 
     container.read(demoModeProvider.notifier).state = true;
     await tester.pumpAndSettle();
 
-    expect(router.state.uri.path, '/');
+    expect(router.state.uri.path, '/auth');
   });
 }

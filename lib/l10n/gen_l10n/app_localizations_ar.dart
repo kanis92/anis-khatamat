@@ -1069,8 +1069,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginDiscoverDemo => 'استكشاف الوضع التجريبي';
 
   @override
-  String get loginFirebaseUnavailable =>
-      'Firebase غير متاح. استخدم الوضع التجريبي أو أعد تشغيل التطبيق.';
+  String get loginFirebaseUnavailable => 'الخدمة غير متاحة. أعد تشغيل التطبيق.';
 
   @override
   String get loginEmailRequired => 'البريد الإلكتروني مطلوب';

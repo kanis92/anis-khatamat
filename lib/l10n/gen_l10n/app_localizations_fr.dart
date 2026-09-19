@@ -1086,7 +1086,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get loginFirebaseUnavailable =>
-      'Firebase indisponible. Utilisez le mode démo ou relancez l\'app.';
+      'Service indisponible. Relancez l\'application.';
 
   @override
   String get loginEmailRequired => 'Email requis';

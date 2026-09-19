@@ -2005,7 +2005,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginFirebaseUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Firebase indisponible. Utilisez le mode démo ou relancez l\'app.'**
+  /// **'Service indisponible. Relancez l\'application.'**
   String get loginFirebaseUnavailable;
 
   /// No description provided for @loginEmailRequired.

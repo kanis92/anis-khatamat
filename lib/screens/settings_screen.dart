@@ -251,7 +251,6 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    ref.read(demoModeProvider.notifier).state = false;
     await tryFirebaseAuth()?.signOut();
     if (context.mounted) context.go('/auth');
   }

@@ -676,7 +676,7 @@
   "loginSubtitle": "Sign in to continue your Khatma",
   "loginContinueOtherwise": "Continue otherwise",
   "loginDiscoverDemo": "Explore demo mode",
-  "loginFirebaseUnavailable": "Firebase unavailable. Use demo mode or restart the app.",
+  "loginFirebaseUnavailable": "Service unavailable. Restart the app.",
   "loginEmailRequired": "Email required",
   "loginEmailInvalid": "Invalid email",
   "loginPasswordRequired": "Password required",

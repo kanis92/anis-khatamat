@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../core/bootstrap/firebase_bootstrap.dart';
 import '../core/extensions/l10n_extensions.dart';
-import '../core/providers/auth_provider.dart';
 import '../design_system/anis_design_system.dart';
 
 const _kLoginHeroAsset = 'assets/branding/anis_login_hero.png';
@@ -85,7 +84,6 @@ class _LoginAuthSheet extends StatelessWidget {
     required this.onTogglePassword,
     required this.onLogin,
     required this.onRegister,
-    required this.onDemo,
     required this.inputDecoration,
     required this.primaryButtonStyle,
   });
@@ -100,7 +98,6 @@ class _LoginAuthSheet extends StatelessWidget {
   final VoidCallback onTogglePassword;
   final VoidCallback onLogin;
   final VoidCallback onRegister;
-  final VoidCallback onDemo;
   final InputDecoration Function({
     required String label,
     required IconData prefixIcon,
@@ -239,71 +236,11 @@ class _LoginAuthSheet extends StatelessWidget {
                   ),
                   child: Text(l10n.createAccount),
                 ),
-                const SizedBox(height: AnisSpacing.lg),
-                _LoginDividerLabel(label: l10n.loginContinueOtherwise),
-                const SizedBox(height: AnisSpacing.sm),
-                TextButton.icon(
-                  onPressed: onDemo,
-                  style: TextButton.styleFrom(
-                    foregroundColor: colors.textSecondary,
-                    minimumSize: const Size(
-                      double.infinity,
-                      AnisIconSize.minTapTarget,
-                    ),
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: AnisSpacing.xs,
-                    ),
-                    textStyle: text.bodySecondary.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                  icon: Icon(
-                    Icons.play_circle_outline,
-                    size: AnisIconSize.md,
-                    color: colors.actionSecondaryText,
-                  ),
-                  label: Text(l10n.loginDiscoverDemo),
-                ),
               ],
             );
           },
         ),
       ),
-    );
-  }
-}
-
-class _LoginDividerLabel extends StatelessWidget {
-  const _LoginDividerLabel({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.anisColors;
-    final text = context.anisText;
-
-    return Row(
-      children: [
-        Expanded(child: Divider(color: colors.borderSubtle, height: 1)),
-        Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AnisSpacing.md,
-          ),
-          child: Text(
-            label,
-            style: text.caption.copyWith(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: colors.textSecondary,
-              letterSpacing: 0,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: colors.borderSubtle, height: 1)),
-      ],
     );
   }
 }
@@ -508,8 +445,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                   onLogin: _login,
                   onRegister: () => context.push('/register'),
-                  onDemo:
-                      () => ref.read(demoModeProvider.notifier).state = true,
                   inputDecoration: _inputDecoration,
                   primaryButtonStyle: _primaryButtonStyle(colors, text),
                 ),

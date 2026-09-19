@@ -79,7 +79,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      final isDemo = ref.read(demoModeProvider);
       final authReadiness = ref.read(authReadinessProvider);
 
       // Prevent login screen flash during session restoration
@@ -87,7 +86,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return null; // Stay on current route during initialization
       }
 
-      final isLoggedIn = isDemo || authReadiness.status == AuthStatus.signedIn;
+      final isLoggedIn = authReadiness.status == AuthStatus.signedIn;
       final isAuthScreen =
           state.matchedLocation == '/auth' ||
           state.matchedLocation == '/login' ||
