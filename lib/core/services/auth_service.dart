@@ -127,6 +127,13 @@ class AuthService {
     }
 
     try {
+      final isAvailable = await SignInWithApple.isAvailable();
+      if (!isAvailable) {
+        return const AuthConfigurationFailure(
+          'Sign in with Apple is not available on this device',
+        );
+      }
+
       // Générer nonce cryptographique
       final rawNonce = _generateNonce();
       final nonce = _sha256ofString(rawNonce);
@@ -140,10 +147,18 @@ class AuthService {
         nonce: nonce,
       );
 
-      // Créer credential Firebase
+      final identityToken = appleCredential.identityToken;
+      if (identityToken == null) {
+        return const AuthProviderFailure(
+          'Apple did not return an identity token',
+        );
+      }
+
+      // Firebase valide parfois le flux OAuth Apple avec le authorizationCode.
       final oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
+        idToken: identityToken,
         rawNonce: rawNonce,
+        accessToken: appleCredential.authorizationCode,
       );
 
       // Sign in Firebase
@@ -177,7 +192,12 @@ class AuthService {
 
       return AuthProviderFailure('Apple Sign In failed: ${e.message}');
     } on FirebaseAuthException catch (e) {
-      return _handleFirebaseAuthException(e, credential: null);
+      final handled = _handleFirebaseAuthException(e, credential: null);
+      if (handled is AuthProviderFailure || handled is AuthConfigurationFailure) {
+        final detail = e.message ?? e.code;
+        return AuthProviderFailure('Firebase Auth (${e.code}): $detail');
+      }
+      return handled;
     } catch (e) {
       if (e.toString().contains('network') ||
           e.toString().contains('connection')) {

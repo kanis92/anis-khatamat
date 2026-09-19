@@ -135,9 +135,20 @@ class _AuthProviderValidationScreenState
       appBar: AppBar(
         title: const Text('ANIS — Auth Provider Validation'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          if (_currentUser != null)
+            TextButton.icon(
+              onPressed: _handleSignOut,
+              icon: const Icon(Icons.logout, color: Colors.white),
+              label: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Center(
             child: ConstrainedBox(
@@ -233,6 +244,7 @@ class _AuthProviderValidationScreenState
         .join(', ');
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
